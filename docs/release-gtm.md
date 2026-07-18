@@ -24,7 +24,7 @@ A release candidate passes only when a clean-browser user can load a visibly lab
 | **G3 — Judging hold** | Jul 22–Aug 5; Farhana + Jim first ops, Joshua + Geinel technical | Frozen judge build | G2 submitted | Availability monitored; only security/reliability fixes with change note and repeated smoke test |
 
 ## Manila scope cuts, in order
-1. Remove depth effects, animation, and secondary visual polish.
+1. Remove decorative depth effects, non-essential animation, and secondary visual polish while keeping the dark-first token system legible.
 2. Remove arbitrary public-repository intake from the live path; keep the honest sample.
 3. Disable generated narrative if necessary; keep deterministic graph, source, and text path.
 4. Reduce extra concepts and non-demo screens; preserve the three-question contract where generated.
@@ -61,10 +61,11 @@ Runtime switches for public-repository intake and model-backed views are **[assu
 ### Product and design
 - [ ] F-001–F-005 pass as one loop; F-101–F-104 are not shown as shipped.
 - [ ] Exact demo path and response are rehearsed; sample identity/version remains visible.
+- [ ] Screens use the documented near-black/off-white/neutral/coral system, rounded outlined cards, thin borders, minimal shadows, and no decorative gradients.
 - [ ] Every stage edge and feedback finding opens evidence; ambiguous relations remain absent.
 - [ ] Graph works by keyboard; ordered text path exposes the same relations and evidence actions.
-- [ ] Status uses shape/icon/label, not color alone; focus and reduced-motion behavior pass.
-- [ ] Loading, unsupported, expired, model-unavailable, and fallback states are understandable.
+- [ ] Status uses shape/icon/label, not color alone; focus, reduced-motion behavior, and documented dark-token contrast pairs pass.
+- [ ] Loading, unsupported, expired, model-unavailable, and fallback states are understandable within the premium dark-first visual language.
 - [ ] User-facing copy contains no personal grade, numeric understanding indicator, generic personal list, or claim that the system knows the learner.
 
 ### Technical, security, and operations

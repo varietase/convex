@@ -24,7 +24,7 @@ X-Ray for AI Code is a comprehension control layer for student, hackathon, bootc
 | Ask | Twenty builders who will use it twice, plus one institution willing to define an evaluation—not just say it is interesting. | Close |
 
 ## 3. Global voiceover/demo script — target 2:45
-Lead with the product. No title animation before the first interaction.
+Lead with the product. No title animation before the first interaction. The recording should show the premium dark-first interface directly: near-black canvas, off-white hierarchy, restrained coral focus, rounded outlined cards, and visible evidence actions.
 
 | Time | On screen | Voiceover | Rubric it feeds |
 |---|---|---|---|
@@ -49,7 +49,7 @@ Lead with the product. No title animation before the first interaction.
 | Criterion | Proof shown in the script |
 |---|---|
 | **Technological Implementation** | Working F-001–F-005 path; deterministic edge and source span; validated GPT-5.6 role; current two-repository architecture; one real Codex artifact required. |
-| **Design** | Immediate hover/select, preserved focus through zoom, clear states, keyboard-equivalent ordered text path, and gap change explained without color-only meaning. |
+| **Design** | Premium dark-first editorial hierarchy, immediate hover/select, preserved focus through zoom, clear states, keyboard-equivalent ordered text path, and gap change explained without color-only meaning. |
 | **Potential Impact** | A concrete student/hackathon builder moment, reachable Manila/Ateneo cohort, honest repeat-use test, and no inflated payer claim. |
 | **Quality of the Idea** | Proof-of-comprehension through two separated graphs and cited teach-back; no claim that code graphs, MCP, or code-aware explanation are new. |
 
