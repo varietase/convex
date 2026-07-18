@@ -49,7 +49,7 @@ The code evidence graph and learner-state graph are logically separate. A gap is
 
 ## Data flow
 ### DF-001 — Intake and deterministic graph
-1. Browser creates an ephemeral session directly against the FastAPI backend (CORS-allowlisted origin), then submits a sample ID or public HTTPS repository URL plus immutable revision.
+1. Browser submits a sample ID or public HTTPS repository reference to `POST /v1/analyses` from a CORS-allowlisted origin. The backend creates an ephemeral session and returns its opaque `sessionId` with the immutable `snapshotId`.
 2. Backend validates the request body and origin directly — there is no proxy hop to traverse.
 3. Backend rejects unsupported hosts, mutable/missing revisions, unsafe paths, symlinks, submodules, archives, or size/file bounds. MVP bounds are: 40 files maximum, 750KB total supported source, 60KB maximum per file, 5MB maximum compressed archive, 20MB maximum extracted archive, and a 20-second intake/analysis timeout. Oversized or out-of-bounds input is rejected outright, never silently truncated.
 4. Analyzer parses JavaScript, JSX, TypeScript, and TSX source, emits symbols and only deterministically resolved import/call edges, and attaches one or more file/line spans to every edge.
@@ -57,13 +57,13 @@ The code evidence graph and learner-state graph are logically separate. A gap is
 6. Full source files are deleted immediately after parsing. Only bounded cited excerpts, their file/line spans, and hashes persist with the session until TTL [assumption]. `POST /v1/analyses` is synchronous — the caller waits on the request and receives the completed result or a bounded-timeout error.
 
 ### DF-002 — Semantic zoom and narrative
-1. Browser requests a selected symbol/path.
+1. Browser requests a selected symbol/path with the returned `sessionId` and `snapshotId`.
 2. Evidence service returns the bounded neighborhood, source spans, and text alternative.
 3. For narrative/pseudocode/module role, the backend constructs a minimal evidence packet with stable evidence IDs.
 4. GPT-5.6 returns typed prose plus cited evidence IDs. The validator drops uncited claims and structural assertions not already represented in the graph; failure returns deterministic graph content without prose.
 
 ### DF-003 — Teach-back and gap derivation
-1. GPT-5.6 receives a bounded evidence packet and creates exactly three typed questions, each with target concepts and evidence IDs.
+1. Browser supplies the returned `sessionId` and `snapshotId`; GPT-5.6 receives a bounded evidence packet and creates exactly three typed questions, each with target concepts and evidence IDs.
 2. The learner response is evaluated into `supported`, `missing`, or `unsupported` claims with citations. Evaluation describes the submitted explanation; it does not score the person.
 3. Citation and schema validation run before persistence. Invalid output is retried once [assumption], then returned as unavailable.
 4. Deterministic methods in `methods.md` derive learner signals and priority tiers. A gap appears only when repository and attempt evidence are both present.
@@ -77,7 +77,7 @@ If live fetch/model analysis is unavailable, the user explicitly chooses “Load
 | Two repositories: Vercel + HF Docker Space | Current baseline; separates polished web delivery from Python analysis | Two deploys, cold starts, API contract | Re-platform during hackathon |
 | Direct browser-to-backend calls, CORS allowlist | No credential-relay layer to build in five hours; browser API is same as the deployed contract | Public backend surface protected only by CORS, not a server-held credential | Same-origin Vercel BFF/proxy |
 | FastAPI | Required baseline and typed Python boundary | Python service/runtime upkeep | Replace backend framework |
-| Tree-sitter, TS/JS family only [assumption] | Fast deterministic syntax with source spans; deep support beats weak breadth | Incomplete dynamic-call resolution | Multi-language marketing or LLM graph extraction |
+| Tree-sitter 0.26 with pinned JavaScript 0.25 and TypeScript/TSX 0.23 grammars; JS/JSX/TS/TSX only | Fast deterministic syntax with source spans; deep support beats weak breadth | Incomplete dynamic-call resolution | Multi-language marketing or LLM graph extraction |
 | Minimal LangChain/LangGraph | Required baseline; typed model calls and one bounded validation/retry workflow | Some abstraction overhead | Multi-agent orchestration or no required stack |
 | GPT-5.6 only above graph | Meaningful narrative/question/evaluation while preserving structural truth | Latency, cost, model variability | Model-generated graph or hosted custom LLM |
 | Ephemeral 24-hour sessions [assumption] | No account or durable-state build; matches ephemeral Space risk | No longitudinal learner history | Production identity/database in MVP |

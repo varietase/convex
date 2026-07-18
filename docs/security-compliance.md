@@ -15,8 +15,8 @@
 MVP does not solicit names, email, accounts, private repositories, or repository credentials. Public code may still contain accidentally committed secrets; X-Ray treats all source as sensitive in handling and never includes unrelated source in model evidence packets.
 
 ## Authn / authz model
-- **Browser → Space:** the browser calls the FastAPI backend directly over HTTPS. The sole access-control boundary is an explicit CORS origin allowlist (the deployed Vercel origin plus local development origins), never a wildcard; the FastAPI CORS middleware rejects any other origin before body processing. There is no session cookie, CSRF token, or bearer credential — learner/analysis state lives in the browser session only and is resubmitted with each request.
-- **Authorization:** state is scoped to the active browser session held client-side; the backend has no durable per-user identity and no admin or cross-session endpoint.
+- **Browser → Space:** the browser calls the FastAPI backend directly over HTTPS. The sole browser-origin boundary is an explicit CORS allowlist (the deployed Vercel origin plus local development origins), never a wildcard; non-health requests without an origin and requests with a disallowed origin fail before body handling. Originless `GET /health` is permitted solely for platform probes. There is no session cookie, CSRF token, or bearer credential.
+- **Authorization:** `POST /v1/analyses` creates an opaque UUIDv4 `sessionId`; the browser holds and resubmits it with `snapshotId` for all later operations. The backend has no durable per-user identity, admin route, or cross-session endpoint; scope mismatches return 404 without existence disclosure.
 - **Repository authority:** only anonymous read of allowlisted public HTTPS hosts or bundled sample IDs; no OAuth, SSH keys, write token, git push, or provider mutation API (INV-003).
 - Exact CORS allowlist entries are an implementation detail pending scaffold validation.
 
