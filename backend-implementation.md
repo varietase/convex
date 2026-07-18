@@ -89,6 +89,7 @@ Suggested first branch: `feat/deterministic-evidence`; follow with `feat/grounde
   - [x] Unique, unshadowed same-file identifier calls now emit internal three-anchor edges on `model/feat/same-file-call-resolution`; imported bindings are deferred, while missing, ambiguous, shadowed, and mutated targets remain unresolved. The full 95-test backend suite passes.
   - [x] Exact named-relative imports now resolve the bundled `buildReport -> normalizeScore` call with `named-relative-import` and three anchors on `model/feat/named-relative-import-resolution`; 105 backend tests pass. Namespace/default/module relationships and broad path rules remain open.
 - [ ] Validate every published graph edge has the three required provenance anchors and snapshot-scoped spans/symbols.
+  - [x] `DeterministicAnalysisEngine` now produces an immutable, persistence-safe bundle and validates snapshots, symbols, bounded spans, stable edge IDs, exact endpoint declarations, call ownership, and all three provenance anchors before returning. Verified on `model/feat/analysis-engine-bundle` with 92 focused Developer 2 tests. Platform injection/API projection remain open.
 - [ ] Implement versioned deterministic concept occurrences, evidence packet slicing, and required-claim construction using bounded packets only.
 - [ ] Implement the minimal LangGraph typed call, schema/citation/prohibited-language validation, one retry, and deterministic fallback.
 - [ ] Return exactly three grounded questions: relationship explanation, path prediction, and concept application.
@@ -102,6 +103,7 @@ Suggested first branch: `feat/deterministic-evidence`; follow with `feat/grounde
   - [x] Same-file resolution fixtures cover unique and recursive calls, ambiguity, lexical/import shadowing, mutation, missing targets, stable edge IDs, imported-call deferral, inventory mismatch, and exact three-anchor provenance. Complete graph fixtures remain open.
   - [x] Named-relative fixtures cover the bundled central edge, same-file edge composition, exact-path rules, missing/ambiguous exports, duplicate bindings, unsupported import kinds, non-relative imports, and path escape rejection. Namespace/module and API projection fixtures remain open.
 - [ ] Graph invariant failures and model-invented-edge rejection (TC-N01–TC-N02).
+  - [x] Bundle-level negative fixtures reject invented endpoints, missing/swapped anchors, wrong snapshot/hash, oversized excerpts, duplicate edge IDs, malformed workspaces, and parser failures. Model-facing invented-claim rejection remains open.
 - [ ] Gap eligibility and derivation tests (TC-006–TC-007, TC-N03–TC-N04).
 - [ ] Exactly-three-question, citation-validation, unsupported-claim, prohibited-language, and model-unavailable tests (TC-008–TC-009).
 
@@ -109,6 +111,7 @@ Suggested first branch: `feat/deterministic-evidence`; follow with `feat/grounde
 
 - [x] **0. Shared seam:** HTTP DTO, store, and domain-protocol review complete; contract tests pass.
 - [ ] **1. Risk-first graph:** platform adapter with a test engine; sample parser, symbols, exact edges, and graph validator; sample exposes a cited central call edge.
+  - [x] The real Developer 2 engine now runs bundled workspace -> deterministic bundle -> validated central named-import edge and persists through `EphemeralSessionStore`; Developer 1 still needs to inject it into the application and project the graph response.
 - [ ] **2. Real analysis:** session-scoped bundle persistence and retrieval; connect the real analyzer and concept evidence; omit unsupported/ambiguous relations.
 - [ ] **3. Teach-back:** question/evaluation adapters and scope checks; evidence packets, typed reasoning, and citation validation; return three grounded questions and cited feedback.
 - [ ] **4. Gap and safety:** TTL, errors, rate limits, and public-intake safety; deterministic EQ-005 gap derivation; no gap before validated attempt evidence.
