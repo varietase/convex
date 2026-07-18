@@ -58,7 +58,7 @@ Suggested branch: `feat/api-platform`.
 
 ### Tests owned
 
-- [x] Endpoint contract and error-envelope tests. 14 tests in `tests/test_endpoints.py`: route 201/200/410/422 responses, canonical `{code, message}` envelope shape, contract headers, validation errors.
+- [x] Endpoint contract and error-envelope tests. `tests/test_endpoints.py`: route 200/410/422 responses (analyses standardized on 200 per api-spec), canonical `{code, message}` envelope shape, contract headers, validation errors.
 - [x] Origin allowlist/preflight/originless-health tests.
 - [x] Request ID and contract-version header tests.
 - [x] Session isolation, expiration/restart, TTL cleanup, and log-redaction tests. 18 tests in `tests/test_store.py`: create, isolation, save/load, cascade delete, TTL sweep, honest 410 after restart.
@@ -122,11 +122,12 @@ Suggested first branch: `feat/deterministic-evidence`; follow with `feat/grounde
 ## Integration and merge sequence
 
 - [x] **0. Shared seam:** HTTP DTO, store, and domain-protocol review complete; contract tests pass.
-- [ ] **1. Risk-first graph:** platform adapter with a test engine; sample parser, symbols, exact edges, and graph validator; sample exposes a cited central call edge.
-  - [x] The real Developer 2 engine now runs bundled workspace -> deterministic bundle -> validated central named-import edge and persists through `EphemeralSessionStore`; Developer 1 still needs to inject it into the application and project the graph response.
-- [ ] **2. Real analysis:** session-scoped bundle persistence and retrieval; connect the real analyzer and concept evidence; omit unsupported/ambiguous relations.
+- [x] **1. Risk-first graph:** platform adapter with a test engine; sample parser, symbols, exact edges, and graph validator; sample exposes a cited central call edge.
+  - [x] The real Developer 2 engine runs bundled workspace -> deterministic bundle -> validated central named-import edge and persists through `EphemeralSessionStore`. `create_app` now wires `DeterministicAnalysisEngine` and `DeterministicEvidenceService` by default, and `POST /v1/analyses` returns the projected graph inline per api-spec (`{sessionId, snapshotId, commitSha, symbols, edges, unresolvedReferences, analyzerVersion}`, standardized on 200): the sample exposes the central `buildReport -> normalizeScore` edge with three expanded `EvidenceRef` anchors whose IDs join the span-ID strings the reasoning endpoints cite. New `Symbol`, `UnresolvedReference`, and `AnalysisResponse` contracts pin the previously undocumented payload shapes. Verified on `model/feat/graph-projection`; the full 308-test backend suite passes, and the smoke test now runs the real engine through pure `create_app` defaults with no test doubles.
+- [x] **2. Real analysis:** session-scoped bundle persistence and retrieval; connect the real analyzer and concept evidence; omit unsupported/ambiguous relations.
+  - [x] Persistence/retrieval pre-existed in `EphemeralSessionStore`; the real analyzer and concept evidence are now connected application-wide via the `create_app` default wiring. Unsupported/ambiguous relations are omitted from `edges` and surfaced as typed `unresolvedReferences` (reason + candidate symbols), verified by projection fixtures (ambiguous/missing targets never project an edge). Concepts are intentionally absent from the analyses payload per api-spec — they surface through the xray/teach-back paths.
 - [ ] **3. Teach-back:** question/evaluation adapters and scope checks; evidence packets, typed reasoning, and citation validation; return three grounded questions and cited feedback.
-  - [x] Developer 2 side complete on `model/feat/grounded-evaluation` (`80390bb`): question/evaluation reasoning, canonical scope checks, packet slicing, citation validation, three grounded questions, and cited supported/missing/unsupported feedback with the deterministic EQ-005 gap update all run through the real stack in tests. Developer 1 production injection of the grounded engine/evidence services into the application factory remains open.
+  - [x] Developer 2 side complete on `model/feat/grounded-evaluation` (`80390bb`): question/evaluation reasoning, canonical scope checks, packet slicing, citation validation, three grounded questions, and cited supported/missing/unsupported feedback with the deterministic EQ-005 gap update all run through the real stack in tests. The formerly open production injection is resolved by the `create_app` default wiring on `model/feat/graph-projection`; the remaining gap for this item is a keyed end-to-end run of the live teach-back loop.
 - [ ] **4. Gap and safety:** TTL, errors, rate limits, and public-intake safety; deterministic EQ-005 gap derivation; no gap before validated attempt evidence.
 - [ ] **5. Release:** Space configuration, production checks, sample fallback, and model-unavailable behavior; production sample loop succeeds three times.
 
