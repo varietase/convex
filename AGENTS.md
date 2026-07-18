@@ -1,7 +1,9 @@
-# X-Ray for AI Code — Agent Guide
+# ConveX — Agent Guide
+
+> **Name:** the product is **ConveX** (fixed casing: capital `C`, lower `onve`, capital `X`). The repos/paths/endpoints `xray-client`, `xray-backend`, and `POST /v1/xray` are code identifiers from before the rename — keep them as-is; only the product name in prose/UI/README is ConveX.
 
 ## Project
-X-Ray is a read-only proof-of-comprehension layer for student/self-taught builders. It joins a deterministic code evidence graph to demonstrated learner state through teach-back. It is not an IDE, code generator, generic explainer, or graph product.
+ConveX is a read-only proof-of-comprehension layer for student/self-taught builders. It joins a deterministic code evidence graph to demonstrated learner state through teach-back. It is not an IDE, code generator, generic explainer, or graph product.
 
 ## Read order
 1. `docs/DECISION-LEDGER.md` — live truth.

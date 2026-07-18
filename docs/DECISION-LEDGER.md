@@ -1,4 +1,4 @@
-# Decision Ledger — X-Ray for AI Code
+# Decision Ledger — ConveX
 
 > **What this is.** The append-only record of current truth, pivots, rejected approaches, naming decisions, and invariant audits. If another project document disagrees with this ledger, this ledger wins until reconciliation.
 >
@@ -9,9 +9,9 @@
 ## 1. Names & immutable identifiers (read first)
 | Name / ID | Kind | Where it appears | Rule |
 |---|---|---|---|
-| X-Ray for AI Code | Public product name | UI, pitch, README, judge-facing materials | Use for first mention in user-facing contexts. |
-| X-Ray | Public short name | UI and conversational references | Use after the full name is established. |
+| ConveX | Public product name | UI, pitch, README, judge-facing materials | Fixed casing: capital `C`, lower `onve`, capital `X`. Never `Convex`, `CONVEX`, `conveX`, or `Convex Lens`. Use on first and subsequent mentions. |
 | comprehension control layer for code | Category phrase | Product and pitch copy | Use to distinguish the product from explainers and IDEs. |
+| X-Ray / X-Ray for AI Code | **Deprecated public name** | Legacy references only | Replace on sight. Kept in the ledger for pivot history only. |
 | F-001–F-005, F-101–F-104 | Immutable feature IDs | Idea, PRD, downstream specifications, QA | Preserve IDs exactly; do not renumber during refinement. |
 | INV-001–INV-003 | Immutable invariant IDs | Idea, PRD, security, design, QA | Preserve IDs and meanings exactly; changes require a logged invariant-change pivot. |
 | Vercel client repository identifier | Technical ID | Deployment/config | Not supplied; do not invent [assumption]. |
@@ -23,13 +23,42 @@
 | The product is X-Ray for AI Code, shortened to X-Ray. | The MVP can deliver the full proof-of-comprehension loop within the four-day build window. | Student builders will choose to pause shipping and use the product. |
 | The wedge is proof-of-comprehension: deterministic structural evidence + learner-state/gap map + teach-back. | Deterministic analysis can reach the required precision on the selected demo repositories. | The product has a validated payer or viable revenue model. |
 | The product is not a generic explainer, chatbot, code generator, or IDE. | A bundled sample or bounded public repository snapshot is sufficient for the MVP demo and first user tests. | Any institutional payer will enter an evaluation or purchase process. |
-| Structural claims must trace to deterministic source evidence. | The exact client framework, graph renderer, static-analysis libraries, model configuration, supported languages, and repository bounds remain to be chosen [assumption]. | The tool improves seven-day retention or interview outcomes. |
+| Structural claims must trace to deterministic source evidence. | The exact client framework, graph renderer, static-analysis libraries, and model configuration remain to be chosen [assumption]; supported languages (JS/JSX/TS/TSX) and intake bounds are now decided (see 2026-07-18 alignment pivot). | The tool improves seven-day retention or interview outcomes. |
 | Learner recommendations must derive from the real repository and demonstrated answers. | The user-facing experience can meet the stated WCAG 2.2 AA target in the hackathon window. | Learner-state scoring thresholds or concept mastery levels are known. |
 | The product is read-only on user code. | Deployment will remain accessible through Global judging as required by context. | Private repository intake, authentication, persistence, and multi-user behavior are part of MVP. |
-| Current implementation baseline is two repositories: a Vercel-hosted client and a Hugging Face Docker Space backend using FastAPI, LangChain, and LangGraph. | Codex and GPT-5.6 will be used meaningfully, but exact responsibilities are not yet specified [assumption]. | A single-repository, local-only, desktop, IDE-native, or other architecture is current. |
+| Current implementation baseline is two repositories: a Vercel-hosted client and a Hugging Face Docker Space backend (FastAPI, LangChain, LangGraph) called directly by the browser over a CORS origin allowlist — no BFF/proxy (see 2026-07-18 alignment pivot). | Codex and GPT-5.6 will be used meaningfully, but exact responsibilities are not yet specified [assumption]. | A single-repository, local-only, desktop, IDE-native, or other architecture is current. |
 | MVP is F-001 through F-005; Final is F-101 through F-104. | Model-generated narrative can explain deterministic graph evidence without becoming the source of structural truth. | Unsupported structural relations can safely be inferred by a model. |
 
 ## 3. Pivots & decisions (newest first)
+### 2026-07-18 — Rename X-Ray → ConveX and lock the optical visual system
+- **Type:** brand / naming
+- **Change:** public name `X-Ray for AI Code` → **`ConveX`** (fixed casing). Visual language formalized as a physical-optics metaphor: focus, focal plane, exposure, semantic zoom, refraction.
+- **Why:** “X-Ray” implied medical/scanning imagery and conflicted with the read-only, evidence-first product voice. The optical metaphor maps directly to F-002 (semantic zoom) and preserves the anti-positioning against IDEs and generic explainers.
+- **Kept unchanged:** all F-IDs (F-001–F-005, F-101–F-104), INV-001–003, EQ-###/DS-### methods, API-### contracts, TC-### tests, two-repo architecture, and MVP scope. This is a naming and visual-language pivot, not a product pivot.
+- **Corrected in the process (do not reintroduce):**
+  - Amber is **Attention**, never `Learned` / `Mastered` / `Understood` / `Verified concept`.
+  - 1× view is **Source** / **Source Evidence**, never `Code Editor`.
+  - Semantic zoom uses a **three-position segmented control**, not a continuous slider; labeled `1× Source`, `5× Structure`, `10× Concepts`.
+  - **No data-flow** rendering or copy until deterministic support ships; only `calls`, `imports`, `contains`.
+  - Gradients and hue may **not** carry relationship-type meaning alone.
+  - Blur is optional decoration only and must never obscure source excerpts, `file:line` refs, evidence controls, the text path, required labels, or focused elements.
+  - `#4E5565` is a border/disabled color, not a text color; muted readable text uses `#B7C3D4` (or `#AAB2C0`), contrast-tested.
+  - 10× Concepts keeps **Concepts in this code** and **Suggested for your next explanation** as separate panes; no personalized curriculum before a validated attempt.
+- **Invalidated:** any doc, asset, or copy that says `X-Ray`, `Learned`, `Mastered`, `Verified concept`, `Cannot explain` (as a claim about the person), `data-flow` (as a rendered edge type), `Code Editor` (for the 1× view), or presents semantic zoom as a slider.
+- **Recorded as:** this entry; canonical brand in `brand.md`. Downstream docs (`idea.md`, `docs/prd.md`, `docs/design-system.md`, `docs/pitch-kit.md`, `docs/release-gtm.md`, `docs/system-design.md`, `docs/technical-design.md`, `docs/index.md`, `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, ADRs, hooks, and the four `.claude/agents/*.md`) still contain the old name and require a follow-up name-only pass. Behavior unchanged.
+
+### 2026-07-18 — Align build to `master-plan-implementation.md`
+- **Type:** platform + methods + scope
+- **Change (four locked decisions):**
+  1. **BFF/proxy removed.** The browser calls the Hugging Face FastAPI backend directly over HTTPS. The sole access-control boundary is a FastAPI CORS origin allowlist (deployed Vercel origin + local dev, never a wildcard). No session cookie, CSRF token, or server-held backend credential. Learner/analysis state is client-held in the browser session and resubmitted per request.
+  2. **Five synchronous REST endpoints** replace the abstract `API-001–API-108` scheme: `GET /health`, `POST /v1/analyses`, `POST /v1/xray`, `POST /v1/teachbacks/questions`, `POST /v1/teachbacks/evaluate`. No queues, polling, SSE, or background jobs.
+  3. **Concrete intake bounds and language set.** 40 files, 750 KB total supported source, 60 KB per file, 5 MB compressed archive, 20 MB extracted, 20-second intake/analysis timeout; languages JS/JSX/TS/TSX. Out-of-bounds input is rejected outright, never silently truncated. Every rendered edge requires three provenance anchors (source definition, relationship site, target definition).
+  4. **Numeric `gap_score` replaces categorical tiers.** `gap_score = 0.70·learner_gap + 0.30·repository_relevance` for eligible concepts, ordering the gap list. The old `Next/Soon/Later` tiers and `REPEATED_GAP/OBSERVED_GAP` signals are retired, along with the High/Medium/Low confidence rubric. Structural facts are binary (all three anchors or omitted); model output is binary (passes validation or is discarded). `gap_score` is a ranking value, never a "% understood" or mastery claim.
+- **Why:** The five-hour build cannot afford a credential-relay layer; direct-to-backend with a CORS allowlist is the honest, buildable contract. Concrete bounds and a numeric ranking remove `[assumption]` ambiguity that blocked implementation.
+- **Kept unchanged:** F-001–F-005, F-101–F-104, INV-001–003, the read-only contract, two-repository baseline (ADR-0001), and the deterministic-graph / model-narrates-only boundary.
+- **Invalidated:** any doc or copy asserting a BFF/proxy, server-held backend credential, session cookie/CSRF, `API-001–API-108` IDs, SSE progress, `5 MiB / 500 files / 100,000 lines / 60s` bounds, "TS/JS only" (now JS/JSX/TS/TSX), categorical `Next/Soon/Later` gap tiers, or a High/Medium/Low confidence rubric.
+- **Recorded as:** this entry; propagated by commit `2b52e8f` across 15 docs (`AGENTS.md`, `system-design`, `security-compliance`, `api-spec`, `methods`, `design-system`, `technical-design`, `data-model`, `implementation-plan`, `qa-test-plan`, `release-gtm`, `ops`, `onboarding`, `pitch-kit`, `index`, ADR-0001) plus this ledger and the reconciled `prd.md`.
+
 ### Initial dependency phase — Lock the proof-of-comprehension wedge
 - **Type:** use-case
 - **Change:** broad code explanation / visualization → proof-of-comprehension through deterministic evidence, learner-state/gap mapping, and teach-back

@@ -29,7 +29,7 @@ The primary loop is `Intake → Focus → Trace → Teach back → Review change
 | `AnalysisStepper` | Named waiting state while the synchronous `POST /v1/analyses` call is in flight; no percentage or fake ETA | pending, ready, failed; `aria-live=polite` | `POST /v1/analyses` response |
 | `RepositoryRail` | Search/filter supported modules and symbols | loading, populated, no match, collapsed | symbols/modules |
 | `SymbolRow` | Focusable symbol entry with kind and source location | default, hover-preview, selected, unavailable | symbol + declaration span |
-| `SemanticZoomRail` | Switch Source / Pseudocode / Connections / System path / Concepts | tablist; disabled view explains missing evidence | selection + available views |
+| `SemanticZoomRail` | Three-level segmented control (not a slider): level 1 = source + pseudocode, level 2 = connections + system path, level 3 = repository concepts + eligible gaps; user-facing focal labels per `brand.md` | tablist; disabled level explains missing evidence | selection + available views |
 | `FocusWorkspace` | Keeps selection stable while view changes | graph, code, narrative, text-path variants | `POST /v1/analyses` / `POST /v1/xray` |
 | `CodePane` | Bounded cited excerpt, line numbers, active span | loading, highlighted, copy-reference; `<pre><code>` | evidence span |
 | `EvidenceGraph` | One-hop exact symbols/edges and selected path | keyboard canvas/list composite; never sole representation | symbols, exact edges |
@@ -47,7 +47,7 @@ The primary loop is `Intake → Focus → Trace → Teach back → Review change
 | `ResponseFindings` | Groups feedback about the response | Supported / Missing / Unsupported headings, each with evidence | `POST /v1/teachbacks/evaluate` claims |
 | `GapList` | Ranked items derived from both graphs, ordered by `gap_score` | pre-attempt empty, unchanged, changed | `POST /v1/teachbacks/evaluate` `conceptGaps` |
 | `GapItem` | Why it appears, its rank/score, and where to revisit | reason sentence + repo evidence + attempt evidence + rank + `gap_score` | EQ-005 derivation |
-| `DerivationDrawer` | Glass-box method metadata | equation, datasets, version, confidence; disclosure pattern | derivation |
+| `DerivationDrawer` | Glass-box method metadata | equation ID, datasets, method version, `gap_score` derivation; disclosure pattern | derivation |
 | `StatePanel` | Reusable empty, error, expired, degraded, unsupported UI | heading, plain reason, one primary recovery action | canonical API error |
 | `ToastRegion` | Non-blocking confirmations only | `role=status`; never carries required evidence/errors alone | transient UI event |
 | `SkipLinks` | Jump to repository, focus, text path, learning rail | First tabbable controls | static |

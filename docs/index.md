@@ -1,4 +1,4 @@
-# Documentation Index — X-Ray for AI Code
+# Documentation Index — ConveX
 
 **Maintained by:** Abu · **Last updated:** 2026-07-18 · **FMD:** 4.2.0
 
@@ -9,21 +9,21 @@
 | Concern | Canonical owner | What's inside (one-liner) |
 |---|---|---|
 | Live truth, pivots, immutable IDs | ⭐ [Decision Ledger](DECISION-LEDGER.md) | The append-only record of what is currently true, what was rejected, and which IDs are frozen. If you're unsure whether something is decided, check here first. |
-| Problem, segment, feature/invariant origin | [idea.md](../idea.md) | The original problem statement, peer-reviewed evidence, target users, kill criteria, and the feature/invariant spine (F-001–F-005, INV-001–003). This is where we explain *why* we're building X-Ray. |
+| Problem, segment, feature/invariant origin | [idea.md](../idea.md) | The original problem statement, peer-reviewed evidence, target users, kill criteria, and the feature/invariant spine (F-001–F-005, INV-001–003). This is where we explain *why* we're building ConveX. |
 | Build context and rubric | [context.md](../context.md) | Hackathon rules, team size, time budget, judging rubric, and hard submission requirements (Codex use, YouTube demo, etc.). Read this to know what we're being scored on. |
 | Brand and voice | [brand.md](../brand.md) | Product name, category phrase, visual direction, UI copy rules (say/don't-say), and accessibility baseline. Governs all user-facing text and design decisions. |
 | Visual philosophy | [Visual Direction](visual-direction.md) | Premium dark-first editorial visual language: mood, composition, shape, motion, imagery, color philosophy, and UI principles. Use before implementing detailed UI tokens. |
 | Product, journeys, F/BR/INV IDs | ⭐ [PRD](prd.md) | Testable product requirements: user stories, acceptance criteria in EARS format, business rules, user flows, and the MVP vs. Final feature split. The contract between product and engineering. |
 | Architecture and topology | [System Design](system-design.md) | High-level architecture: context diagram, component responsibilities, data flows, deployment topology, and technology choices with rationale. Shows *how the pieces connect*. |
 | Algorithms/modules | [Technical Design](technical-design.md) | Low-level design: module breakdown per repository, class/function signatures, algorithm pseudocode (intake, parser, gap derivation), sequence diagrams, and error handling. The implementation reference. |
-| API contracts | [API Spec](api-spec.md) | Every endpoint (API-001–API-108) with request/response schemas, auth requirements, error codes, and rate limits. Frontend and backend must agree on these shapes. |
+| API contracts | [API Spec](api-spec.md) | The five synchronous endpoints (`GET /health`, `POST /v1/analyses`, `POST /v1/xray`, `POST /v1/teachbacks/questions`, `POST /v1/teachbacks/evaluate`) with request/response schemas, error codes, and rate limits. The browser calls these directly (CORS allowlist, no BFF). Frontend and backend must agree on these shapes. |
 | Entities, retention, privacy | [Data Model](data-model.md) | All persisted and ephemeral entities (symbols, edges, sessions, attempts, gap items), their relationships, lifecycle/TTL rules, and privacy boundaries. |
-| Ranking/count equations and confidence | [Methods](methods.md) | The glass-box ledger: every displayed number or category resolves to an equation (EQ-###) and dataset (DS-###) with stated confidence. No hidden scoring. |
+| Ranking/count equations | [Methods](methods.md) | The glass-box ledger: every displayed number (counts, `gap_score` ranking) resolves to an equation (EQ-###) and dataset (DS-###). Structural facts are binary; model output is validated or discarded. No hidden scoring, no mastery percentage. |
 | UI tokens, components, states, copy | [Design System](design-system.md) | CSS tokens, semantic/component styling, component inventory with states, interaction patterns, accessibility contracts, graph/chart encoding rules, and exact copy for every UI condition. The frontend implementation spec. |
 | Tests and traceability | ⭐ [QA Plan](qa-test-plan.md) | Test cases (TC-001–TC-011, TC-N01–N05), traceability matrix linking each F-ID to tests, invariant negative tests, API/security gates, and exit criteria. |
 | Auth, threats, compliance | [Security](security-compliance.md) | Threat model, SSRF/traversal/injection mitigations, credential handling, session isolation, log sanitization, and INV-003 enforcement specifics. |
-| Build sequence | ⭐ [Implementation Plan](implementation-plan.md) | The 5.5-hour Manila build schedule: time blocks, owners, gates, and the honest stopping point. This is Joshua's working document — check it for current task assignments. |
-| Build-time agent roster | [SAD](sad.md) | Which AI agents help build X-Ray (graph-engineer, product-ui-engineer, reasoning-engineer, trust-reviewer), their boundaries, and what they must not do. |
+| Build sequence | ⭐ [Implementation Plan](implementation-plan.md) | The five-hour build schedule: time blocks, Builder A/B/C roles, gates, and the honest stopping point. This is Joshua's working document — check it for current task assignments. |
+| Build-time agent roster | [SAD](sad.md) | Which AI agents help build ConveX (graph-engineer, product-ui-engineer, reasoning-engineer, trust-reviewer), their boundaries, and what they must not do. |
 | Deployment and incidents | [Ops](ops.md) | Deployment steps for Vercel and HF Space, health checks, monitoring, rollback procedures, and incident response for judging availability. |
 | Release and validation | [Release/GTM](release-gtm.md) | Release phases (M0–M3, G1–G3), scope-cut order, rollout strategy, launch checklist, and submission deadlines. The ship plan. |
 | Demo narrative and Q&A | [Pitch Kit](pitch-kit.md) | The 2:45 voiceover script, rubric evidence map, "not just Cursor/Cody" answer, and live-demo rules. Dia and Abu use this to rehearse. |
@@ -60,6 +60,7 @@ All listed documents are **planning-ready**. Assumptions remain explicitly marke
 | INV-001–003 | Hard invariants: no fabricated edges, no generic gap lists, read-only on user code. |
 | `[assumption]` | A value or detail that is decided for planning but not yet verified end-to-end. |
 | EQ-### / DS-### | Equation and dataset IDs from the Methods doc. Every number shown to a user must trace to one. |
-| API-### | Endpoint IDs from the API Spec. Frontend and backend share these as the contract. |
+| The five endpoints | `GET /health`, `POST /v1/analyses`, `POST /v1/xray`, `POST /v1/teachbacks/questions`, `POST /v1/teachbacks/evaluate`. The shared client/backend contract in `api-spec.md`. |
 | TC-### / TC-N## | Test case IDs (positive and negative/invariant tests). |
-| BFF | Backend-for-Frontend — the Vercel proxy layer that holds the HF Space credential. |
+| `gap_score` | `0.70·learner_gap + 0.30·repository_relevance` — a ranking value ordering the gap list, never a mastery percentage (see Methods). |
+| CORS allowlist | The only access-control boundary: the backend accepts requests from the deployed Vercel origin + local dev only. There is no BFF/proxy or server-held credential. |

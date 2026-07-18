@@ -159,8 +159,8 @@ There is no `confidence` field — a claim's `disposition` (supported/missing/un
 |---|---|---:|---|---|
 | `state_id`, `session_id` | uuid | no | generated/— | Session-scoped learner evidence |
 | `concept_id` | string | no | — | Taxonomy key |
-| `learner_signal` | enum | no | — | observed_gap, repeated_gap; never mastery |
-| `repository_relevance` | enum | no | — | focus_path, repository_present |
+| `learner_gap` | float | no | — | Weighted share of missing/unsupported observations for the concept, in [0,1] (methods `learner_gap(c)`); an observation about submitted explanations, never mastery |
+| `repository_relevance` | float | no | — | Normalized occurrence count and focus-path relevance, in [0,1] (methods `repository_relevance(c)`) |
 | `attempt_ids`, `concept_evidence_ids` | uuid[] | no | — | Both non-empty |
 | `updated_at`, `expires_at` | datetime | no | — | TTL |
 | `derivation_id` | uuid | no | — | EQ-005 resolution |

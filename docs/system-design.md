@@ -77,7 +77,7 @@ If live fetch/model analysis is unavailable, the user explicitly chooses “Load
 | Two repositories: Vercel + HF Docker Space | Current baseline; separates polished web delivery from Python analysis | Two deploys, cold starts, API contract | Re-platform during hackathon |
 | Direct browser-to-backend calls, CORS allowlist | No credential-relay layer to build in five hours; browser API is same as the deployed contract | Public backend surface protected only by CORS, not a server-held credential | Same-origin Vercel BFF/proxy |
 | FastAPI | Required baseline and typed Python boundary | Python service/runtime upkeep | Replace backend framework |
-| Tree-sitter, TS/JS family only [assumption] | Fast deterministic syntax with source spans; deep support beats weak breadth | Incomplete dynamic-call resolution | Multi-language marketing or LLM graph extraction |
+| Tree-sitter, JS/JSX/TS/TSX only | Fast deterministic syntax with source spans; deep support beats weak breadth | Incomplete dynamic-call resolution | Multi-language marketing or LLM graph extraction |
 | Minimal LangChain/LangGraph | Required baseline; typed model calls and one bounded validation/retry workflow | Some abstraction overhead | Multi-agent orchestration or no required stack |
 | GPT-5.6 only above graph | Meaningful narrative/question/evaluation while preserving structural truth | Latency, cost, model variability | Model-generated graph or hosted custom LLM |
 | Ephemeral 24-hour sessions [assumption] | No account or durable-state build; matches ephemeral Space risk | No longitudinal learner history | Production identity/database in MVP |

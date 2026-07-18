@@ -62,11 +62,11 @@ The MVP must produce one demoable loop: inspect a bounded read-only repository, 
 - **BR-003 — Unsupported relationships:** When deterministic analysis cannot support a relationship, the product SHALL say "not enough evidence" and omit the edge.
 - **BR-004 — Gap-map eligibility:** A concept SHALL appear in the gap map only when linked to evidence in the analyzed repository and learner-state evidence from demonstrated answers; initial learner state before an answer is unknown [assumption].
 - **BR-005 — Teach-back feedback:** Feedback SHALL critique the explanation and cite supporting evidence; it SHALL NOT claim that a learner "fully understands" or has "mastered" a concept.
-- **BR-006 — Intake boundary:** Repository intake SHALL accept only a bundled sample or a bounded public repository snapshot in MVP; exact size, language, and timeout limits are [assumption] until technical design.
+- **BR-006 — Intake boundary:** Repository intake SHALL accept only a bundled sample or a bounded public repository snapshot in MVP, restricted to JavaScript, JSX, TypeScript, and TSX source within these bounds: 40 files, 750 KB total supported source, 60 KB per file, 5 MB compressed archive, 20 MB extracted, and a 20-second intake/analysis timeout. Out-of-bounds input SHALL be rejected outright, never silently truncated.
 - **BR-007 — Read-only operation:** Analysis SHALL NOT modify files, commits, branches, pull requests, or repository settings.
 - **BR-008 — Accessibility:** The user-facing graph SHALL support keyboard traversal, visible focus, non-color status indicators, reduced motion, text alternatives for graph paths, and AA contrast for documented semantic token pairs, targeting WCAG 2.2 AA.
 - **BR-009 — MVP gate:** Final features F-101 through F-104 SHALL NOT displace completion of the F-001 through F-005 end-to-end demo loop.
-- **BR-010 — Architecture baseline:** Current implementation SHALL use two repositories: a Vercel-hosted client and a Hugging Face Docker Space backend using FastAPI, LangChain, and LangGraph. Any replacement is a future decision, not current architecture.
+- **BR-010 — Architecture baseline:** Current implementation SHALL use two repositories: a Vercel-hosted client (`xray-client`) and a Hugging Face Docker Space backend (`xray-backend`) using FastAPI, LangChain, and LangGraph. The client SHALL call the backend directly over HTTPS; access control is a FastAPI CORS origin allowlist (deployed Vercel origin plus local development), never a wildcard, with no BFF/proxy and no server-held backend credential. Any replacement is a future decision, not current architecture.
 
 ## Hard rules / must-never (invariant spine)
 - **INV-001** — **never fabricate structural edges.** The system SHALL NEVER show a call, import, or data-flow edge that is not traceable to a concrete symbol reference in the actual code and produced by deterministic static analysis. IF a model proposes an unsupported structural relationship, THEN the system SHALL omit it and report "not enough evidence." LLM narrative sits on top of the graph; it never invents the graph.
@@ -118,7 +118,7 @@ The MVP must produce one demoable loop: inspect a bounded read-only repository, 
 - **F-004 / AC-011:** WHEN a user submits a teach-back response, the system SHALL return feedback distinguishing supported, missing, and unsupported claims with source citations.
 - **F-004 / AC-012:** WHEN feedback is shown, the system SHALL critique the explanation and SHALL NOT claim that the learner is fully understood, mastered, or guaranteed to know a concept.
 - **F-005 / AC-013:** WHEN a user selects the bundled sample or submits a supported bounded public repository snapshot, the system SHALL analyze it without requesting write access.
-- **F-005 / AC-014:** IF intake exceeds an implemented bound or uses an unsupported format, THEN the system SHALL refuse analysis with a clear, non-destructive explanation; exact bounds are [assumption] pending technical design.
+- **F-005 / AC-014:** IF intake exceeds a bound (40 files, 750 KB total, 60 KB per file, 5 MB compressed archive, 20 MB extracted, or the 20-second timeout) or uses an unsupported format or language, THEN the system SHALL refuse analysis outright with a clear, non-destructive explanation and SHALL NOT analyze a truncated subset.
 - **F-005 / AC-015:** WHILE repository analysis and exploration occur, the system SHALL NOT modify repository contents, commits, branches, pull requests, or settings.
 
 ### Final acceptance criteria — not MVP build commitments
@@ -143,8 +143,8 @@ The MVP must produce one demoable loop: inspect a bounded read-only repository, 
 ## Dependencies
 ### Current implementation baseline
 - **Repository 1 — client:** Vercel-hosted web client. Client framework, graph library, state layer, and repository identifier are [assumption] until technical design.
-- **Repository 2 — backend:** Hugging Face Docker Space running FastAPI, LangChain, and LangGraph. Container configuration, model configuration, persistence, and repository identifier are [assumption] until technical design.
-- The client SHALL communicate with the backend through an API contract to be defined downstream [assumption].
+- **Repository 2 — backend:** Hugging Face Docker Space (`xray-backend`) running FastAPI, LangChain, and LangGraph on port 7860. Container configuration, model configuration, and repository identifier are [assumption] until scaffold; persistence is intentionally none — learner/analysis state is session-local and client-held.
+- The client SHALL call the backend directly over HTTPS through five synchronous endpoints: `GET /health`, `POST /v1/analyses`, `POST /v1/xray`, `POST /v1/teachbacks/questions`, and `POST /v1/teachbacks/evaluate`. Access control is a FastAPI CORS origin allowlist only; there is no BFF/proxy or server-held credential.
 - The deployment must remain available through Global judging.
 
 ### Product and delivery dependencies
@@ -161,7 +161,7 @@ The MVP must produce one demoable loop: inspect a bounded read-only repository, 
 ## Success measures
 - **Activation:** A first-time user selects a function, follows at least one evidence-backed edge, and completes one teach-back question in one session.
 - **Comprehension signal:** The user correctly explains one previously unknown call or dependency path without reading generated prose verbatim, evaluated by a graph-grounded rubric and human spot-check in the demo cohort.
-- **Trust:** Zero fabricated structural edges in the held-out demo set; target at least 70% precision for supported edge types, omitting unsupported or ambiguous edges.
+- **Trust:** Zero fabricated structural edges; every rendered edge SHALL reach 100% observed precision on the held-out demo set (an edge either carries all three provenance anchors or is omitted). The ≥70% target applies only to coverage/recall of supported relationship types, never as permission to render an uncertain edge.
 - **Retention signal:** At least 5 of the first 20 users inspect a second code change or repository within 7 days; this is post-demo validation, not an MVP acceptance gate.
 - **Commercial signal:** One institutional conversation reaches a concrete evaluation or purchase process; no revenue target exists because no payer is validated.
 

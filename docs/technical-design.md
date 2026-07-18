@@ -95,7 +95,7 @@ The validator requires every returned evidence ID to exist in the packet. Narrat
 7. Delete the workspace in `finally`, including timeout/error paths.
 
 ### A-002 — Deterministic graph construction (F-001, INV-001)
-For each supported file, parse once: `O(total source bytes)`. Build module/symbol tables keyed by normalized path and lexical scope. Resolve relative imports only when the target is unique under documented TS/JS resolution rules [assumption]. Resolve calls only for direct identifiers/member references whose declaration is unique in the supported static scope. Emit no edge for dynamic imports, computed property calls, reflection, runtime dependency injection, ambiguous re-exports, or parser errors. Each emitted edge stores the call/import token span and both endpoint declaration spans. During parsing, persist only each cited span plus bounded surrounding lines and its file hash until session TTL [assumption]; delete full files after extraction. Graph storage is `O(V + E + S)` plus bounded excerpt bytes.
+For each supported file, parse once: `O(total source bytes)`. Build module/symbol tables keyed by normalized path and lexical scope. Resolve relative imports only when the target is unique under documented JS/JSX/TS/TSX resolution rules [assumption]. Resolve calls only for direct identifiers/member references whose declaration is unique in the supported static scope. Emit no edge for dynamic imports, computed property calls, reflection, runtime dependency injection, ambiguous re-exports, or parser errors. Each emitted edge stores the call/import token span and both endpoint declaration spans. During parsing, persist only each cited span plus bounded surrounding lines and its file hash until session TTL [assumption]; delete full files after extraction. Graph storage is `O(V + E + S)` plus bounded excerpt bytes.
 
 ### A-003 — Concept evidence (F-003, INV-002)
 A versioned rule registry maps deterministic syntax/edge predicates to concept IDs; e.g., a direct function call edge may evidence “function composition,” while an `await` syntax node may evidence “asynchronous control flow” [assumption]. Every mapping stores rule version and source spans. GPT-5.6 may explain a mapped concept but cannot add one.
@@ -152,7 +152,7 @@ FastAPI --> Browser: feedback and updated gaps
 All cleanup uses `finally`; user messages are plain and non-destructive. Logs never contain source text, learner responses, cookies, credentials, or full model packets.
 
 ## Key decisions
-- One analyzer adapter and one TS/JS grammar family [assumption]; broad language plugins wait.
+- One analyzer adapter for the JS/JSX/TS/TSX grammar family; broad language plugins wait.
 - Immutable graph records; learner records cannot mutate graph truth.
 - Model output is schema/citation validated and can degrade independently.
 - Minimal LangGraph is a bounded retry state machine, not product architecture theater.

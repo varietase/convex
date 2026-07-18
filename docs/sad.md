@@ -5,7 +5,7 @@ Four agents only; each justifies its slot by repeated work, context offload, or 
 
 ### graph-engineer
 - **model:** deep · **tools:** read, write, shell
-- **Purpose:** implement deterministic TS/JS extraction, evidence spans, fixtures, and graph APIs.
+- **Purpose:** implement deterministic JS/JSX/TS/TSX extraction, evidence spans, fixtures, and graph APIs.
 - **Reads:** PRD, technical design, methods, QA.
 - **Guardrails:** never use GPT to create edges; never emit ambiguity; never execute or mutate repo code (INV-001/003).
 - **Done:** TC-001–003, TC-010/011, TC-N01/N02/N05 pass.
