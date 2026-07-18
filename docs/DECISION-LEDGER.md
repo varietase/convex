@@ -31,6 +31,13 @@
 | MVP is F-001 through F-005; Final is F-101 through F-104. | Model-generated narrative can explain deterministic graph evidence without becoming the source of structural truth. | Unsupported structural relations can safely be inferred by a model. |
 
 ## 3. Pivots & decisions (newest first)
+### 2026-07-18 — Freeze the browser session and origin boundary for v1
+- **Type:** implementation
+- **Change:** `POST /v1/analyses` creates and returns an opaque UUIDv4 `sessionId` with `snapshotId`; `/v1/xray` and both teach-back routes require both identifiers. Originless `GET /health` is permitted for platform probes; every other browser-facing request requires an exact configured `Origin` before route/body handling.
+- **Why:** The prior endpoint schemas omitted the session handle required by the data/security model, while the middleware allowed originless feature requests. Freezing both seams lets the platform and evidence/agent lanes work independently against one explicit v1 contract.
+- **Invalidated:** The implication that a session was created by an undocumented endpoint, or that an originless feature request could enter route handling.
+- **Recorded as:** `model` branch `feat/shared-contract-gate`; API, data, technical, system, security, and backend implementation documents reconciled. The v1 major path and `1.0.0` contract version remain unchanged because this baseline has not been released.
+
 ### 2026-07-18 — Lock the first backend contract and readiness scaffold
 - **Type:** implementation
 - **Change:** provisional backend versions and UUIDv4 graph IDs → lockfile-pinned Python 3.12 backend, contract `1.0.0`, analyzer `xray-js-ts-1`, current FastAPI/Tree-sitter/LangChain/LangGraph/OpenAI integrations, `gpt-5.6`, content-derived SHA-256 snapshot/symbol/edge IDs, the documented intake limits, and sample `xray-demo-v1` with a named-import/call central path

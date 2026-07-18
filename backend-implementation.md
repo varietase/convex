@@ -1,5 +1,7 @@
 # Backend Implementation Plan — Two Developer Split
 
+> **Checklist rule:** check an item only with its linked tests or a reproducible smoke result. Shared-contract items below are complete on `model/feat/shared-contract-gate`; all feature work remains open.
+
 ## Purpose and boundaries
 
 This plan delivers the MVP backend loop for F-001 through F-005: bundled/public repository intake, deterministic evidence graph, grounded explanation, teach-back, and an evidence-backed gap update. The browser calls the Hugging Face FastAPI service directly over HTTPS; there is no BFF or repository-mutation capability.
@@ -15,12 +17,10 @@ Canonical contracts and acceptance gates remain `docs/api-spec.md`, `docs/techni
 
 ## Shared contract gate — first 20–30 minutes
 
-Both developers complete this before parallel implementation.
-
-1. Freeze the v1 Pydantic DTOs and pure service protocols under `app/domain/`. Changes afterward require a small, separate contract change before either implementation branch consumes them.
-2. Add an opaque `sessionId` to the analysis response and require it on xray and teach-back requests. The client holds and resubmits this handle; the backend uses it to scope ephemeral snapshot, evidence, questions, and learner state. This reconciles the data/security model with the endpoint schemas.
-3. Decide and document originless health-check behavior. Recommended policy: permit originless `GET /health` for platform probes; require an exact allowlisted `Origin` for browser POST requests.
-4. Freeze the service seams below and test them with fakes. Keep `CONTRACT_VERSION = 1.0.0` unless an intentional breaking API change is approved.
+- [x] Freeze v1 Pydantic DTOs and pure service protocols under `app/domain/`. Changes afterward require a small, separate contract change before either implementation branch consumes them.
+- [x] Freeze `POST /v1/analyses` to create and return an opaque `sessionId`; require that handle with `snapshotId` for xray and teach-back requests.
+- [x] Freeze originless `GET /health` for platform probes only; require an exact allowlisted `Origin` before browser-facing route/body handling.
+- [x] Keep `CONTRACT_VERSION = 1.0.0` as the pre-release v1 baseline; do not change it without an intentional compatibility decision.
 
 ```text
 RepositoryInput -> SnapshotMaterializer -> SnapshotWorkspace
@@ -49,31 +49,21 @@ Suggested branch: `feat/api-platform`.
 
 ### Deliverables
 
-1. Activate `POST /v1/analyses`, `POST /v1/xray`, `POST /v1/teachbacks/questions`, and `POST /v1/teachbacks/evaluate` as thin adapters over injected services. Test doubles are allowed only in tests; production routes cannot return invented feature data.
-2. Complete transport policy:
-   - request ID and contract-version headers on success and error responses;
-   - exact-origin allowlist and preflight handling;
-   - canonical error envelope and HTTP mapping;
-   - bounded request timeout, concurrency/rate limiting, and `Retry-After`;
-   - sanitized logs with no source, repository URL/query, learner answer, prompt, model packet, or secret body.
-3. Implement ephemeral session/snapshot storage, ownership checks, TTL sweep, deletion cascade, and honest `410` after restart/expiration.
-4. Implement `SnapshotMaterializer`:
-   - bundled-sample lookup;
-   - anonymous HTTPS public-repository fetch and immutable commit resolution;
-   - DNS/IP/redirect validation and host allowlist;
-   - archive/file/source/timeout limits;
-   - rejection of traversal, absolute paths, symlinks, hardlinks, submodules, nested archives, and special files;
-   - `finally` cleanup and no dependency install, shell command, interpreter, or Git mutation.
-5. Wire Health/readiness and Docker deployment configuration. Preserve port 7860 and report only safe readiness metadata.
+- [ ] Activate `POST /v1/analyses`, `POST /v1/xray`, `POST /v1/teachbacks/questions`, and `POST /v1/teachbacks/evaluate` as thin adapters over injected services. Test doubles are allowed only in tests; production routes cannot return invented feature data.
+- [ ] Complete transport policy: request/contract headers, exact-origin/preflight behavior, canonical errors, timeout/concurrency/rate limits, and sanitized logs.
+- [ ] Implement ephemeral session/snapshot storage, ownership checks, TTL sweep, deletion cascade, and honest `410` after restart/expiration.
+- [ ] Implement bundled-sample `SnapshotMaterializer` lookup.
+- [ ] Implement anonymous public-repository materialization with immutable commit resolution, DNS/IP/redirect checks, bounds, archive/path/link rejection, `finally` cleanup, and no code execution or Git mutation.
+- [ ] Wire health/readiness and Docker/Hugging Face deployment configuration on port 7860 with safe readiness metadata.
 
 ### Tests owned
 
-- Endpoint contract and error-envelope tests.
-- Origin allowlist/preflight/originless-health tests.
-- Request ID and contract-version header tests.
-- Session isolation, expiration/restart, TTL cleanup, and log-redaction tests.
-- Intake limit, SSRF, redirect, traversal, link, archive, timeout, and cleanup tests (TC-011).
-- Deployment health and bundled-sample smoke tests.
+- [ ] Endpoint contract and error-envelope tests.
+- [x] Origin allowlist/preflight/originless-health tests.
+- [x] Request ID and contract-version header tests.
+- [ ] Session isolation, expiration/restart, TTL cleanup, and log-redaction tests.
+- [ ] Intake limit, SSRF, redirect, traversal, link, archive, timeout, and cleanup tests (TC-011).
+- [ ] Deployment health and bundled-sample smoke tests.
 
 ## Developer 2 — deterministic evidence and grounded agent
 
@@ -88,40 +78,32 @@ Suggested first branch: `feat/deterministic-evidence`; follow with `feat/grounde
 - `app/learner/**`
 - Analyzer, reasoning, and invariant fixtures/tests
 
-### Delivery order
+### Delivery checklist
 
-1. Configure JS, JSX, TypeScript, and TSX Tree-sitter parsers and analyze the bundled `xray-demo-v1` fixture.
-2. Extract modules, symbols, declaration spans, imports, direct calls, and unresolved references.
-3. Emit only exact, supported structural relations:
-   - direct relative module imports;
-   - named and namespace relative imports;
-   - uniquely resolved same-file identifier calls;
-   - uniquely resolved named imported calls.
-
-   Dynamic imports, computed calls, reflection, runtime dependency injection, ambiguous re-exports, parser failures, and unresolved targets produce no edge.
-4. Validate each graph before publication. Every edge must contain the exact three provenance anchors and all referenced spans/symbols must belong to the immutable snapshot.
-5. Implement versioned deterministic concept occurrences, evidence packet slicing, and required-claim construction. Model-facing functions receive only bounded evidence packets, never a workspace or full repository.
-6. Implement the minimal LangGraph flow: typed GPT-5.6 request → strict schema/citation/prohibited-language validation → one retry → deterministic unavailable/not-enough-evidence fallback.
-7. Return exactly three grounded teach-back questions: relationship explanation, path prediction, and concept application.
-8. Validate claim dispositions as `supported`, `missing`, or `unsupported`; then derive gaps with EQ-005. A gap requires repository evidence, learner-attempt evidence, and at least one missing/unsupported observation. Never show mastery, a percentage, or a generic concept list.
+- [ ] Configure JS, JSX, TypeScript, and TSX Tree-sitter parsers and analyze the bundled `xray-demo-v1` fixture.
+- [ ] Extract modules, symbols, declaration spans, imports, direct calls, and unresolved references.
+- [ ] Emit only exact relative imports and uniquely resolved same-file/named-import calls; omit dynamic, computed, reflective, injected, ambiguous, and parser-failed relations.
+- [ ] Validate every published graph edge has the three required provenance anchors and snapshot-scoped spans/symbols.
+- [ ] Implement versioned deterministic concept occurrences, evidence packet slicing, and required-claim construction using bounded packets only.
+- [ ] Implement the minimal LangGraph typed call, schema/citation/prohibited-language validation, one retry, and deterministic fallback.
+- [ ] Return exactly three grounded questions: relationship explanation, path prediction, and concept application.
+- [ ] Validate `supported`/`missing`/`unsupported` claims and derive EQ-005 gaps only with repository evidence, learner-attempt evidence, and a missing/unsupported observation.
 
 ### Tests owned
 
-- Symbol, import, call, unresolved-reference, and evidence-anchor fixtures (TC-001–TC-003).
-- Graph invariant failures and model-invented-edge rejection (TC-N01–TC-N02).
-- Gap eligibility and derivation tests (TC-006–TC-007, TC-N03–TC-N04).
-- Exactly-three-question, citation-validation, unsupported-claim, prohibited-language, and model-unavailable tests (TC-008–TC-009).
+- [ ] Symbol, import, call, unresolved-reference, and evidence-anchor fixtures (TC-001–TC-003).
+- [ ] Graph invariant failures and model-invented-edge rejection (TC-N01–TC-N02).
+- [ ] Gap eligibility and derivation tests (TC-006–TC-007, TC-N03–TC-N04).
+- [ ] Exactly-three-question, citation-validation, unsupported-claim, prohibited-language, and model-unavailable tests (TC-008–TC-009).
 
 ## Integration and merge sequence
 
-| Slice | Platform developer | Evidence/agent developer | Gate |
-|---|---|---|---|
-| 0. Shared seam | HTTP DTO review and store protocol | Domain/protocol review | Contract compiles and fakes pass. |
-| 1. Risk-first graph | `/v1/analyses` adapter with fake engine | Sample parser, symbols, exact edges, graph validator | Sample exposes a cited central call edge. |
-| 2. Real analysis | Persist/retrieve analysis bundle by session | Connect real analyzer and concept evidence | Unsupported/ambiguous relations are omitted. |
-| 3. Teach-back | Question/evaluation route adapters and session checks | Evidence packets, typed reasoning, citation validator | Three grounded questions and cited feedback work. |
-| 4. Gap and safety | TTL, errors, rate limits, public-intake safety | Deterministic EQ-005 gap derivation | No gap before validated attempt evidence. |
-| 5. Release | Space configuration and production checks | Sample fallback and model-unavailable behavior | Production sample loop succeeds three times. |
+- [x] **0. Shared seam:** HTTP DTO, store, and domain-protocol review complete; contract tests pass.
+- [ ] **1. Risk-first graph:** platform adapter with a test engine; sample parser, symbols, exact edges, and graph validator; sample exposes a cited central call edge.
+- [ ] **2. Real analysis:** session-scoped bundle persistence and retrieval; connect the real analyzer and concept evidence; omit unsupported/ambiguous relations.
+- [ ] **3. Teach-back:** question/evaluation adapters and scope checks; evidence packets, typed reasoning, and citation validation; return three grounded questions and cited feedback.
+- [ ] **4. Gap and safety:** TTL, errors, rate limits, and public-intake safety; deterministic EQ-005 gap derivation; no gap before validated attempt evidence.
+- [ ] **5. Release:** Space configuration, production checks, sample fallback, and model-unavailable behavior; production sample loop succeeds three times.
 
 Merge the deterministic graph first because it is the highest-risk proof. The platform branch may use test doubles until that merge, then replaces them with the real services. Keep model reasoning in the second evidence/agent merge so model work cannot hide missing deterministic evidence.
 
@@ -134,4 +116,8 @@ sample -> deterministic graph -> cited selected edge -> three teach-back answers
 -> cited supported/missing/unsupported feedback -> eligible gap update -> return to source evidence
 ```
 
-Before a demo or deployment, run all MVP and invariant cases, validate the five documented endpoints, inspect sanitized success/error logs, and run the production bundled-sample smoke test. Do not begin F-101 through F-104 until this loop works end to end.
+- [ ] Complete the end-to-end loop above against the bundled sample.
+- [ ] Run all MVP and invariant cases.
+- [ ] Validate the five documented endpoints and inspect sanitized success/error logs.
+- [ ] Run the production bundled-sample smoke test.
+- [ ] Keep F-101 through F-104 closed until every preceding completion item passes.

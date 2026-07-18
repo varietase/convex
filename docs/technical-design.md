@@ -60,7 +60,7 @@ def slice_evidence(graph: EvidenceGraph, selection: Selection, budget: EvidenceB
 def derive_gap_items(graph: EvidenceGraph, attempts: list[Attempt]) -> list[GapItem]: ...
 ```
 
-`validate_graph` fails closed when an edge has no source span, the span is outside its immutable file hash, or either symbol is absent. Model-facing functions accept `EvidencePacket`, never a workspace or unrestricted repository.
+`validate_graph` fails closed when an edge has no source span, the span is outside its immutable file hash, or either symbol is absent. Model-facing functions accept `EvidencePacket`, never a workspace or unrestricted repository. `POST /v1/analyses` creates an opaque UUIDv4 `sessionId` and returns it with `snapshotId`; all later xray and teach-back operations supply both values, and store lookups fail closed on a scope mismatch.
 
 ```python
 class ReasoningState(TypedDict):
