@@ -1,4 +1,4 @@
-# Decision Ledger — X-Ray for AI Code
+# Decision Ledger — convex
 
 > **What this is.** The append-only record of current truth, pivots, rejected approaches, naming decisions, and invariant audits. If another project document disagrees with this ledger, this ledger wins until reconciliation.
 >
@@ -9,8 +9,7 @@
 ## 1. Names & immutable identifiers (read first)
 | Name / ID | Kind | Where it appears | Rule |
 |---|---|---|---|
-| X-Ray for AI Code | Public product name | UI, pitch, README, judge-facing materials | Use for first mention in user-facing contexts. |
-| X-Ray | Public short name | UI and conversational references | Use after the full name is established. |
+| convex | Public product name | UI, pitch, README, judge-facing materials, and conversational references | Use lowercase `convex` consistently unless sentence casing or a logo asset requires otherwise. |
 | comprehension control layer for code | Category phrase | Product and pitch copy | Use to distinguish the product from explainers and IDEs. |
 | F-001–F-005, F-101–F-104 | Immutable feature IDs | Idea, PRD, downstream specifications, QA | Preserve IDs exactly; do not renumber during refinement. |
 | INV-001–INV-003 | Immutable invariant IDs | Idea, PRD, security, design, QA | Preserve IDs and meanings exactly; changes require a logged invariant-change pivot. |
@@ -20,7 +19,7 @@
 ## 2. Current truth (confidence, not a gate)
 | TRUE (shipped / decided, behaviorally supported) | PROVISIONAL (decided, not yet verified end-to-end) | UNVALIDATED (do not state as fact) |
 |---|---|---|
-| The product is X-Ray for AI Code, shortened to X-Ray. | The MVP can deliver the full proof-of-comprehension loop within the four-day build window. | Student builders will choose to pause shipping and use the product. |
+| The product is convex. | The MVP can deliver the full proof-of-comprehension loop within the four-day build window. | Student builders will choose to pause shipping and use the product. |
 | The wedge is proof-of-comprehension: deterministic structural evidence + learner-state/gap map + teach-back. | Deterministic analysis can reach the required precision on the selected demo repositories. | The product has a validated payer or viable revenue model. |
 | The product is not a generic explainer, chatbot, code generator, or IDE. | A bundled sample or bounded public repository snapshot is sufficient for the MVP demo and first user tests. | Any institutional payer will enter an evaluation or purchase process. |
 | Structural claims must trace to deterministic source evidence. | The exact client framework, graph renderer, static-analysis libraries, model configuration, supported languages, and repository bounds remain to be chosen [assumption]. | The tool improves seven-day retention or interview outcomes. |

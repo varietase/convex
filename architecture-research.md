@@ -1,4 +1,4 @@
-# Architecture and product-surface research — X-Ray
+# Architecture and product-surface research — convex
 
 **Status:** researched recommendation, 2026-07-18. The current two-repository implementation remains authoritative for the hackathon; this document recommends what to change only after the demo.
 
@@ -15,7 +15,7 @@ Tree-sitter is suitable for fast syntax extraction and `tree-sitter-graph` can c
 ## 3. Recommended future architecture — suggest only, do not implement now
 Move deterministic indexing to a **local-first read-only sidecar** distributed as an MCP server/CLI, with an optional VS Code extension only as a launcher and selection bridge. Keep the existing web app as the zero-install judge/onboarding surface. The local sidecar parses the working tree, stores a portable local graph, and sends only selected evidence slices—not the repository—to the hosted reasoning service. This improves privacy, latency, incremental indexing, and model portability while preserving INV-001 and INV-003.
 
-Expose the interactive graph as an **MCP App**, not a new IDE. The official MCP Apps extension lets tools return sandboxed interactive HTML with bidirectional tool calls inside supported hosts, explicitly covering rich data exploration. Current support includes Claude, Claude Desktop, VS Code GitHub Copilot, Microsoft 365 Copilot, Goose, Postman, MCPJam, and Archestra. This makes X-Ray ambient inside coding conversations without owning editing, terminals, or agent execution. [Official MCP Apps overview](https://modelcontextprotocol.io/extensions/apps/overview)
+Expose the interactive graph as an **MCP App**, not a new IDE. The official MCP Apps extension lets tools return sandboxed interactive HTML with bidirectional tool calls inside supported hosts, explicitly covering rich data exploration. Current support includes Claude, Claude Desktop, VS Code GitHub Copilot, Microsoft 365 Copilot, Goose, Postman, MCPJam, and Archestra. This makes convex ambient inside coding conversations without owning editing, terminals, or agent execution. [Official MCP Apps overview](https://modelcontextprotocol.io/extensions/apps/overview)
 
 ## 4. Durable innovation as models improve
 The moat is a two-graph system: **code evidence graph** (what the repository objectively contains) + **learner-state graph** (what this human has demonstrated they can explain). The second graph cannot be copied from the repository or made obsolete by a stronger coding model. Stronger agents create more code and therefore more comprehension deltas.

@@ -1,4 +1,4 @@
-# QA — Test Plan & Test Cases — X-Ray
+# QA — Test Plan & Test Cases — convex
 
 ## Strategy and environments
 Unit-test parser/rules/methods; contract-test the client's direct calls against the five FastAPI endpoints; integration-test model schema/citations; Playwright-style E2E [assumption] for sample flow; manual accessibility, visual-token, and demo rehearsal checks. Run locally, preview, and judging production with synthetic public fixtures only. Secrets never enter fixtures.

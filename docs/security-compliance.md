@@ -1,4 +1,4 @@
-# Security & Compliance / Threat Model — X-Ray
+# Security & Compliance / Threat Model — convex
 
 > **Scope:** Public hackathon deployment with bounded public repositories, ephemeral learner responses, and no source-code writes.
 
@@ -12,7 +12,7 @@
 | Backend/model credentials | Secret | HF Space secret store | Never expose to browser or logs |
 | Sanitized operational metadata | Internal | platform logs | No source, prompt, answer, token, or credential bodies |
 
-MVP does not solicit names, email, accounts, private repositories, or repository credentials. Public code may still contain accidentally committed secrets; X-Ray treats all source as sensitive in handling and never includes unrelated source in model evidence packets.
+MVP does not solicit names, email, accounts, private repositories, or repository credentials. Public code may still contain accidentally committed secrets; convex treats all source as sensitive in handling and never includes unrelated source in model evidence packets.
 
 ## Authn / authz model
 - **Browser → Space:** the browser calls the FastAPI backend directly over HTTPS. The sole access-control boundary is an explicit CORS origin allowlist (the deployed Vercel origin plus local development origins), never a wildcard; the FastAPI CORS middleware rejects any other origin before body processing. There is no session cookie, CSRF token, or bearer credential — learner/analysis state lives in the browser session only and is resubmitted with each request.

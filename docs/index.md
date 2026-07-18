@@ -1,4 +1,4 @@
-# Documentation Index — X-Ray for AI Code
+# Documentation Index — convex
 
 **Maintained by:** Abu · **Last updated:** 2026-07-18 · **FMD:** 4.2.0
 
@@ -9,7 +9,7 @@
 | Concern | Canonical owner | What's inside (one-liner) |
 |---|---|---|
 | Live truth, pivots, immutable IDs | ⭐ [Decision Ledger](DECISION-LEDGER.md) | The append-only record of what is currently true, what was rejected, and which IDs are frozen. If you're unsure whether something is decided, check here first. |
-| Problem, segment, feature/invariant origin | [idea.md](../idea.md) | The original problem statement, peer-reviewed evidence, target users, kill criteria, and the feature/invariant spine (F-001–F-005, INV-001–003). This is where we explain *why* we're building X-Ray. |
+| Problem, segment, feature/invariant origin | [idea.md](../idea.md) | The original problem statement, peer-reviewed evidence, target users, kill criteria, and the feature/invariant spine (F-001–F-005, INV-001–003). This is where we explain *why* we're building convex. |
 | Build context and rubric | [context.md](../context.md) | Hackathon rules, team size, time budget, judging rubric, and hard submission requirements (Codex use, YouTube demo, etc.). Read this to know what we're being scored on. |
 | Brand and voice | [brand.md](../brand.md) | Product name, category phrase, visual direction, UI copy rules (say/don't-say), and accessibility baseline. Governs all user-facing text and design decisions. |
 | Visual philosophy | [Visual Direction](visual-direction.md) | Premium dark-first editorial visual language: mood, composition, shape, motion, imagery, color philosophy, and UI principles. Use before implementing detailed UI tokens. |
@@ -23,7 +23,7 @@
 | Tests and traceability | ⭐ [QA Plan](qa-test-plan.md) | Test cases (TC-001–TC-011, TC-N01–N05), traceability matrix linking each F-ID to tests, invariant negative tests, API/security gates, and exit criteria. |
 | Auth, threats, compliance | [Security](security-compliance.md) | Threat model, SSRF/traversal/injection mitigations, credential handling, session isolation, log sanitization, and INV-003 enforcement specifics. |
 | Build sequence | ⭐ [Implementation Plan](implementation-plan.md) | The 5.5-hour Manila build schedule: time blocks, owners, gates, and the honest stopping point. This is Joshua's working document — check it for current task assignments. |
-| Build-time agent roster | [SAD](sad.md) | Which AI agents help build X-Ray (graph-engineer, product-ui-engineer, reasoning-engineer, trust-reviewer), their boundaries, and what they must not do. |
+| Build-time agent roster | [SAD](sad.md) | Which AI agents help build convex (graph-engineer, product-ui-engineer, reasoning-engineer, trust-reviewer), their boundaries, and what they must not do. |
 | Deployment and incidents | [Ops](ops.md) | Deployment steps for Vercel and HF Space, health checks, monitoring, rollback procedures, and incident response for judging availability. |
 | Release and validation | [Release/GTM](release-gtm.md) | Release phases (M0–M3, G1–G3), scope-cut order, rollout strategy, launch checklist, and submission deadlines. The ship plan. |
 | Demo narrative and Q&A | [Pitch Kit](pitch-kit.md) | The 2:45 voiceover script, rubric evidence map, "not just Cursor/Cody" answer, and live-demo rules. Dia and Abu use this to rehearse. |

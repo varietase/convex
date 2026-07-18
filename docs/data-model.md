@@ -1,4 +1,4 @@
-# Data Model / Schema — X-Ray
+# Data Model / Schema — convex
 
 > **Purpose:** Exact logical data model for ephemeral MVP analysis and learner evidence. Storage technology is not prescribed [assumption].
 

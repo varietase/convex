@@ -1,10 +1,10 @@
-# Visual Direction — X-Ray for AI Code
+# Visual Direction — convex
 
-> **Purpose:** Brand-level visual philosophy for X-Ray. Use this before `design-system.md` when making product screens, demo assets, screenshots, or marketing visuals.
+> **Purpose:** Brand-level visual philosophy for convex. Use this before `design-system.md` when making product screens, demo assets, screenshots, or marketing visuals.
 > **Boundary:** This document changes presentation language only. It does not change APIs, data model, architecture, security, business rules, feature scope, or INV-001 through INV-003.
 
 ## Visual Philosophy
-X-Ray should feel like a premium editorial instrument for understanding code: quiet, exact, and composed. The interface should create the feeling of looking through a calibrated lens rather than entering a playful learning game or sci-fi scanner.
+convex should feel like a premium editorial instrument for understanding code: quiet, exact, and composed. The interface should create the feeling of looking through a calibrated lens rather than entering a playful learning game or sci-fi scanner.
 
 The visual system is inspired by the supplied reference image at the level of principles only: dark-first composition, generous negative space, large typographic moments, thin structure, soft geometry, and a single warm accent used with restraint. Do not copy layout, motifs, or proprietary details from the reference.
 

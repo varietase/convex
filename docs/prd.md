@@ -1,9 +1,9 @@
-# PRD — X-Ray for AI Code
+# PRD — convex
 
 > **Purpose:** Define the product the team must build for the first dependency phase. This document translates `idea.md`, `context.md`, and `brand.md` into testable product requirements.
 
 ## Overview & goals
-X-Ray is a comprehension control layer for code. It helps a builder see how code in a repository fits together and prove they understand it. The product wedge is proof-of-comprehension: deterministic structural evidence, a learner-state/concept-gap map, and repo-specific teach-back. It is not a generic explainer, chatbot, code generator, or IDE.
+convex is a comprehension control layer for code. It helps a builder see how code in a repository fits together and prove they understand it. The product wedge is proof-of-comprehension: deterministic structural evidence, a learner-state/concept-gap map, and repo-specific teach-back. It is not a generic explainer, chatbot, code generator, or IDE.
 
 The MVP must produce one demoable loop: inspect a bounded read-only repository, trace an evidence-backed connection, answer a repo-specific teach-back question, and see the learner-state/gap map update. Structural truth comes from deterministic analysis; model-generated narrative may explain that truth but may not create it.
 
@@ -123,7 +123,7 @@ The MVP must produce one demoable loop: inspect a bounded read-only repository, 
 
 ### Final acceptance criteria — not MVP build commitments
 - **F-101 / AC-101:** WHERE the comprehension-delta ledger is included, WHEN a supported code change introduces new repository concepts or structural surfaces, the system SHALL compare them with demonstrated learner state and identify newly unknown surfaces with evidence.
-- **F-102 / AC-102:** WHERE the in-workflow MCP App / extension surface is included, WHEN a supported host invokes X-Ray, the system SHALL expose the same evidence-backed graph and teach-back loop without editing code or becoming an editor.
+- **F-102 / AC-102:** WHERE the in-workflow MCP App / extension surface is included, WHEN a supported host invokes convex, the system SHALL expose the same evidence-backed graph and teach-back loop without editing code or becoming an editor.
 - **F-103 / AC-103:** WHERE the cross-repository learner graph is included, WHEN a learner authorizes a supported project, the system SHALL keep repository evidence distinct while updating a private longitudinal learner model; authorization and privacy specifics are [assumption].
 - **F-104 / AC-104:** WHERE the agent teaching contract is included, WHEN an authorized coding agent asks which concepts need explanation, the system SHALL return only read-only learner-gap and deterministic repository evidence through supported tools.
 

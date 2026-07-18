@@ -1,9 +1,9 @@
-# System Design Document (HLD) — X-Ray
+# System Design Document (HLD) — convex
 
 > **Purpose:** Current hackathon architecture for F-001–F-005. Future F-101–F-104 are separated below and in ADR-0002.
 
 ## Scope and invariant spine
-X-Ray is a proof-of-comprehension product, not a graph viewer or generic explainer. Its product loop is: deterministic repository evidence → graph-grounded explanation/question → teach-back → learner evidence → transparent concept priority.
+convex is a proof-of-comprehension product, not a graph viewer or generic explainer. Its product loop is: deterministic repository evidence → graph-grounded explanation/question → teach-back → learner evidence → transparent concept priority.
 
 - **INV-001:** every structural edge resolves to deterministic file/line evidence; otherwise it is omitted.
 - **INV-002:** every gap item resolves to repository evidence and learner-answer evidence; otherwise it is omitted.

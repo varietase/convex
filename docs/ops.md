@@ -1,4 +1,4 @@
-# OPS — Operations & Observability Runbook — X-Ray
+# OPS — Operations & Observability Runbook — convex
 
 > **Scope:** Keep the two-repository hackathon MVP testable through judging. This is not a production SRE commitment.
 

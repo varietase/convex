@@ -1,4 +1,4 @@
-# Release / Go-to-Market & Roadmap — X-Ray for AI Code
+# Release / Go-to-Market & Roadmap — convex
 
 > **Purpose:** Ship one reliable proof-of-comprehension loop in the Manila build sprint, then harden and package the same two-repository build for Global judging.
 > **Scope:** F-001–F-005 are the release. F-101–F-104 are future gates, not current claims.

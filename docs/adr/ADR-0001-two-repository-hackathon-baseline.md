@@ -2,7 +2,7 @@
 
 - **Date:** 2026-07-18
 - **Status:** Accepted
-- **Context:** X-Ray has a four-day judged build, a polished web demo, deterministic repository analysis, and mandatory meaningful GPT-5.6 use. The supplied implementation baseline is already split between a Vercel web client and a Hugging Face Docker Space using FastAPI, LangChain, and LangGraph. Re-platforming would consume demo time. The Space local disk is ephemeral, so MVP state cannot be treated as durable.
+- **Context:** convex has a four-day judged build, a polished web demo, deterministic repository analysis, and mandatory meaningful GPT-5.6 use. The supplied implementation baseline is already split between a Vercel web client and a Hugging Face Docker Space using FastAPI, LangChain, and LangGraph. Re-platforming would consume demo time. The Space local disk is ephemeral, so MVP state cannot be treated as durable.
 - **Options considered:**
   1. **Keep two repositories with a same-origin Vercel BFF/proxy.** Preserves the baseline, hides the Space credential, and separates UI delivery from analysis; costs two deploys, proxy plumbing, cold-start handling, and duplicated operational checks.
   2. **Browser calls the Space directly, secured by a CORS origin allowlist.** Fewer moving parts and no credential-relay layer to build in a five-hour window; costs a public backend surface protected only by CORS rather than a server-held credential.

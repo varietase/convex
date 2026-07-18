@@ -1,8 +1,8 @@
-# Brand seed — X-Ray for AI Code
+# Brand seed — convex
 
 ## Working identity
-- **Public name:** X-Ray for AI Code
-- **Short name:** X-Ray
+- **Public name:** convex
+- **Short name:** convex (same as public name; use lowercase in prose)
 - **Category phrase:** comprehension control layer for code
 - **Promise:** See how your code fits together. Prove you understand it.
 - **Anti-positioning:** not an IDE, not a code generator, not a chatbot that paraphrases a snippet.

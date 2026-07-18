@@ -1,7 +1,7 @@
-# Methods & Traceability — Glass-Box Ledger — X-Ray
+# Methods & Traceability — Glass-Box Ledger — convex
 
 ## The glass-box contract (non-negotiable)
-Every displayed count, category, progress value, or priority resolves to an `equation_id` and its `input_dataset_ids`. GPT-5.6 may return typed claim classifications with citations; it never originates a score, structural edge, rank weight, or priority. X-Ray never claims mastery or full comprehension.
+Every displayed count, category, progress value, or priority resolves to an `equation_id` and its `input_dataset_ids`. GPT-5.6 may return typed claim classifications with citations; it never originates a score, structural edge, rank weight, or priority. convex never claims mastery or full comprehension.
 
 ## 1. Evidence and validation model
 Structural facts (symbols, edges) are binary, not graded: a relationship is either deterministically established with all three provenance anchors (source definition, relationship site, target definition), or it is omitted entirely as an unresolved reference. There is no `confidence: medium` state for a structural edge — ambiguity is never rendered as a faded or speculative edge.

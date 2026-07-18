@@ -1,7 +1,7 @@
-# X-Ray for AI Code — Agent Guide
+# convex — Agent Guide
 
 ## Project
-X-Ray is a read-only proof-of-comprehension layer for student/self-taught builders. It joins a deterministic code evidence graph to demonstrated learner state through teach-back. It is not an IDE, code generator, generic explainer, or graph product.
+convex is a read-only proof-of-comprehension layer for student/self-taught builders. It joins a deterministic code evidence graph to demonstrated learner state through teach-back. It is not an IDE, code generator, generic explainer, or graph product.
 
 ## Read order
 1. `docs/DECISION-LEDGER.md` — live truth.

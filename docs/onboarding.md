@@ -1,4 +1,4 @@
-# Onboarding — X-Ray
+# Onboarding — convex
 
 ## What this is
 A read-only proof-of-comprehension layer for AI-assisted code. Start with [`index.md`](index.md); do not treat it as a code generator or IDE.

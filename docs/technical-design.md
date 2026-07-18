@@ -1,4 +1,4 @@
-# Technical Design Document (LLD) — X-Ray
+# Technical Design Document (LLD) — convex
 
 > **Purpose:** Implementation detail for the current F-001–F-005 hackathon system. See `system-design.md` for boundaries and ADRs for platform decisions.
 

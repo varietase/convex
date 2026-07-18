@@ -5,7 +5,7 @@ origin: Abu — student hackathon builder who has personally shipped code (and l
 payer_status: none-found
 ---
 
-# Idea: X-ray for AI Code — the comprehension gap builders accrue when they ship faster than they learn
+# Idea: convex — the comprehension gap builders accrue when they ship faster than they learn
 
 ## 1. Problem statement
 
@@ -111,7 +111,7 @@ The force that recently moved most is **Pull** (agents that can ground explanati
 
 ## 6. Value proposition
 
-For self-taught and student builders who ship agent-written code faster than they can understand it, X-Ray is a **comprehension control layer for code** that turns a repository into an evidence-backed mental model and tests what the builder can actually explain, unlike IDE explain buttons that produce one-off prose, because every structural claim traces to deterministic code evidence and every learning recommendation adapts to the builder's demonstrated gaps.
+For self-taught and student builders who ship agent-written code faster than they can understand it, convex is a **comprehension control layer for code** that turns a repository into an evidence-backed mental model and tests what the builder can actually explain, unlike IDE explain buttons that produce one-off prose, because every structural claim traces to deterministic code evidence and every learning recommendation adapts to the builder's demonstrated gaps.
 
 ## 7. Feature set
 
@@ -132,7 +132,7 @@ For self-taught and student builders who ship agent-written code faster than the
 
 **Hackathon activation:** a first-time user selects a function, follows at least one evidence-backed edge, and completes one teach-back question in a single session.
 
-**Comprehension signal:** after using X-Ray, the user correctly explains one previously unknown call/dependency path without reading the generated explanation verbatim; measured by a graph-grounded teach-back rubric and a human spot-check during the demo cohort.
+**Comprehension signal:** after using convex, the user correctly explains one previously unknown call/dependency path without reading the generated explanation verbatim; measured by a graph-grounded teach-back rubric and a human spot-check during the demo cohort.
 
 **Retention signal:** at least 5 of the first 20 users return to inspect a second code change or repository within 7 days; below this triggers the pre-registered retention kill criterion.
 

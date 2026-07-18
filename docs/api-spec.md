@@ -1,4 +1,4 @@
-# API Specification — X-Ray
+# API Specification — convex
 
 > **Purpose:** Versioned contract between the browser (`xray-client` on Vercel) and the backend (`xray-backend`, FastAPI on a Hugging Face Docker Space, port 7860). The browser calls the backend directly over HTTPS JSON — there is no BFF/proxy and no internal API mirror. Endpoints are synchronous; the MVP avoids queues, polling, and background jobs.
 

@@ -2,7 +2,7 @@
 
 - **Date:** 2026-07-18
 - **Status:** Proposed — post-hackathon recommendation only
-- **Context:** Repository upload, hosted parsing, and ephemeral learner state are acceptable for a judge-facing MVP but weak for repeated private use. Graph extraction and MCP exposure are already commodity capabilities; they are not X-Ray's durable innovation. The differentiator is proof-of-comprehension across a deterministic evidence graph and a private learner-state graph, with teach-back and later comprehension deltas. A future architecture should reduce code transfer and enter the developer's workflow without turning X-Ray into an IDE.
+- **Context:** Repository upload, hosted parsing, and ephemeral learner state are acceptable for a judge-facing MVP but weak for repeated private use. Graph extraction and MCP exposure are already commodity capabilities; they are not convex's durable innovation. The differentiator is proof-of-comprehension across a deterministic evidence graph and a private learner-state graph, with teach-back and later comprehension deltas. A future architecture should reduce code transfer and enter the developer's workflow without turning convex into an IDE.
 - **Options considered:**
   1. **Local read-only sidecar distributed as CLI/MCP server, with an MCP App and optional editor launcher.** Keeps parsing and portable graph storage local and sends bounded evidence packets to hosted reasoning; adds packaging, updates, host compatibility, local security, and sync design.
   2. **Continue hosted repository ingestion.** Zero-install onboarding; keeps repository-transfer, latency, and hosted-retention concerns.

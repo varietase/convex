@@ -1,4 +1,4 @@
-# Design System / UX Spec — X-Ray for AI Code
+# Design System / UX Spec — convex
 
 > **Purpose:** Implementation contract for the judged F-001–F-005 experience. It translates the PRD flows and INV-001–INV-003 into components, tokens, interactions, responsive layouts, accessibility behavior, and a fixed demo path.
 > **Current boundary:** Client framework and graph-rendering library are not selected in supplied sources **[assumption]**. The behavior and CSS tokens below are library-independent and binding.
