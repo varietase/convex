@@ -23,8 +23,9 @@
 | Tests and traceability | ⭐ [QA Plan](qa-test-plan.md) | Test cases (TC-001–TC-011, TC-N01–N05), traceability matrix linking each F-ID to tests, invariant negative tests, API/security gates, and exit criteria. |
 | Auth, threats, compliance | [Security](security-compliance.md) | Threat model, SSRF/traversal/injection mitigations, credential handling, session isolation, log sanitization, and INV-003 enforcement specifics. |
 | Build sequence | ⭐ [Implementation Plan](implementation-plan.md) | The 5.5-hour Manila build schedule: time blocks, owners, gates, and the honest stopping point. This is Joshua's working document — check it for current task assignments. |
+| Global execution plan | ⭐ [Next Steps](next-steps.md) | Day-by-day ship plan to the Global deadline: per-member tasks, deploy ownership, blockers, and the honest stopping point. The single doc the team follows now. |
 | Build-time agent roster | [SAD](sad.md) | Which AI agents help build convex (graph-engineer, product-ui-engineer, reasoning-engineer, trust-reviewer), their boundaries, and what they must not do. |
-| Deployment and incidents | [Ops](ops.md) | Deployment steps for Vercel and HF Space, health checks, monitoring, rollback procedures, and incident response for judging availability. |
+| Deployment and incidents | [Ops](ops.md) | Deployment steps for Cloudflare Workers and HF Space, health checks, monitoring, rollback procedures, and incident response for judging availability. |
 | Release and validation | [Release/GTM](release-gtm.md) | Release phases (M0–M3, G1–G3), scope-cut order, rollout strategy, launch checklist, and submission deadlines. The ship plan. |
 | Demo narrative and Q&A | [Pitch Kit](pitch-kit.md) | The 2:45 voiceover script, rubric evidence map, "not just Cursor/Cody" answer, and live-demo rules. Dia and Abu use this to rehearse. |
 | Contributor orientation | [Onboarding](onboarding.md) | Quick-start for anyone joining the team: environment setup, conventions, where to find things, and first-task suggestions. |
@@ -62,4 +63,4 @@ All listed documents are **planning-ready**. Assumptions remain explicitly marke
 | EQ-### / DS-### | Equation and dataset IDs from the Methods doc. Every number shown to a user must trace to one. |
 | API-### | Endpoint IDs from the API Spec. Frontend and backend share these as the contract. |
 | TC-### / TC-N## | Test case IDs (positive and negative/invariant tests). |
-| BFF | Backend-for-Frontend — the Vercel proxy layer that holds the HF Space credential. |
+| BFF | Backend-for-Frontend — a proxy layer that would hold a backend credential. **Not used in convex:** the browser calls the HF Space directly (ADR-0001 / ADR-0003). |

@@ -1,7 +1,7 @@
 # ADR-0001 — Two-repository hackathon baseline
 
 - **Date:** 2026-07-18
-- **Status:** Accepted
+- **Status:** Superseded by [ADR-0003](ADR-0003-cloudflare-workers-client-deployment.md) for the client host only (Vercel → Cloudflare Workers, 2026-07-19). The two-repository, direct-browser-to-Space, CORS-allowlist decision below remains in force; wherever this ADR says "Vercel," read "Cloudflare Workers." The rejected "same-origin Vercel BFF/proxy" option is retained as historical context.
 - **Context:** convex has a four-day judged build, a polished web demo, deterministic repository analysis, and mandatory meaningful GPT-5.6 use. The supplied implementation baseline is already split between a Vercel web client and a Hugging Face Docker Space using FastAPI, LangChain, and LangGraph. Re-platforming would consume demo time. The Space local disk is ephemeral, so MVP state cannot be treated as durable.
 - **Options considered:**
   1. **Keep two repositories with a same-origin Vercel BFF/proxy.** Preserves the baseline, hides the Space credential, and separates UI delivery from analysis; costs two deploys, proxy plumbing, cold-start handling, and duplicated operational checks.

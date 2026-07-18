@@ -9,7 +9,7 @@ A release candidate passes only when a clean-browser user can load a visibly lab
 - **INV-001:** every rendered structural edge has deterministic source evidence; uncertainty is omitted.
 - **INV-002:** every personal gap item has both repository and learner-attempt evidence; no generic list.
 - **INV-003:** intake and analysis are read-only; no write credential, mutation route, commit, branch, or pull request.
-- **Architecture:** keep the current two repositories: Vercel web client calling the Hugging Face Docker Space (FastAPI, deterministic analysis, minimal LangChain/LangGraph, GPT-5.6 above the graph) directly over HTTPS — no BFF/proxy; access control is a CORS origin allowlist.
+- **Architecture:** keep the current two repositories: Cloudflare Workers web client calling the Hugging Face Docker Space (FastAPI, deterministic analysis, minimal LangChain/LangGraph, GPT-5.6 above the graph) directly over HTTPS — no BFF/proxy; access control is a CORS origin allowlist.
 - **Scope rule:** cut breadth and polish before cutting provenance, teach-back, text-path access, sample labeling, or the gap update.
 
 ## Release plan & phases
@@ -17,7 +17,7 @@ A release candidate passes only when a clean-browser user can load a visibly lab
 |---|---|---|---|---|
 | **M0 — Spine** | Manila Sprint 1, Jul 18 9:45–12:00 PHT; Joshua + Farhana backend, Helena + Dia frontend, Abu product | Pre-indexed sample, selected function, exact edge, evidence drawer, text path | Environments open; demo fixture fixed | Local/preview `focus → edge → file:line` works; no evidence-less edge can render |
 | **M1 — Full loop** | Manila Sprint 2, 1:00–2:15 PHT; all five | F-001–F-005: intake, semantic zoom, teach-back, gap update | M0 passes | Clean browser completes the target loop; failure states and keyboard path work |
-| **M2 — Freeze** | 2:15–2:45 PHT; Abu go/no-go, Farhana deploy, Joshua technical gate, Dia demo | Known-good Vercel deployment + Space image/commit + recorded fallback | M1 and hard gates pass | Deployment IDs recorded; rollback tested once; two timed rehearsals; no discretionary change after 2:30 |
+| **M2 — Freeze** | 2:15–2:45 PHT; Abu go/no-go, Farhana deploy, Joshua technical gate, Dia demo | Known-good Cloudflare Workers deployment + Space image/commit + recorded fallback | M1 and hard gates pass | Deployment IDs recorded; rollback tested once; two timed rehearsals; no discretionary change after 2:30 |
 | **M3 — Manila demo** | 3:00–4:00 judging window; Dia drives, Abu narrates, Joshua technical standby, Farhana ops | Working sample-first live demo | Health checks pass; Space warmed | Core loop shown honestly; judge questions and incidents captured |
 | **G1 — Global hardening** | Jul 18 evening–Jul 20; Manila five + Geinel + Jim | Fix incidents; accessibility/responsive polish; README; reliable judge path | Manila artifact tagged | Full checks pass; judge can test without rebuilding; Codex and GPT-5.6 roles documented with real artifacts |
 | **G2 — Submission** | Before Jul 21 5 PM PT / Jul 22 8 AM PHT; Dia + Abu story, Helena visuals, Joshua + Geinel review, Farhana + Jim ops | Public YouTube voiceover under 3 minutes, Devpost entry, repo access, live URL | G1 frozen | Links work logged-out; actual `/feedback` Session ID supplied; submission confirmation saved |
@@ -34,7 +34,7 @@ A release candidate passes only when a clean-browser user can load a visibly lab
 ### Deployment order
 1. Pin and test the backend image; deploy the Hugging Face Space first.
 2. Calling the backend directly, pass `GET /health`, invariant fixtures, sample analysis, and `graph → questions → attempt → gaps` smoke.
-3. Deploy Vercel preview against that backend; pass contract, keyboard, responsive, clean-session, and secret-bundle checks.
+3. Deploy the Cloudflare Workers preview against that backend; pass contract, keyboard, responsive, clean-session, and secret-bundle checks.
 4. Promote that exact preview; repeat the smoke from a logged-out browser. A second-network check is **[assumption]** if connectivity permits.
 5. Record known-good identifiers for both repositories in the private team channel **[assumption]**.
 
@@ -48,13 +48,13 @@ Runtime switches for public-repository intake and model-backed views are **[assu
 | Parser is uncertain | Edge absent; “not enough evidence” | Joshua fixes deterministic rule/fixture later | INV-001 |
 | GPT-5.6 unavailable or output rejected | Graph, source, and text path remain; reasoning view unavailable | One validated retry; Joshua/Farhana disable or rollback model path | Graph truth unchanged |
 | Session lost | Expiry message; new session or sample | Start fresh; never reconstruct from logs | Ephemeral-state honesty |
-| Vercel regression | Previous known-good client | Farhana/Jim roll back Vercel | API v1 overlap |
+| Cloudflare regression | Previous known-good client | Farhana/Jim roll back the Cloudflare Worker | API v1 overlap |
 | Security/invariant breach | Affected route disabled | Rotate if needed, delete transient state, patch, rerun gates | Safety before availability |
 
 ### Rollback decision and mechanics
 - **Immediate rollback/disable:** any published edge without evidence, gap without both evidence classes, cross-session access, repository mutation path, exposed secret, or broken clean-browser loop.
 - **Degrade then investigate:** model citation rejection, one public fetch failure, or an intentionally omitted ambiguous edge.
-- Vercel returns to the previous deployment; the Space returns to the previous known-good image/commit. API v1 stays backward compatible through overlap. Recovery creates new ephemeral sessions; it does not restore learner responses.
+- The Cloudflare Worker returns to the previous deployment; the Space returns to the previous known-good image/commit. API v1 stays backward compatible through overlap. Recovery creates new ephemeral sessions; it does not restore learner responses.
 - Fallback hierarchy: live bounded repository → live sample → visibly labeled pre-indexed sample → recorded local run for presentation only. The operator says which layer is shown.
 
 ## Launch checklist

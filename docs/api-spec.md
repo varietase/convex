@@ -1,10 +1,10 @@
 # API Specification — convex
 
-> **Purpose:** Versioned contract between the browser (`xray-client` on Vercel) and the backend (`xray-backend`, FastAPI on a Hugging Face Docker Space, port 7860). The browser calls the backend directly over HTTPS JSON — there is no BFF/proxy and no internal API mirror. Endpoints are synchronous; the MVP avoids queues, polling, and background jobs.
+> **Purpose:** Versioned contract between the browser (`xray-client` on Cloudflare Workers) and the backend (`xray-backend`, FastAPI on a Hugging Face Docker Space, port 7860). The browser calls the backend directly over HTTPS JSON — there is no BFF/proxy and no internal API mirror. Endpoints are synchronous; the MVP avoids queues, polling, and background jobs.
 
 ## Overview
 - Backend base: the deployed Hugging Face Space origin, called directly by the browser.
-- Access control: FastAPI CORS allowlist (deployed Vercel origin + local development origins), never a wildcard. There is no session cookie, CSRF token, or bearer credential. `POST /v1/analyses` creates an opaque `sessionId`; the browser holds and resubmits it with each later request so the backend can scope ephemeral state.
+- Access control: FastAPI CORS allowlist (deployed Cloudflare origin `https://convex.varietase.workers.dev` + local development origins), never a wildcard. There is no session cookie, CSRF token, or bearer credential. `POST /v1/analyses` creates an opaque `sessionId`; the browser holds and resubmits it with each later request so the backend can scope ephemeral state.
 - Request/session/artifact IDs are opaque UUIDv4 strings [assumption]. Snapshot, symbol, and structural-edge IDs are opaque 64-character SHA-256 values derived from immutable evidence using the formulas in `technical-design.md`; times are RFC 3339 UTC.
 - Every response carries `X-Request-ID`; JSON successes also include `request_id`. Errors use `{code, message, limits?}` per the schema below.
 - Repository contents, evidence packets, and learner responses are not accepted in query strings.

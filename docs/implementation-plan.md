@@ -1,7 +1,9 @@
 # Implementation Plan — five-hour build
 
+> **Status note (2026-07-19):** This is the Manila five-hour sprint plan, kept as the build-gate record. The active Global tracker is [`next-steps.md`](next-steps.md). Deployment is **Cloudflare Workers** (client live at `https://convex.varietase.workers.dev`), per ADR-0003.
+
 ## Build rule
-Riskiest thing first: if deterministic evidence-backed edges do not work, stop—the remainder is a wrapper. Each gate reasserts INV-001–003. Current baseline stays Vercel client + Hugging Face Docker Space, called directly by the browser over a CORS-allowlisted origin — no BFF/proxy.
+Riskiest thing first: if deterministic evidence-backed edges do not work, stop—the remainder is a wrapper. Each gate reasserts INV-001–003. Current baseline stays Cloudflare Workers client + Hugging Face Docker Space, called directly by the browser over a CORS-allowlisted origin — no BFF/proxy.
 
 Three builder roles per `master-plan-implementation.md` §9, mapped onto the team's real assignments:
 - **Builder A — client explorer:** Helena/Dia
@@ -9,10 +11,10 @@ Three builder roles per `master-plan-implementation.md` §9, mapped onto the tea
 - **Builder C — teaching pipeline:** Farhana (shared with Builder B) with Abu on demo/acceptance across every gate
 
 ## 0:00–0:20 — Contracts, sample, and deployments
-- **Everyone:** create the two repositories (`client` = `xray-client`, `model` = `xray-backend`); deploy a blank Vercel client; deploy a FastAPI `/health` endpoint to the Docker Space (port 7860); lock the sample repository; lock the data contracts; lock intake limits (40 files, 750KB total, 60KB/file, 5MB archive, 20MB extracted, 20s timeout); define stable ID formulas; add the invariant test file before feature code.
+- **Everyone:** create the two repositories (`client` = `xray-client`, `model` = `xray-backend`); deploy a blank Cloudflare Workers client; deploy a FastAPI `/health` endpoint to the Docker Space (port 7860); lock the sample repository; lock the data contracts; lock intake limits (40 files, 750KB total, 60KB/file, 5MB archive, 20MB extracted, 20s timeout); define stable ID formulas; add the invariant test file before feature code.
 - **Gate:** client deployment opens; backend `/health` responds; both repositories share the same contract version; the demo sample and central path are known.
 
-**Status 2026-07-18:** backend branch `feat/contracts-health` implements contract `1.0.0`, local sample `xray-demo-v1`, stable IDs, locked limits, invariant schemas, and `/health`; 29 tests and a live local smoke pass. Hugging Face deployment, Vercel deployment/shared client contract, and the final judge-facing sample remain open, so the 0:20 gate is not yet complete.
+**Status 2026-07-18:** backend branch `feat/contracts-health` implements contract `1.0.0`, local sample `xray-demo-v1`, stable IDs, locked limits, invariant schemas, and `/health`; 29 tests and a live local smoke pass. Hugging Face deployment, Cloudflare deployment/shared client contract, and the final judge-facing sample remain open, so the 0:20 gate is not yet complete.
 
 ## 0:20–1:05 — Parallel foundation
 - **Builder A:** establish dark-first token scaffolding from `design-system.md`; render mock symbols and edges; implement Inside/Around/Across controls; add selected-symbol state; add keyboard-focusable graph elements; add text-path placeholder; build the source pane.
@@ -49,7 +51,7 @@ Three builder roles per `master-plan-implementation.md` §9, mapped onto the tea
 - **Gate:** hide or delete any feature that does not pass.
 
 ## 4:20–4:40 — Deployment reliability
-- Set the backend CORS allowlist (deployed Vercel origin + local dev, no wildcard); store the model key only in Space secrets; confirm the backend listens on port 7860; verify the Vercel production environment points to the Space API; test a fresh browser session; test the bundled sample after a backend restart; test cached explanation and cached evaluation; record a backup demo video; capture one full-screen fallback screenshot.
+- Set the backend CORS allowlist (deployed Cloudflare origin + local dev, no wildcard); store the model key only in Space secrets; confirm the backend listens on port 7860; verify the Cloudflare Workers production environment points to the Space API; test a fresh browser session; test the bundled sample after a backend restart; test cached explanation and cached evaluation; record a backup demo video; capture one full-screen fallback screenshot.
 - **Gate:** production sample loop succeeds after a cold restart.
 
 ## 4:40–5:00 — README and rehearsal

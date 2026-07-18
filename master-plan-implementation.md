@@ -34,7 +34,7 @@ The earlier plan needs six concrete changes.
    The gap map depends on evidence produced by F-004.
 
 3. **The single Next.js application architecture is no longer valid.**
-   Use the mandated Vercel client and Hugging Face Docker Space backend.
+   Use the Cloudflare Workers client and Hugging Face Docker Space backend.
 
 4. **Every structural edge needs three provenance points:**
    the source definition, the relationship site, and the target definition.
@@ -102,7 +102,7 @@ That extra verification step is the product’s strongest differentiator.
 | Feedback      | Supported, missing, and unsupported claims                                                        |
 | Learner state | Current browser session only                                                                      |
 | Gap map       | Only concepts supported by repository and learner-answer evidence                                 |
-| Deployment    | Vercel client plus Hugging Face Docker Space backend                                              |
+| Deployment    | Cloudflare Workers client plus Hugging Face Docker Space backend                                              |
 | Operation     | Entirely read-only                                                                                |
 
 ## Explicitly excluded
@@ -147,7 +147,7 @@ Reject the repository rather than silently analyzing a truncated subset. Silent 
 
 ```text
 ┌──────────────────────────────────────────────────────────┐
-│ Vercel Client                                            │
+│ Cloudflare Workers Client                                            │
 │ Next.js + TypeScript + React Flow                        │
 │                                                          │
 │ Intake                                                   │
@@ -311,7 +311,7 @@ xray-backend/
 └── README.md
 ```
 
-The backend should allow only the deployed Vercel origin and local development origins through FastAPI CORS configuration—not a wildcard. FastAPI provides `CORSMiddleware` for this cross-origin client/backend arrangement. ([FastAPI][5])
+The backend should allow only the deployed Cloudflare origin and local development origins through FastAPI CORS configuration—not a wildcard. FastAPI provides `CORSMiddleware` for this cross-origin client/backend arrangement. ([FastAPI][5])
 
 ---
 
@@ -1018,7 +1018,7 @@ Assumption: three builders.
 ### Everyone
 
 * Create the two repositories.
-* Deploy a blank Vercel client.
+* Deploy a blank Cloudflare Workers client.
 * Deploy a FastAPI `/health` endpoint to the Docker Space.
 * Lock the sample repository.
 * Lock the data contracts.
@@ -1228,7 +1228,7 @@ Hide or delete any feature that does not pass.
 * Set the backend CORS allowlist.
 * Store the model key only in Space secrets.
 * Confirm the backend listens on port `7860`.
-* Verify the Vercel production environment points to the Space API.
+* Verify the Cloudflare Workers production environment points to the Space API.
 * Test a fresh browser session.
 * Test the bundled sample after a backend restart.
 * Test cached explanation and cached evaluation.
@@ -1497,7 +1497,7 @@ Use Codex to help implement and review:
 * Invariant tests
 * Accessibility checks
 * Docker configuration
-* Vercel/Space integration
+* Cloudflare/Space integration
 * README documentation
 
 Record major Codex decisions and the required feedback session in the README.

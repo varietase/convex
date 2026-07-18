@@ -16,11 +16,11 @@ convex is a proof-of-comprehension product, not a graph viewer or generic explai
 Browser
   | HTTPS JSON, direct call
   v
-Vercel web client [repository 1: xray-client]
+Cloudflare Workers web client [repository 1: xray-client]
   | HTTPS JSON API
   v
 Hugging Face Docker Space [repository 2: xray-backend], port 7860
-  FastAPI (CORS allowlist: deployed Vercel origin + local dev)
+  FastAPI (CORS allowlist: deployed Cloudflare origin + local dev)
     -> deterministic Tree-sitter pipeline -> ephemeral evidence store
     -> minimal LangChain/LangGraph -> GPT-5.6
   ^                         |
@@ -29,7 +29,7 @@ Public repository host      v
                        model provider
 ```
 
-The browser calls the FastAPI backend directly over HTTPS — there is no BFF/proxy layer and no server-held backend credential. The only access-control boundary is an explicit FastAPI CORS allowlist (the deployed Vercel origin plus local development origins), never a wildcard.
+The browser calls the FastAPI backend directly over HTTPS — there is no BFF/proxy layer and no server-held backend credential. The only access-control boundary is an explicit FastAPI CORS allowlist (the deployed Cloudflare origin plus local development origins), never a wildcard.
 
 
 ## Components & responsibilities
@@ -74,7 +74,7 @@ If live fetch/model analysis is unavailable, the user explicitly chooses “Load
 ## Key technology choices + rationale
 | Choice | Why | Trade-off | Alternative rejected |
 |---|---|---|---|
-| Two repositories: Vercel + HF Docker Space | Current baseline; separates polished web delivery from Python analysis | Two deploys, cold starts, API contract | Re-platform during hackathon |
+| Two repositories: Cloudflare Workers + HF Docker Space | Current baseline; separates polished web delivery from Python analysis | Two deploys, cold starts, API contract | Re-platform during hackathon |
 | Direct browser-to-backend calls, CORS allowlist | No credential-relay layer to build in five hours; browser API is same as the deployed contract | Public backend surface protected only by CORS, not a server-held credential | Same-origin Vercel BFF/proxy |
 | FastAPI | Required baseline and typed Python boundary | Python service/runtime upkeep | Replace backend framework |
 | Tree-sitter 0.26 with pinned JavaScript 0.25 and TypeScript/TSX 0.23 grammars; JS/JSX/TS/TSX only | Fast deterministic syntax with source spans; deep support beats weak breadth | Incomplete dynamic-call resolution | Multi-language marketing or LLM graph extraction |
@@ -94,10 +94,10 @@ Research supports the deployment and scope rather than the product novelty. Dock
 | Space → GPT-5.6 | HTTPS API key in Space secret store | Bounded evidence packet and learner answer | One validated retry; deterministic-only degradation |
 
 ## Deployment topology
-Vercel serves static/client code only — no serverless proxy routes. The Hugging Face Docker Space exposes one FastAPI port (`7860`) and contains parsing, reasoning, transient jobs, and the sample artifact. The FastAPI CORS allowlist (deployed Vercel origin + local dev) is the sole access-control boundary; the Space has a public network address. No production database is required for MVP; session loss on restart is an accepted limitation and must be visible.
+Cloudflare Workers serves static/client code only — no serverless proxy routes. The Hugging Face Docker Space exposes one FastAPI port (`7860`) and contains parsing, reasoning, transient jobs, and the sample artifact. The FastAPI CORS allowlist (deployed Cloudflare origin + local dev) is the sole access-control boundary; the Space has a public network address. No production database is required for MVP; session loss on restart is an accepted limitation and must be visible.
 
 ## Scaling strategy and open NFRs
-MVP targets judge/demo traffic, not multi-tenancy. Bound work before allocating parser/model resources; cap concurrent jobs; cache only the bundled sample and optionally deterministic graphs keyed by public URL + full commit SHA + analyzer version [assumption]. Scale Vercel independently; move Space jobs to a queue/external object store only after measured contention. Unspecified and therefore not promises: availability SLO, peak concurrency, latency target, model budget, regional residency, and recovery time.
+MVP targets judge/demo traffic, not multi-tenancy. Bound work before allocating parser/model resources; cap concurrent jobs; cache only the bundled sample and optionally deterministic graphs keyed by public URL + full commit SHA + analyzer version [assumption]. Scale the Cloudflare Worker independently; move Space jobs to a queue/external object store only after measured contention. Unspecified and therefore not promises: availability SLO, peak concurrency, latency target, model budget, regional residency, and recovery time.
 
 ## Future design — recommendation, not current scope
 After F-001–F-005 work and repeated-use evidence exists, evaluate ADR-0002: local read-only sidecar/CLI as deterministic indexer and MCP server, optional editor launcher, and MCP App for interactive graph/teach-back. Hosted reasoning would receive selected evidence packets, not repositories. This enables F-101–F-104 and longitudinal comprehension deltas. It does not authorize implementation now, does not build a new IDE, and does not make MCP the innovation.

@@ -19,7 +19,7 @@ convex is a comprehension control layer for student, hackathon, bootcamp, and se
 | Why this team | The team includes student builders in the target segment and can dogfood immediately; that is access, not market validation. | Team |
 | Core work | Exact extraction, bounded GPT-5.6 reasoning, teach-back, transparent gap derivation, and reliable delivery. | Technology |
 | Durable asset | Versioned evidence methods plus, only in future and with consent, longitudinal learner evidence. No such dataset exists today. | Wedge |
-| Cost | Vercel/Hugging Face hosting and GPT-5.6 calls; unit cost is unmeasured. | Feasibility |
+| Cost | Cloudflare/Hugging Face hosting and GPT-5.6 calls; unit cost is unmeasured. | Feasibility |
 | Channels | Manila room, Ateneo CS network, Global Build Week, student hackathon and bootcamp communities. | Reach |
 | Ask | Twenty builders who will use it twice, plus one institution willing to define an evaluation—not just say it is interesting. | Close |
 
@@ -34,7 +34,7 @@ Lead with the product. No title animation before the first interaction. The reco
 | **0:58–1:25** | Open teach-back; submit prepared natural-language answer; show Supported / Missing / Unsupported findings with citations. | “Then convex asks the builder to explain the path back. GPT-5.6 compares this response only with the bounded evidence packet and cites each finding. It critiques this answer, not the person.” | Quality of the Idea; Technological Implementation |
 | **1:25–1:42** | Gap list visibly changes; expand “Why this changed.” | “That attempt changes the gap list. An item appears only when the repository contains the concept and the response provides learner evidence. No generic curriculum is passed off as personal.” | Quality of the Idea; Design |
 | **1:42–2:05** | Split-screen diagram: code-evidence graph on left, learner-state graph on right; Cursor/Cody labels outside the product. | “This is not just Cursor or Cody. Those products can navigate, explain, and edit code. convex adds proof-of-comprehension: one graph records what the repository proves; a separate graph records only what this response demonstrated. The graph itself—and MCP—are not our novelty.” | Quality of the Idea |
-| **2:05–2:25** | Two-repository architecture: Vercel client → Hugging Face Docker Space directly → deterministic analyzer and GPT-5.6. | “The current build stays in two repositories: a Vercel web client calling a Hugging Face Docker Space directly — FastAPI, deterministic analysis, minimal LangChain/LangGraph, and GPT-5.6 above the graph.” | Technological Implementation |
+| **2:05–2:25** | Two-repository architecture: Cloudflare Workers client → Hugging Face Docker Space directly → deterministic analyzer and GPT-5.6. | “The current build stays in two repositories: a Cloudflare Workers web client calling a Hugging Face Docker Space directly — FastAPI, deterministic analysis, minimal LangChain/LangGraph, and GPT-5.6 above the graph.” | Technological Implementation |
 | **2:25–2:36** | Real Codex build artifact: session/commit/test clip. | “During the sprint, Codex helped us implement and test this path **[assumption—replace with the exact captured task and evidence before recording]**. We will submit the real main-thread `/feedback` Session ID.” | Technological Implementation |
 | **2:36–2:45** | Return to changed gap list and student-builder use case. | “There is no validated payer yet. Next we test whether twenty builders use convex twice—and whether one institution defines a real evaluation. First, make the code explainable by its builder.” | Potential Impact |
 
@@ -69,4 +69,4 @@ Lead with the product. No title animation before the first interaction. The reco
 - GPT-5.6 receives bounded evidence packets and returns typed narrative, three questions, and response findings with citations. Validators reject unknown citations. It cannot write graph records.
 - The code-evidence graph and learner-state graph are separate. A gap item is a derived join requiring evidence from both.
 - The repository is read-only. No source execution, write credential, commit, branch, or pull-request path exists.
-- The current architecture remains a Vercel client calling a Hugging Face Docker Space (FastAPI/LangChain/LangGraph) directly over HTTPS, no BFF/proxy. Future MCP/extension work is F-102, not the current build.
+- The current architecture remains a Cloudflare Workers client calling a Hugging Face Docker Space (FastAPI/LangChain/LangGraph) directly over HTTPS, no BFF/proxy. Future MCP/extension work is F-102, not the current build.
