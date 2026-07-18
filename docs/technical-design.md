@@ -23,7 +23,7 @@
 | `learner` | Record attempts and derive eligible gap items | `record_attempt`, `derive_gaps` | methods registry |
 | `cleanup` | TTL and workspace deletion | scheduled/lazy sweep | ephemeral store |
 
-Dependency versions and concrete SDK method names must be pinned and checked against official docs at scaffold time [assumption].
+Backend dependency versions are pinned in `model/pyproject.toml` and `model/uv.lock`; the Docker requirements export also pins transitive hashes. FastAPI/CORS, Hugging Face Docker Space, py-tree-sitter 0.26, LangGraph `StateGraph`, LangChain `ChatOpenAI.with_structured_output`, and OpenAI `gpt-5.6` surfaces were checked against official docs on 2026-07-18. Client dependency pins remain open [assumption].
 
 
 ## Class / function-level design
@@ -60,7 +60,7 @@ def slice_evidence(graph: EvidenceGraph, selection: Selection, budget: EvidenceB
 def derive_gap_items(graph: EvidenceGraph, attempts: list[Attempt]) -> list[GapItem]: ...
 ```
 
-`validate_graph` fails closed when an edge has no source span, the span is outside its immutable file hash, or either symbol is absent. Model-facing functions accept `EvidencePacket`, never a workspace or unrestricted repository.
+`validate_graph` fails closed when an edge has no source span, the span is outside its immutable file hash, or either symbol is absent. Model-facing functions accept `EvidencePacket`, never a workspace or unrestricted repository. `POST /v1/analyses` creates an opaque UUIDv4 `sessionId` and returns it with `snapshotId`; all later xray and teach-back operations supply both values, and store lookups fail closed on a scope mismatch.
 
 ```python
 class ReasoningState(TypedDict):

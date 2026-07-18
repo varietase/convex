@@ -143,13 +143,13 @@ The MVP must produce one demoable loop: inspect a bounded read-only repository, 
 ## Dependencies
 ### Current implementation baseline
 - **Repository 1 — client:** Vercel-hosted web client. Client framework, graph library, state layer, and repository identifier are [assumption] until technical design.
-- **Repository 2 — backend:** Hugging Face Docker Space running FastAPI, LangChain, and LangGraph. Container configuration, model configuration, persistence, and repository identifier are [assumption] until technical design.
-- The client SHALL communicate with the backend through an API contract to be defined downstream [assumption].
+- **Repository 2 — backend:** Hugging Face Docker Space running the lockfile-pinned FastAPI, Tree-sitter, LangChain/OpenAI, and LangGraph stack in `model`; Docker port 7860, contract `1.0.0`, `gpt-5.6`, and ephemeral behavior are locked. The deployed Space identifier and measured runtime behavior remain [assumption].
+- The browser SHALL call the five-route `/v1` backend contract directly; only `GET /health` is active in the first scaffold slice, and feature routes activate with their owning gates.
 - The deployment must remain available through Global judging.
 
 ### Product and delivery dependencies
-- A deterministic static-analysis path for supported symbols, imports, calls, and module relationships; implementation libraries and supported languages are [assumption].
-- A bundled demo repository or bounded public repository snapshot with known evidence paths [assumption].
+- Tree-sitter 0.26 with pinned JavaScript and TypeScript grammars for JS/JSX/TS/TSX symbols, imports, calls, and module relationships; supported-edge precision/coverage still requires fixture validation.
+- Bundled sample `xray-demo-v1`, currently a minimal named-relative-import/call fixture; the final judge-facing sample and central path remain to be selected [assumption].
 - Meaningful use of Codex and GPT-5.6, with exact product and build responsibilities still [assumption].
 - Public or judge-accessible deployment, a sub-three-minute English voiceover demo, a repository/README describing Codex collaboration, and the main Codex `/feedback` Session ID.
 - Accessibility and visual-system implementation for the documented dark-first tokens, keyboard graph traversal, visible focus, non-color states, reduced motion, AA contrast checks, and graph-path text alternatives.
@@ -166,7 +166,7 @@ The MVP must produce one demoable loop: inspect a bounded read-only repository, 
 - **Commercial signal:** One institutional conversation reaches a concrete evaluation or purchase process; no revenue target exists because no payer is validated.
 
 ## Open questions
-- Which languages and static-analysis libraries can meet the trust target within the build window?
+- Can the pinned JS/JSX/TS/TSX Tree-sitter lane meet the trust target on the held-out demo set?
 - What repository size, file-count, and analysis-time bounds define "bounded" intake?
 - What exact learner-state representation and rubric update gap rankings without overstating comprehension?
 - Which parts of analysis, narration, and teach-back use Codex versus GPT-5.6?

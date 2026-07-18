@@ -50,7 +50,7 @@ All listed documents are **planning-ready**. Assumptions remain explicitly marke
 - [x] All five endpoints declare auth/authz (CORS allowlist only, no BFF/proxy).
 - [x] Every displayed rank/count is owned by EQ-### / DS-### methods.
 - [x] Current architecture is two repos; local-first MCP App remains proposed only.
-- [ ] Replace repository IDs, exact commands, pinned versions, and measured limits during scaffold.
+- [ ] Backend commands, dependency pins, contract/analyzer versions, stable IDs, sample fixture, and intake caps are locked; replace remaining client pins, deployment repository IDs, and measured runtime limits during their gates.
 
 ## 4. Key terms (quick glossary)
 | Term | Meaning |
