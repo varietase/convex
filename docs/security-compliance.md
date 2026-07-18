@@ -15,7 +15,7 @@
 MVP does not solicit names, email, accounts, private repositories, or repository credentials. Public code may still contain accidentally committed secrets; convex treats all source as sensitive in handling and never includes unrelated source in model evidence packets.
 
 ## Authn / authz model
-- **Browser → Space:** the browser calls the FastAPI backend directly over HTTPS. The sole browser-origin boundary is an explicit CORS allowlist (the deployed Vercel origin plus local development origins), never a wildcard; non-health requests without an origin and requests with a disallowed origin fail before body handling. Originless `GET /health` is permitted solely for platform probes. There is no session cookie, CSRF token, or bearer credential.
+- **Browser → Space:** the browser calls the FastAPI backend directly over HTTPS. The sole browser-origin boundary is an explicit CORS allowlist (the deployed Cloudflare origin plus local development origins), never a wildcard; non-health requests without an origin and requests with a disallowed origin fail before body handling. Originless `GET /health` is permitted solely for platform probes. There is no session cookie, CSRF token, or bearer credential.
 - **Authorization:** `POST /v1/analyses` creates an opaque UUIDv4 `sessionId`; the browser holds and resubmits it with `snapshotId` for all later operations. The backend has no durable per-user identity, admin route, or cross-session endpoint; scope mismatches return 404 without existence disclosure.
 - **Repository authority:** only anonymous read of allowlisted public HTTPS hosts or bundled sample IDs; no OAuth, SSH keys, write token, git push, or provider mutation API (INV-003).
 - Exact CORS allowlist entries are an implementation detail pending scaffold validation.
@@ -57,7 +57,7 @@ MVP does not solicit names, email, accounts, private repositories, or repository
 - No claim of SOC 2, ISO 27001, FERPA, COPPA, GDPR certification, or security audit is made.
 
 ## Secrets handling
-- Store the model provider key (`OPENAI_API_KEY`) in Hugging Face Space runtime secrets only. Vercel holds no backend credential — there is nothing to relay.
+- Store the model provider key (`OPENAI_API_KEY`) in Hugging Face Space runtime secrets only. The Cloudflare Workers client holds no backend credential — there is nothing to relay.
 - Never prefix server-only secrets for client exposure, return them from health APIs, copy them into logs, or include values in docs.
 - Use separate preview/production values [assumption]. Rotate on suspected exposure; revoke old value.
 - Repository intake receives no provider token in MVP. Any code path requesting GitHub write/private-repo OAuth fails security review.

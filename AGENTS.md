@@ -10,7 +10,7 @@ convex is a read-only proof-of-comprehension layer for student/self-taught build
 4. `docs/implementation-plan.md` and `docs/qa-test-plan.md` — build gates.
 
 ## Current architecture
-Two repositories only for the hackathon: Vercel client (`xray-client`) calling the Hugging Face Docker Space FastAPI backend (`xray-backend`) directly over HTTPS — no BFF/proxy, access control is a CORS origin allowlist only. Backend uses deterministic Tree-sitter analysis, minimal LangChain/LangGraph, and GPT-5.6 only above the evidence graph. ADR-0002 local-first MCP App is future recommendation, not current work.
+Two repositories only for the hackathon: Cloudflare Workers client (`xray-client`, live at `https://convex.varietase.workers.dev`) calling the Hugging Face Docker Space FastAPI backend (`xray-backend`) directly over HTTPS — no BFF/proxy, access control is a CORS origin allowlist only. Backend uses deterministic Tree-sitter analysis, minimal LangChain/LangGraph, and GPT-5.6 only above the evidence graph. ADR-0002 local-first MCP App is future recommendation, not current work.
 
 ## Hard rules
 - **INV-001:** never render a structural edge without deterministic file/line evidence.

@@ -3,7 +3,7 @@
 > **Purpose:** Implementation detail for the current F-001–F-005 hackathon system. See `system-design.md` for boundaries and ADRs for platform decisions.
 
 ## Module breakdown
-### Vercel repository (`xray-client`)
+### Cloudflare Workers repository (`xray-client`)
 | Module | Responsibility | Public interface | Collaborators |
 |---|---|---|---|
 | `ui/intake` | Sample/public snapshot form and bounds messaging | pages/components | Backend analysis endpoint (direct call) |

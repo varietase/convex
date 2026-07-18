@@ -4,8 +4,8 @@
 
 ## Deploy
 ### Environments
-- **Preview:** Vercel preview + non-production Hugging Face Space/config [assumption].
-- **Judging:** Vercel production + Hugging Face Docker Space production. Repository identifiers are intentionally not invented.
+- **Preview:** Cloudflare Workers preview + non-production Hugging Face Space/config [assumption].
+- **Judging:** Cloudflare Workers production + Hugging Face Docker Space production. Repository identifiers are intentionally not invented.
 
 ### Backend first
 1. Build the Docker image with lockfile-pinned dependencies; validate FastAPI, Tree-sitter grammar, LangChain/LangGraph, and model SDK versions against official docs at scaffold [assumption].
@@ -15,24 +15,24 @@
 
 ### Frontend second
 1. Run type, unit, contract, accessibility, and build checks.
-2. Set Vercel environment variables by name (including the backend origin the client calls directly).
+2. Set Cloudflare Workers environment variables by name (including the backend origin the client calls directly).
 3. Deploy preview; run full sample loop against production-like backend.
 4. Promote to production and run the same smoke test.
 
 ### Rollback
-Rollback Vercel to the previous deployment and the Space to the previous known-good image/commit. Keep API v1 backward compatible across the overlap. If live analysis is unhealthy, keep the UI available in explicit sample-fallback mode; never fabricate a successful analysis.
+Rollback the Cloudflare Worker to the previous deployment and the Space to the previous known-good image/commit. Keep API v1 backward compatible across the overlap. If live analysis is unhealthy, keep the UI available in explicit sample-fallback mode; never fabricate a successful analysis.
 
 ## Configuration & secrets
 | Name | Runtime | Purpose |
 |---|---|---|
-| `XRAY_BACKEND_BASE_URL` | Vercel | Space origin the client calls directly |
-| `XRAY_ALLOWED_ORIGINS` | Space | FastAPI CORS allowlist (deployed Vercel origin + local dev) |
+| `XRAY_BACKEND_BASE_URL` | Cloudflare | Space origin the client calls directly |
+| `XRAY_CORS_ORIGINS` | Space | FastAPI CORS allowlist (deployed Cloudflare origin + local dev) |
 | `OPENAI_API_KEY` | Space | GPT-5.6 calls |
-| `XRAY_MODEL_NAME` | Space | Pinned GPT-5.6 identifier [assumption] |
+| `XRAY_MODEL_ID` | Space | Pinned GPT-5.6 identifier [assumption] |
 | `XRAY_LIMIT_*` | Space | Intake/time bounds from API spec |
 | `XRAY_SAMPLE_MANIFEST` | Space | Immutable fallback sample version |
 
-Use the Hugging Face Space secret store for `OPENAI_API_KEY`, never repository files. Vercel holds no backend credential — there is nothing to rotate on that side beyond normal deployment config.
+Use the Hugging Face Space secret store for `OPENAI_API_KEY`, never repository files. The Cloudflare Workers client holds no backend credential — there is nothing to rotate on that side beyond normal deployment config.
 
 
 ## Observability
@@ -106,7 +106,7 @@ Alert destination/owner tooling is [assumption]. During Manila, Farhana is first
 ## Backup & recovery
 MVP user/session data is intentionally ephemeral and is **not backed up**. Recovery means redeploying code/config and recreating a session, not restoring learner responses. Back up/version in source control only: both application repositories, lockfiles, Docker config, schemas, Tree-sitter queries, concept rules, method registry, test fixtures, and pre-indexed sample artifact. Secrets are recreated from approved team secret stores, never backups in the repository.
 
-Before judging, export or tag a known-good deployment identifier for each repository [assumption] and test rollback once. Restore test: deploy backend artifact, pass `GET /health` and invariant fixtures, deploy Vercel artifact, complete the end-to-end sample loop. External durable storage or learner-state backup is future scope requiring an ADR and privacy review.
+Before judging, export or tag a known-good deployment identifier for each repository [assumption] and test rollback once. Restore test: deploy backend artifact, pass `GET /health` and invariant fixtures, deploy the Cloudflare Workers artifact, complete the end-to-end sample loop. External durable storage or learner-state backup is future scope requiring an ADR and privacy review.
 
 ## Judge-day checklist
 - [ ] Production page and `GET /health` load from a clean browser.

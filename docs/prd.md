@@ -66,7 +66,7 @@ The MVP must produce one demoable loop: inspect a bounded read-only repository, 
 - **BR-007 — Read-only operation:** Analysis SHALL NOT modify files, commits, branches, pull requests, or repository settings.
 - **BR-008 — Accessibility:** The user-facing graph SHALL support keyboard traversal, visible focus, non-color status indicators, reduced motion, text alternatives for graph paths, and AA contrast for documented semantic token pairs, targeting WCAG 2.2 AA.
 - **BR-009 — MVP gate:** Final features F-101 through F-104 SHALL NOT displace completion of the F-001 through F-005 end-to-end demo loop.
-- **BR-010 — Architecture baseline:** Current implementation SHALL use two repositories: a Vercel-hosted client and a Hugging Face Docker Space backend using FastAPI, LangChain, and LangGraph. Any replacement is a future decision, not current architecture.
+- **BR-010 — Architecture baseline:** Current implementation SHALL use two repositories: a Cloudflare Workers-hosted client and a Hugging Face Docker Space backend using FastAPI, LangChain, and LangGraph. Any replacement is a future decision, not current architecture.
 
 ## Hard rules / must-never (invariant spine)
 - **INV-001** — **never fabricate structural edges.** The system SHALL NEVER show a call, import, or data-flow edge that is not traceable to a concrete symbol reference in the actual code and produced by deterministic static analysis. IF a model proposes an unsupported structural relationship, THEN the system SHALL omit it and report "not enough evidence." LLM narrative sits on top of the graph; it never invents the graph.
@@ -97,7 +97,7 @@ The MVP must produce one demoable loop: inspect a bounded read-only repository, 
 4. The builder may attempt another teach-back to produce new learner-state evidence.
 
 ### UF-004 — Demo-safe run
-1. The demo operator [assumption] opens the deployed Vercel client.
+1. The demo operator [assumption] opens the deployed Cloudflare Workers client (`https://convex.varietase.workers.dev`).
 2. The operator loads the known sample through the Hugging Face Docker Space backend.
 3. The operator completes UF-001 and UF-002.
 4. The operator shows an updated gap map and evidence citation.
@@ -142,7 +142,7 @@ The MVP must produce one demoable loop: inspect a bounded read-only repository, 
 
 ## Dependencies
 ### Current implementation baseline
-- **Repository 1 — client:** Vercel-hosted web client. Client framework, graph library, state layer, and repository identifier are [assumption] until technical design.
+- **Repository 1 — client:** Cloudflare Workers-hosted web client (OpenNext). Client framework, graph library, state layer, and repository identifier are [assumption] until technical design.
 - **Repository 2 — backend:** Hugging Face Docker Space running the lockfile-pinned FastAPI, Tree-sitter, LangChain/OpenAI, and LangGraph stack in `model`; Docker port 7860, contract `1.0.0`, `gpt-5.6`, and ephemeral behavior are locked. The deployed Space identifier and measured runtime behavior remain [assumption].
 - The browser SHALL call the five-route `/v1` backend contract directly; only `GET /health` is active in the first scaffold slice, and feature routes activate with their owning gates.
 - The deployment must remain available through Global judging.
@@ -170,6 +170,6 @@ The MVP must produce one demoable loop: inspect a bounded read-only repository, 
 - What repository size, file-count, and analysis-time bounds define "bounded" intake?
 - What exact learner-state representation and rubric update gap rankings without overstating comprehension?
 - Which parts of analysis, narration, and teach-back use Codex versus GPT-5.6?
-- What API contract connects the Vercel client to the Hugging Face Docker Space?
+- What API contract connects the Cloudflare Workers client to the Hugging Face Docker Space?
 - What persistence, authentication, rate limits, and operational monitoring are required for judged availability [assumption]?
 - Which sample path creates the clearest sub-three-minute proof-of-comprehension demo?

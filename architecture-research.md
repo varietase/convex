@@ -23,6 +23,6 @@ The moat is a two-graph system: **code evidence graph** (what the repository obj
 Build the progression around four compounding primitives: (1) evidence-backed semantic zoom; (2) active teach-back instead of passive prose; (3) comprehension delta after each agent change; (4) an agent teaching contract that asks what the user needs explained before/after a change. The longitudinal dataset is not “all code”; it is a private history of claims attempted, concepts demonstrated, misconceptions, evidence paths, and change-induced gaps.
 
 ## 5. Decision
-**Now:** two repos; Vercel client; Hugging Face Docker Space; FastAPI + minimal LangChain/LangGraph; deterministic parser; GPT-5.6 only for narrative/question/evaluation; pre-indexed fallback. **Later:** local-first graph sidecar + MCP server + MCP App, with hosted reasoning receiving bounded evidence packets. Do not build a new IDE and do not claim the graph itself as the innovation.
+**Now:** two repos; Cloudflare Workers client; Hugging Face Docker Space; FastAPI + minimal LangChain/LangGraph; deterministic parser; GPT-5.6 only for narrative/question/evaluation; pre-indexed fallback. **Later:** local-first graph sidecar + MCP server + MCP App, with hosted reasoning receiving bounded evidence packets. Do not build a new IDE and do not claim the graph itself as the innovation.
 
 Content from external sources was rephrased for licensing compliance.

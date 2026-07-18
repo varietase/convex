@@ -10,9 +10,9 @@ This repository is the shared system-context and planning hub for the hackathon 
 - Category: comprehension control layer for code
 - Build context: OpenAI Build Week, Manila build sprint plus Global submission
 - MVP scope: F-001 through F-005 only
-- Current architecture: Vercel web client plus Hugging Face Docker Space backend
+- Current architecture: Cloudflare Workers web client (live at `https://convex.varietase.workers.dev`) plus Hugging Face Docker Space backend
 - Client context: sibling [client README](../client/README.md)
-- Backend/model context: `model/` is reserved for the Hugging Face FastAPI backend (`xray-backend`), but this workspace currently contains no Markdown context or implementation files under `convex/model/`
+- Backend/model context: `model/` contains the Hugging Face FastAPI backend (`xray-backend`) — deterministic Tree-sitter analysis, evidence graph, grounded GPT-5.6 reasoning, and gap derivation, with a 300+ test suite (tracked as a submodule)
 - Source of truth: [docs/DECISION-LEDGER.md](docs/DECISION-LEDGER.md)
 
 If any document disagrees with the Decision Ledger, the Decision Ledger wins until the docs are reconciled.
@@ -78,7 +78,7 @@ Do not start F-101 through F-104 until the complete F-001 through F-005 loop wor
 |---|---|---|
 | [convex/](.) | Context and planning repository | Shared source for product, architecture, API, data, design, QA, ops, pitch, and implementation docs. |
 | [../client/](../client/) | Current client workspace | Next.js App Router marketing/product surface for convex. Its README states the current product boundary and run commands. |
-| [model/](model/) | Backend/model placeholder | Intended backend workspace for the Hugging Face Docker Space / FastAPI `xray-backend`. No Markdown context or files were present here when this README was written. |
+| [model/](model/) | Backend workspace (submodule) | Hugging Face Docker Space / FastAPI `xray-backend`: deterministic analysis, evidence graph, grounded reasoning, gap derivation, and a 300+ test suite. See `model/DEPLOY.md` for the Space runbook. |
 | [docs/](docs/) | Formal documentation suite | Canonical planning docs. Start with `docs/index.md` and the Decision Ledger. |
 | [docs/adr/](docs/adr/) | Architecture decisions | ADR-0001 is current; ADR-0002 is a future recommendation only. |
 | [hooks/](hooks/) | Git hook context | Decision-ledger hook notes. |
@@ -92,7 +92,7 @@ Browser
   |
   | HTTPS JSON
   v
-Vercel web client (`xray-client`)
+Cloudflare Workers web client (`xray-client`)
   |
   | HTTPS JSON API, direct browser call
   v
@@ -104,7 +104,7 @@ Hugging Face Docker Space (`xray-backend`), port 7860
     -> GPT-5.6 for narrative/questions/evaluation only
 ```
 
-There is no Vercel BFF/proxy layer in the current design. The browser calls the FastAPI backend directly. The access-control boundary is a FastAPI CORS allowlist for the deployed Vercel origin and local development origins. The allowlist must never be `*`.
+There is no BFF/proxy layer in the current design. The browser calls the FastAPI backend directly. The access-control boundary is a FastAPI CORS allowlist for the deployed Cloudflare origin and local development origins. The allowlist must never be `*`.
 
 The backend owns intake validation, parsing, deterministic graph construction, evidence slicing, concept rules, model-output validation, learner evidence, gap derivation, TTL cleanup, and sample fallback. The frontend owns intake UX, semantic zoom, graph/source/path views, teach-back UX, gap review, evidence drawers, accessibility behavior, and visible provenance.
 
@@ -242,7 +242,7 @@ Expected backend modules from the technical design:
 | `learner` | Attempt recording and eligible gap derivation |
 | `cleanup` | Workspace deletion and TTL sweep |
 
-`convex/model/` currently has no Markdown context or files in this workspace. Until implementation lands there, use [docs/system-design.md](docs/system-design.md), [docs/technical-design.md](docs/technical-design.md), [docs/api-spec.md](docs/api-spec.md), and [docs/data-model.md](docs/data-model.md) as the backend contract.
+`convex/model/` contains the `xray-backend` implementation and its test suite (tracked as a submodule). Use [docs/system-design.md](docs/system-design.md), [docs/technical-design.md](docs/technical-design.md), [docs/api-spec.md](docs/api-spec.md), and [docs/data-model.md](docs/data-model.md) as the backend contract, and `model/DEPLOY.md` for the Hugging Face Space deployment runbook.
 
 ## Security and Privacy
 
@@ -254,7 +254,7 @@ MVP security posture:
 - Evidence excerpts, graph state, teach-back answers, learner state, gaps, and derivations are session-confidential and TTL-bound.
 - Logs must not include source text, learner responses, prompts, model output bodies, full URLs with query strings, cookies, credentials, or evidence packets.
 - Model provider credentials live only in Hugging Face Space secrets.
-- Vercel holds no backend/model secret in the current direct-call architecture.
+- The Cloudflare Workers client holds no backend/model secret in the current direct-call architecture.
 - SSRF, path traversal, symlink, nested archive, decompression bomb, timeout, parser ambiguity, model citation, CORS, session isolation, and cleanup cases are hard security gates.
 
 If live analysis is unavailable, the product may show a visibly labeled pre-indexed sample. It must never pretend sample fallback is a successful live analysis of a submitted repository.
@@ -314,14 +314,14 @@ Important runtime configuration:
 
 | Name | Runtime | Purpose |
 |---|---|---|
-| `XRAY_BACKEND_BASE_URL` | Vercel | Space origin the browser calls directly |
-| `XRAY_ALLOWED_ORIGINS` | Space | CORS allowlist |
+| `XRAY_BACKEND_BASE_URL` | Cloudflare | Space origin the browser calls directly |
+| `XRAY_CORS_ORIGINS` | Space | CORS allowlist |
 | `OPENAI_API_KEY` | Space | GPT-5.6 calls |
-| `XRAY_MODEL_NAME` | Space | Pinned GPT-5.6 identifier |
+| `XRAY_MODEL_ID` | Space | Pinned GPT-5.6 identifier |
 | `XRAY_LIMIT_*` | Space | Intake and timeout bounds |
 | `XRAY_SAMPLE_MANIFEST` | Space | Immutable fallback sample version |
 
-Rollback means reverting Vercel to the previous deployment and the Space to the previous known-good image/commit. User/session data is intentionally ephemeral and is not backed up.
+Rollback means reverting the Cloudflare Worker to the previous deployment and the Space to the previous known-good image/commit. User/session data is intentionally ephemeral and is not backed up.
 
 ## Build Plan
 
@@ -382,8 +382,9 @@ Architecture decisions:
 
 | ADR | Status |
 |---|---|
-| [ADR-0001](docs/adr/ADR-0001-two-repository-hackathon-baseline.md) | Accepted current architecture: Vercel client + Hugging Face Docker Space backend, direct browser calls, CORS allowlist |
+| [ADR-0001](docs/adr/ADR-0001-two-repository-hackathon-baseline.md) | Two-repository baseline: direct browser calls + CORS allowlist. Client **host superseded by ADR-0003** (Vercel → Cloudflare Workers) |
 | [ADR-0002](docs/adr/ADR-0002-future-local-first-mcp-app.md) | Future recommendation only: local-first sidecar, MCP server, and MCP App after the MVP loop is validated |
+| [ADR-0003](docs/adr/ADR-0003-cloudflare-workers-client-deployment.md) | Accepted: client on Cloudflare Workers (OpenNext), live at `https://convex.varietase.workers.dev`; supersedes ADR-0001's host choice only |
 
 Event and team context:
 

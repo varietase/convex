@@ -4,7 +4,7 @@
 >
 > **What this is not.** It does not freeze the product. It keeps change coherent and prevents rejected directions or speculative architecture from silently becoming current truth.
 >
-> **Last reconciled:** 2026-07-18 — backend contracts-and-health scaffold.
+> **Last reconciled:** 2026-07-19 — Cloudflare Workers client deployment (ADR-0003) + backend grounded-reasoning/graph-projection/public-intake milestone; client live at `https://convex.varietase.workers.dev`.
 
 ## 1. Names & immutable identifiers (read first)
 | Name / ID | Kind | Where it appears | Rule |
@@ -13,7 +13,7 @@
 | comprehension control layer for code | Category phrase | Product and pitch copy | Use to distinguish the product from explainers and IDEs. |
 | F-001–F-005, F-101–F-104 | Immutable feature IDs | Idea, PRD, downstream specifications, QA | Preserve IDs exactly; do not renumber during refinement. |
 | INV-001–INV-003 | Immutable invariant IDs | Idea, PRD, security, design, QA | Preserve IDs and meanings exactly; changes require a logged invariant-change pivot. |
-| Vercel client repository identifier | Technical ID | Deployment/config | Not supplied; do not invent [assumption]. |
+| Client repository + deployment | Technical ID | Deployment/config | Repo `varietase/client` (`xray-client`); deployed on Cloudflare Workers (OpenNext) as worker `convex`, live at `https://convex.varietase.workers.dev`. |
 | Hugging Face Docker Space repository identifier | Technical ID | Deployment/config | Not supplied; do not invent [assumption]. |
 
 ## 2. Current truth (confidence, not a gate)
@@ -25,11 +25,19 @@
 | Structural claims must trace to deterministic source evidence. | The client framework, graph renderer, deployment IDs, persistence mechanism, and measured runtime bounds remain to be chosen or verified [assumption]. | The tool improves seven-day retention or interview outcomes. |
 | Learner recommendations must derive from the real repository and demonstrated answers. | The user-facing experience can meet the stated WCAG 2.2 AA target in the hackathon window. | Learner-state scoring thresholds or concept mastery levels are known. |
 | The product is read-only on user code. | Deployment will remain accessible through Global judging as required by context. | Private repository intake, authentication, persistence, and multi-user behavior are part of MVP. |
-| Current implementation baseline is two repositories: a Vercel-hosted client and a Hugging Face Docker Space backend using FastAPI, LangChain, and LangGraph. | The direct browser-to-Space contract integration remains to be verified. | A single-repository, local-only, desktop, IDE-native, or other architecture is current. |
-| The backend scaffold pins FastAPI, Tree-sitter for JS/JSX/TS/TSX, LangChain/OpenAI, LangGraph, the `gpt-5.6` model alias, intake limits, and contract version `1.0.0`; 29 local tests and a live local HTTP health smoke pass. | The graph-grounded GPT-5.6 narrative/question/evaluation pipelines remain to be implemented and verified end to end. | Passing the scaffold proves Hugging Face production readiness or the full product loop. |
+| Current implementation baseline is two repositories: a Cloudflare Workers-hosted client and a Hugging Face Docker Space backend using FastAPI, LangChain, and LangGraph. | The direct browser-to-Space contract integration remains to be verified. | A single-repository, local-only, desktop, IDE-native, or other architecture is current. |
+| The backend implements the full F-001–F-005 surface: deterministic Tree-sitter analysis, a three-anchor evidence graph, grounded GPT-5.6 explain/question/evaluate pipelines, deterministic EQ-005 gap derivation, and fail-closed public-repo intake; 300+ local tests pass with no network access in tests. | End-to-end verification on a deployed Hugging Face Space (keyed model run + production smoke ×3) remains open; the root `model` pin (`80390bb`) must move to `origin/main` (`d06dc29`) to serve the wired graph. | That local tests pass proves the deployed Space is healthy before a keyed production smoke. |
 | MVP is F-001 through F-005; Final is F-101 through F-104. | Model-generated narrative can explain deterministic graph evidence without becoming the source of structural truth. | Unsupported structural relations can safely be inferred by a model. |
 
 ## 3. Pivots & decisions (newest first)
+### 2026-07-19 — Cloudflare Workers client deployment + backend feature-complete milestone
+- **Type:** platform + implementation
+- **Change:** (1) Client host Vercel → **Cloudflare Workers (OpenNext)**, live at `https://convex.varietase.workers.dev` (ADR-0003; supersedes ADR-0001's host choice only). (2) The backend is now feature-complete for F-001–F-005 — deterministic evidence graph, grounded explain/question/evaluate pipelines, EQ-005 gap derivation, and fail-closed public-repo intake — with 300+ passing tests.
+- **Why:** The client was built and deployed on Cloudflare, never Vercel, so the docs had drifted from reality. The backend advanced well past the contracts-and-health scaffold this ledger last recorded.
+- **Invalidated:** "Vercel-hosted client" as current truth; the "29 tests / reasoning pipelines remain to be implemented" scaffold status; the glossary implication that a Vercel BFF/proxy holds a credential (there is no BFF).
+- **Open:** The root pins the `model` submodule at `80390bb`, where `create_app` leaves `analysis_engine`/`evidence_service` unset; `origin/main` (`d06dc29`) wires them and adds public intake. Re-pin + deploy to a Hugging Face Space (blocked on HF access + the model API key) + a keyed production smoke ×3 remain before the loop is live end to end.
+- **Recorded as:** ADR-0003; `docs/next-steps.md`; canonical docs reconciled Vercel → Cloudflare in this change. Architecture otherwise unchanged — two repositories, direct browser→Space call, CORS allowlist, no BFF/proxy.
+
 ### 2026-07-18 — Freeze the browser session and origin boundary for v1
 - **Type:** implementation
 - **Change:** `POST /v1/analyses` creates and returns an opaque UUIDv4 `sessionId` with `snapshotId`; `/v1/xray` and both teach-back routes require both identifiers. Originless `GET /health` is permitted for platform probes; every other browser-facing request requires an exact configured `Origin` before route/body handling.
@@ -74,7 +82,7 @@
 | Code generator, debugger, linter, or PR-review tool | Solves a different job and risks moving attention away from proving comprehension. | Only after a separate product decision and invariant audit; not in the current product. |
 | Standalone visualization as the product | A graph alone does not create a learning outcome; prior code-map products show weak value when detached from a specific learner goal. | If paired with observable teach-back and learner-state outcomes; that paired form is the current wedge. |
 | Single-repository architecture | Conflicts with the current context-defined deployment baseline. | If deployment constraints make two repositories infeasible and a logged platform decision supersedes the baseline. |
-| Alternative client host or backend platform | Not the current architecture; recording alternatives as current would create implementation drift. | If Vercel or Hugging Face cannot satisfy judged availability or required functionality, supported by deployment evidence. |
+| Alternative client host or backend platform | Not the current architecture; recording alternatives as current would create implementation drift. | If Cloudflare or Hugging Face cannot satisfy judged availability or required functionality, supported by deployment evidence. |
 | Alternative backend framework or orchestration stack | FastAPI, LangChain, and LangGraph are the current baseline. Alternatives are unsupported specifics until evaluated. | If an implementation test shows the baseline cannot deliver the MVP loop in time and the platform decision is logged. |
 
 ## 5. Invariant audit
@@ -92,7 +100,7 @@
 - **Technical trust risk:** Supported static analysis must reach at least 70% precision on the held-out demo set, with unsupported edges omitted.
 - **Scope risk:** The MVP must keep F-001 through F-005 as one loop; adding F-101 through F-104 before that loop works is a scope failure.
 - **Architecture detail risk:** Client framework, graph renderer, deployment IDs, persistence, session behavior, and measured runtime limits remain [assumption]; backend libraries, JS/TS language family, contract version, intake caps, and model alias are locked but not yet verified end to end on Hugging Face.
-- **Operational risk:** The Vercel client and Hugging Face Docker Space must remain accessible through Global judging; monitoring and recovery details are [assumption].
+- **Operational risk:** The Cloudflare Workers client and Hugging Face Docker Space must remain accessible through Global judging; the Space is not yet deployed (blocked on Hugging Face access + the model API key), and monitoring and recovery details are [assumption].
 - **Payer risk:** No payer has been found; institutional buyers and purchase intent remain unvalidated.
 - **Accessibility risk:** Full keyboard graph traversal and text-equivalent paths may be difficult in the build window but remain part of the brand baseline.
 - **Evidence risk:** Dates and claims imported from `idea.md` require source verification before external publication where not already verified.
