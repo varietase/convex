@@ -1,0 +1,45 @@
+name: Sync model submodule
+
+# Keeps the `model` submodule pointer following the model repo's main branch.
+# Triggers:
+#   - manual button (Actions tab -> this workflow -> Run workflow)
+#   - every 6 hours as a safety net
+#   - instantly, when the model repo dispatches `model-main-updated`
+#     (see model/.github/workflows/notify-parent.yml — optional, needs a PAT)
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 */6 * * *"
+  repository_dispatch:
+    types: [model-main-updated]
+
+# Allow the built-in GITHUB_TOKEN to push the pointer-bump commit.
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-model-submodule
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out convex with submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Advance model submodule to origin/main
+        run: git submodule update --remote --init model
+
+      - name: Commit and push if the pointer moved
+        run: |
+          if git diff --quiet -- model; then
+            echo "model submodule already at latest main — nothing to do."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: bump model submodule to latest main" -- model
+          git push
