@@ -80,7 +80,7 @@ Suggested first branch: `feat/deterministic-evidence`; follow with `feat/grounde
 
 ### Delivery checklist
 
-- [ ] Configure JS, JSX, TypeScript, and TSX Tree-sitter parsers and analyze the bundled `xray-demo-v1` fixture.
+- [x] Configure JS, JSX, TypeScript, and TSX Tree-sitter parsers and analyze the bundled `xray-demo-v1` fixture. Verified by `model` commit `4b86a95`; the full 51-test backend suite passes.
 - [ ] Extract modules, symbols, declaration spans, imports, direct calls, and unresolved references.
 - [ ] Emit only exact relative imports and uniquely resolved same-file/named-import calls; omit dynamic, computed, reflective, injected, ambiguous, and parser-failed relations.
 - [ ] Validate every published graph edge has the three required provenance anchors and snapshot-scoped spans/symbols.
