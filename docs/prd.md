@@ -11,7 +11,7 @@ The MVP must produce one demoable loop: inspect a bounded read-only repository, 
 - Give builders an evidence-backed mental model of their own repository.
 - Make comprehension observable through teach-back rather than inferred from content consumption.
 - Rank learning gaps from repository evidence and demonstrated answers, not generic curriculum.
-- Preserve trust through read-only access, visible source locations, and explicit uncertainty.
+- Preserve trust through read-only access, visible source locations, explicit uncertainty, and a calm premium interface that keeps evidence visually primary.
 - Ship a clear judged demo within the four-day build window and remain accessible through Global judging.
 
 ## Personas & use cases
@@ -64,7 +64,7 @@ The MVP must produce one demoable loop: inspect a bounded read-only repository, 
 - **BR-005 — Teach-back feedback:** Feedback SHALL critique the explanation and cite supporting evidence; it SHALL NOT claim that a learner "fully understands" or has "mastered" a concept.
 - **BR-006 — Intake boundary:** Repository intake SHALL accept only a bundled sample or a bounded public repository snapshot in MVP; exact size, language, and timeout limits are [assumption] until technical design.
 - **BR-007 — Read-only operation:** Analysis SHALL NOT modify files, commits, branches, pull requests, or repository settings.
-- **BR-008 — Accessibility:** The user-facing graph SHALL support keyboard traversal, visible focus, non-color status indicators, reduced motion, and text alternatives for graph paths, targeting WCAG 2.2 AA.
+- **BR-008 — Accessibility:** The user-facing graph SHALL support keyboard traversal, visible focus, non-color status indicators, reduced motion, text alternatives for graph paths, and AA contrast for documented semantic token pairs, targeting WCAG 2.2 AA.
 - **BR-009 — MVP gate:** Final features F-101 through F-104 SHALL NOT displace completion of the F-001 through F-005 end-to-end demo loop.
 - **BR-010 — Architecture baseline:** Current implementation SHALL use two repositories: a Vercel-hosted client and a Hugging Face Docker Space backend using FastAPI, LangChain, and LangGraph. Any replacement is a future decision, not current architecture.
 
@@ -152,7 +152,7 @@ The MVP must produce one demoable loop: inspect a bounded read-only repository, 
 - A bundled demo repository or bounded public repository snapshot with known evidence paths [assumption].
 - Meaningful use of Codex and GPT-5.6, with exact product and build responsibilities still [assumption].
 - Public or judge-accessible deployment, a sub-three-minute English voiceover demo, a repository/README describing Codex collaboration, and the main Codex `/feedback` Session ID.
-- Accessibility implementation for keyboard graph traversal, visible focus, non-color states, reduced motion, and graph-path text alternatives.
+- Accessibility and visual-system implementation for the documented dark-first tokens, keyboard graph traversal, visible focus, non-color states, reduced motion, AA contrast checks, and graph-path text alternatives.
 
 ### Alternatives — not current architecture
 - A single repository, local desktop app, IDE-native implementation, other client host, other backend host, or replacement backend framework is not current architecture.

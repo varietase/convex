@@ -1,7 +1,7 @@
 # QA — Test Plan & Test Cases — X-Ray
 
 ## Strategy and environments
-Unit-test parser/rules/methods; contract-test the client's direct calls against the five FastAPI endpoints; integration-test model schema/citations; Playwright-style E2E [assumption] for sample flow; manual accessibility and demo rehearsal. Run locally, preview, and judging production with synthetic public fixtures only. Secrets never enter fixtures.
+Unit-test parser/rules/methods; contract-test the client's direct calls against the five FastAPI endpoints; integration-test model schema/citations; Playwright-style E2E [assumption] for sample flow; manual accessibility, visual-token, and demo rehearsal checks. Run locally, preview, and judging production with synthetic public fixtures only. Secrets never enter fixtures.
 
 ## Traceability matrix
 | F-ID | Test cases | Type | MVP status |
@@ -21,7 +21,7 @@ Unit-test parser/rules/methods; contract-test the client's direct calls against 
 - **TC-002 / F-001:** inject ambiguous/dynamic call; edge is omitted with “not enough evidence.” Rendered-edge observed precision must be **100%**; ≥70% is supported-edge recall/coverage only.
 - **TC-003 / F-001:** graph counts reproduce EQ-002 and cite DS-002.
 - **TC-004 / F-002:** selected symbol persists across source/pseudocode/path/concept zoom; narrative structural sentences cite existing edge/span IDs.
-- **TC-005 / F-002:** keyboard-only user traverses graph and equivalent path list; focus, labels, reduced motion, and contrast pass manual checks.
+- **TC-005 / F-002:** keyboard-only user traverses graph and equivalent path list; focus, labels, reduced motion, documented dark-token contrast pairs, and non-color graph/status encodings pass manual checks.
 - **TC-006 / F-003:** property test: no GapItem unless repo evidence and validated attempt evidence are both non-empty; EQ-005 matrix output is exact.
 - **TC-007 / F-003:** UI shows reason/derivation and no mastery, “fully understands,” percentage, or generic top-N copy.
 - **TC-008 / F-004:** question generation returns exactly three repo-specific questions with valid concept/span IDs.
@@ -40,4 +40,4 @@ Unit-test parser/rules/methods; contract-test the client's direct calls against 
 Two sessions cannot cross-read; CORS origin-allowlist checks pass (disallowed origins rejected before body processing); rate limits return 429; the five documented endpoint schemas match; logs contain no source/answers/prompts/secrets; TTL/delete cascades; backend restart returns honest 410; `/health` and sample smoke test pass after rollback.
 
 ## Exit criteria
-All MVP and invariant cases pass; no critical/high security defect; sample E2E passes three times in production; public fixture succeeds once; fallback rehearsed; final-feature tests remain skipped with reasons, not falsely green.
+All MVP and invariant cases pass; no critical/high security defect; sample E2E passes three times in production; public fixture succeeds once; fallback rehearsed; dark-first visual/accessibility checks pass; final-feature tests remain skipped with reasons, not falsely green.

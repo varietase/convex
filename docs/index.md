@@ -12,13 +12,14 @@
 | Problem, segment, feature/invariant origin | [idea.md](../idea.md) | The original problem statement, peer-reviewed evidence, target users, kill criteria, and the feature/invariant spine (F-001–F-005, INV-001–003). This is where we explain *why* we're building X-Ray. |
 | Build context and rubric | [context.md](../context.md) | Hackathon rules, team size, time budget, judging rubric, and hard submission requirements (Codex use, YouTube demo, etc.). Read this to know what we're being scored on. |
 | Brand and voice | [brand.md](../brand.md) | Product name, category phrase, visual direction, UI copy rules (say/don't-say), and accessibility baseline. Governs all user-facing text and design decisions. |
+| Visual philosophy | [Visual Direction](visual-direction.md) | Premium dark-first editorial visual language: mood, composition, shape, motion, imagery, color philosophy, and UI principles. Use before implementing detailed UI tokens. |
 | Product, journeys, F/BR/INV IDs | ⭐ [PRD](prd.md) | Testable product requirements: user stories, acceptance criteria in EARS format, business rules, user flows, and the MVP vs. Final feature split. The contract between product and engineering. |
 | Architecture and topology | [System Design](system-design.md) | High-level architecture: context diagram, component responsibilities, data flows, deployment topology, and technology choices with rationale. Shows *how the pieces connect*. |
 | Algorithms/modules | [Technical Design](technical-design.md) | Low-level design: module breakdown per repository, class/function signatures, algorithm pseudocode (intake, parser, gap derivation), sequence diagrams, and error handling. The implementation reference. |
 | API contracts | [API Spec](api-spec.md) | Every endpoint (API-001–API-108) with request/response schemas, auth requirements, error codes, and rate limits. Frontend and backend must agree on these shapes. |
 | Entities, retention, privacy | [Data Model](data-model.md) | All persisted and ephemeral entities (symbols, edges, sessions, attempts, gap items), their relationships, lifecycle/TTL rules, and privacy boundaries. |
 | Ranking/count equations and confidence | [Methods](methods.md) | The glass-box ledger: every displayed number or category resolves to an equation (EQ-###) and dataset (DS-###) with stated confidence. No hidden scoring. |
-| UI tokens, components, states, copy | [Design System](design-system.md) | CSS tokens, full component inventory with states, interaction patterns, accessibility contracts, graph encoding rules, and exact copy for every UI condition. The frontend implementation spec. |
+| UI tokens, components, states, copy | [Design System](design-system.md) | CSS tokens, semantic/component styling, component inventory with states, interaction patterns, accessibility contracts, graph/chart encoding rules, and exact copy for every UI condition. The frontend implementation spec. |
 | Tests and traceability | ⭐ [QA Plan](qa-test-plan.md) | Test cases (TC-001–TC-011, TC-N01–N05), traceability matrix linking each F-ID to tests, invariant negative tests, API/security gates, and exit criteria. |
 | Auth, threats, compliance | [Security](security-compliance.md) | Threat model, SSRF/traversal/injection mitigations, credential handling, session isolation, log sanitization, and INV-003 enforcement specifics. |
 | Build sequence | ⭐ [Implementation Plan](implementation-plan.md) | The 5.5-hour Manila build schedule: time blocks, owners, gates, and the honest stopping point. This is Joshua's working document — check it for current task assignments. |
@@ -36,8 +37,8 @@
 | You are… | Read these first |
 |---|---|
 | **Backend (Joshua, Farhana)** | Decision Ledger → Implementation Plan → Technical Design → API Spec → QA Plan → Security |
-| **Frontend (Helena, Dia)** | Decision Ledger → Implementation Plan → Design System → PRD (user flows) → API Spec → QA Plan |
-| **Demo / Product (Abu, Dia)** | Decision Ledger → PRD → Pitch Kit → Implementation Plan → Brand |
+| **Frontend (Helena, Dia)** | Decision Ledger → Implementation Plan → Visual Direction → Design System → PRD (user flows) → API Spec → QA Plan |
+| **Demo / Product (Abu, Dia)** | Decision Ledger → PRD → Pitch Kit → Implementation Plan → Brand → Visual Direction |
 | **Joining mid-sprint (Geinel, Jim)** | Onboarding → Decision Ledger → Implementation Plan → your role path above |
 
 ## 2. Suite status
