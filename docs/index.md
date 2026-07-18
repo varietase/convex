@@ -2,39 +2,63 @@
 
 **Maintained by:** Abu · **Last updated:** 2026-07-18 · **FMD:** 4.2.0
 
+> **How to use this index.** Each document owns one concern. If two documents disagree, the Decision Ledger wins. Start with the four marked ⭐ below — they're the minimum context for any builder joining mid-sprint.
+
 ## 0. Source-of-truth map
-| Concern | Canonical owner |
+
+| Concern | Canonical owner | What's inside (one-liner) |
+|---|---|---|
+| Live truth, pivots, immutable IDs | ⭐ [Decision Ledger](DECISION-LEDGER.md) | The append-only record of what is currently true, what was rejected, and which IDs are frozen. If you're unsure whether something is decided, check here first. |
+| Problem, segment, feature/invariant origin | [idea.md](../idea.md) | The original problem statement, peer-reviewed evidence, target users, kill criteria, and the feature/invariant spine (F-001–F-005, INV-001–003). This is where we explain *why* we're building X-Ray. |
+| Build context and rubric | [context.md](../context.md) | Hackathon rules, team size, time budget, judging rubric, and hard submission requirements (Codex use, YouTube demo, etc.). Read this to know what we're being scored on. |
+| Brand and voice | [brand.md](../brand.md) | Product name, category phrase, visual direction, UI copy rules (say/don't-say), and accessibility baseline. Governs all user-facing text and design decisions. |
+| Product, journeys, F/BR/INV IDs | ⭐ [PRD](prd.md) | Testable product requirements: user stories, acceptance criteria in EARS format, business rules, user flows, and the MVP vs. Final feature split. The contract between product and engineering. |
+| Architecture and topology | [System Design](system-design.md) | High-level architecture: context diagram, component responsibilities, data flows, deployment topology, and technology choices with rationale. Shows *how the pieces connect*. |
+| Algorithms/modules | [Technical Design](technical-design.md) | Low-level design: module breakdown per repository, class/function signatures, algorithm pseudocode (intake, parser, gap derivation), sequence diagrams, and error handling. The implementation reference. |
+| API contracts | [API Spec](api-spec.md) | Every endpoint (API-001–API-108) with request/response schemas, auth requirements, error codes, and rate limits. Frontend and backend must agree on these shapes. |
+| Entities, retention, privacy | [Data Model](data-model.md) | All persisted and ephemeral entities (symbols, edges, sessions, attempts, gap items), their relationships, lifecycle/TTL rules, and privacy boundaries. |
+| Ranking/count equations and confidence | [Methods](methods.md) | The glass-box ledger: every displayed number or category resolves to an equation (EQ-###) and dataset (DS-###) with stated confidence. No hidden scoring. |
+| UI tokens, components, states, copy | [Design System](design-system.md) | CSS tokens, full component inventory with states, interaction patterns, accessibility contracts, graph encoding rules, and exact copy for every UI condition. The frontend implementation spec. |
+| Tests and traceability | ⭐ [QA Plan](qa-test-plan.md) | Test cases (TC-001–TC-011, TC-N01–N05), traceability matrix linking each F-ID to tests, invariant negative tests, API/security gates, and exit criteria. |
+| Auth, threats, compliance | [Security](security-compliance.md) | Threat model, SSRF/traversal/injection mitigations, credential handling, session isolation, log sanitization, and INV-003 enforcement specifics. |
+| Build sequence | ⭐ [Implementation Plan](implementation-plan.md) | The 5.5-hour Manila build schedule: time blocks, owners, gates, and the honest stopping point. This is Joshua's working document — check it for current task assignments. |
+| Build-time agent roster | [SAD](sad.md) | Which AI agents help build X-Ray (graph-engineer, product-ui-engineer, reasoning-engineer, trust-reviewer), their boundaries, and what they must not do. |
+| Deployment and incidents | [Ops](ops.md) | Deployment steps for Vercel and HF Space, health checks, monitoring, rollback procedures, and incident response for judging availability. |
+| Release and validation | [Release/GTM](release-gtm.md) | Release phases (M0–M3, G1–G3), scope-cut order, rollout strategy, launch checklist, and submission deadlines. The ship plan. |
+| Demo narrative and Q&A | [Pitch Kit](pitch-kit.md) | The 2:45 voiceover script, rubric evidence map, "not just Cursor/Cody" answer, and live-demo rules. Dia and Abu use this to rehearse. |
+| Contributor orientation | [Onboarding](onboarding.md) | Quick-start for anyone joining the team: environment setup, conventions, where to find things, and first-task suggestions. |
+| Locked-doc changes | [Change Records](change-record.md) | Formal change log for any post-freeze edits to locked documents. Required during G3 judging hold. |
+| Significant technical decisions | [ADRs](adr/) | ADR-0001 (two-repo baseline) and ADR-0002 (future local-first MCP recommendation). Platform decisions that override downstream assumptions. |
+| Researched architecture recommendation | [Architecture Research](../architecture-research.md) | Deep research on HF Spaces, MCP Apps, Tree-sitter, existing code-graph products, and the recommended post-hackathon architecture. Future only — does not change the current build. |
+
+## 1. Reading paths by role
+
+| You are… | Read these first |
 |---|---|
-| Live truth, pivots, immutable IDs | [Decision Ledger](DECISION-LEDGER.md) |
-| Problem, segment, feature/invariant origin | [idea.md](../idea.md) |
-| Build context and rubric | [context.md](../context.md) |
-| Brand and voice | [brand.md](../brand.md) |
-| Product, journeys, F/BR/INV IDs | [PRD](prd.md) |
-| Architecture and topology | [System Design](system-design.md) |
-| Algorithms/modules | [Technical Design](technical-design.md) |
-| API contracts | [API Spec](api-spec.md) |
-| Entities, retention, privacy | [Data Model](data-model.md) |
-| Ranking/count equations and confidence | [Methods](methods.md) |
-| UI tokens, components, states, copy | [Design System](design-system.md) |
-| Tests and traceability | [QA Plan](qa-test-plan.md) |
-| Auth, threats, compliance | [Security](security-compliance.md) |
-| Build sequence | [Implementation Plan](implementation-plan.md) |
-| Build-time agent roster | [SAD](sad.md) |
-| Deployment and incidents | [Ops](ops.md) |
-| Release and validation | [Release/GTM](release-gtm.md) |
-| Demo narrative and Q&A | [Pitch Kit](pitch-kit.md) |
-| Contributor orientation | [Onboarding](onboarding.md) |
-| Locked-doc changes | [Change Records](change-record.md) |
-| Significant technical decisions | [ADRs](adr/) |
-| Researched architecture recommendation | [Architecture Research](../architecture-research.md) |
+| **Backend (Joshua, Farhana)** | Decision Ledger → Implementation Plan → Technical Design → API Spec → QA Plan → Security |
+| **Frontend (Helena, Dia)** | Decision Ledger → Implementation Plan → Design System → PRD (user flows) → API Spec → QA Plan |
+| **Demo / Product (Abu, Dia)** | Decision Ledger → PRD → Pitch Kit → Implementation Plan → Brand |
+| **Joining mid-sprint (Geinel, Jim)** | Onboarding → Decision Ledger → Implementation Plan → your role path above |
 
-## 1. Suite status
-All listed documents are **planning-ready**. Assumptions remain explicitly marked; implementation evidence will move them in the Decision Ledger. Start with the ledger, PRD, implementation plan, and QA plan.
+## 2. Suite status
+All listed documents are **planning-ready**. Assumptions remain explicitly marked `[assumption]`; implementation evidence will move them in the Decision Ledger. Start with the four ⭐ documents.
 
-## 2. Health check
+## 3. Health check
 - [x] Every F-001–F-005 has tests; F-101–F-104 are traced and deferred.
 - [x] INV-001–003 each reach PRD, security, design banned-copy, and QA negative tests.
 - [x] API-001–108 declare auth/authz.
 - [x] Every displayed rank/count is owned by EQ-### / DS-### methods.
 - [x] Current architecture is two repos; local-first MCP App remains proposed only.
 - [ ] Replace repository IDs, exact commands, pinned versions, and measured limits during scaffold.
+
+## 4. Key terms (quick glossary)
+| Term | Meaning |
+|---|---|
+| F-001–F-005 | MVP feature IDs (evidence graph, semantic zoom, gap map, teach-back, intake). Immutable. |
+| F-101–F-104 | Future feature IDs. Not in MVP scope. |
+| INV-001–003 | Hard invariants: no fabricated edges, no generic gap lists, read-only on user code. |
+| `[assumption]` | A value or detail that is decided for planning but not yet verified end-to-end. |
+| EQ-### / DS-### | Equation and dataset IDs from the Methods doc. Every number shown to a user must trace to one. |
+| API-### | Endpoint IDs from the API Spec. Frontend and backend share these as the contract. |
+| TC-### / TC-N## | Test case IDs (positive and negative/invariant tests). |
+| BFF | Backend-for-Frontend — the Vercel proxy layer that holds the HF Space credential. |
