@@ -46,7 +46,7 @@ All listed documents are **planning-ready**. Assumptions remain explicitly marke
 ## 3. Health check
 - [x] Every F-001–F-005 has tests; F-101–F-104 are traced and deferred.
 - [x] INV-001–003 each reach PRD, security, design banned-copy, and QA negative tests.
-- [x] API-001–108 declare auth/authz.
+- [x] All five endpoints declare auth/authz (CORS allowlist only, no BFF/proxy).
 - [x] Every displayed rank/count is owned by EQ-### / DS-### methods.
 - [x] Current architecture is two repos; local-first MCP App remains proposed only.
 - [ ] Replace repository IDs, exact commands, pinned versions, and measured limits during scaffold.

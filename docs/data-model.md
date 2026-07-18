@@ -21,8 +21,9 @@ AnalysisSession 1--* GapItem
 GapItem *--* ConceptEvidence
 GapItem *--* TeachBackAttempt
 Any derived entity 1--1 DerivationRecord
-AnalysisSession 1--* JobEvent
 ```
+
+All endpoints are synchronous (`POST /v1/analyses`, `/v1/xray`, `/v1/teachbacks/questions`, `/v1/teachbacks/evaluate` each return their result directly); there is no job/event-stream entity.
 
 Code evidence and learner evidence remain separate. A `GapItem` is a derived join, never a free-standing model opinion.
 
@@ -32,8 +33,7 @@ Conventions: `uuid` is opaque UUIDv4 [assumption]; `datetime` is RFC 3339 UTC; h
 ### AnalysisSession
 | Field | Type | Null? | Default | Description |
 |---|---|---:|---|---|
-| `session_id` | uuid | no | generated | Ephemeral authorization boundary |
-| `bff_csrf_hash` | string | yes | null | BFF-only CSRF hash; null in backend session projection [assumption] |
+| `session_id` | uuid | no | generated | Ephemeral authorization boundary; held client-side, resubmitted per request |
 | `created_at` | datetime | no | now | Creation time |
 | `expires_at` | datetime | no | +24h | Hard TTL [assumption] |
 | `status` | enum | no | active | `active`, `deleting`, `expired` |
@@ -62,7 +62,7 @@ Conventions: `uuid` is opaque UUIDv4 [assumption]; `datetime` is RFC 3339 UTC; h
 | `normalized_path` | string | no | — | Relative POSIX path; no `..` |
 | `content_hash` | sha256 | no | — | Binds spans to analyzed bytes |
 | `language` | enum | no | — | `typescript`, `tsx`, `javascript`, `jsx` [assumption] |
-| `line_count` | integer | no | — | Physical lines, EQ-001 input |
+| `byte_size` | integer | no | — | Source bytes; must be ≤ 60KB (MVP per-file cap) |
 | `parse_status` | enum | no | parsed | `parsed`, `partial`, `unsupported` |
 
 Full source files exist only in the transient workspace. The backend persists only bounded cited excerpts on `SourceSpan` until session TTL [assumption], sufficient to render file/line evidence and build later model packets without re-fetching the repository.
@@ -94,11 +94,14 @@ Full source files exist only in the transient workspace. The backend persists on
 |---|---|---:|---|---|
 | `edge_id` | uuid | no | generated | Structural edge ID |
 | `snapshot_id` | uuid | no | — | Parent snapshot |
-| `edge_type` | enum | no | — | imports, calls, contains |
+| `edge_type` | enum | no | — | imports, calls, module-import |
 | `from_symbol_id`, `to_symbol_id` | uuid | no | — | Existing endpoints |
-| `evidence_span_ids` | uuid[] | no | — | Non-empty concrete proof (INV-001) |
-| `extractor_rule_id` | string | no | — | Deterministic rule/version |
-| `resolution` | enum | no | exact | Only `exact` renders; ambiguity is omitted |
+| `source_definition_span_id` | uuid | no | — | Evidence anchor 1: caller/importer declaration (INV-001) |
+| `relationship_span_id` | uuid | no | — | Evidence anchor 2: the call/import site itself (INV-001) |
+| `target_definition_span_id` | uuid | no | — | Evidence anchor 3: callee/imported declaration (INV-001) |
+| `resolution_method` | enum | no | — | `same-file-identifier`, `named-relative-import`, `namespace-relative-import`, `relative-module-import` |
+
+An edge is either backed by all three anchors or it is not rendered — it becomes an `UnresolvedReference` instead. There is no `confidence` field and no partial/ambiguous edge state.
 
 ### ConceptEvidence
 | Field | Type | Null? | Default | Description |
@@ -148,7 +151,8 @@ Full source files exist only in the transient workspace. The backend persists on
 | `claim_text`, `feedback_text` | string | no | — | Critique of response, not person |
 | `concept_ids` | string[] | no | — | Non-empty target concepts |
 | `evidence_span_ids` | uuid[] | no | — | Non-empty `SourceSpan.span_id` graph citations; API expands to `EvidenceRef` |
-| `confidence` | enum | no | low | Low until method validation [assumption] |
+
+There is no `confidence` field — a claim's `disposition` (supported/missing/unsupported) is the only classification; evidence is never graded.
 
 ### LearnerConceptState
 | Field | Type | Null? | Default | Description |
@@ -166,10 +170,13 @@ Full source files exist only in the transient workspace. The backend persists on
 |---|---|---:|---|---|
 | `gap_item_id`, `session_id` | uuid | no | generated/— | Personalized item |
 | `concept_id` | string | no | — | Eligible concept |
-| `priority_tier` | enum | no | — | next, soon, later |
+| `rank` | integer | no | — | 1-based ordinal within the session's gap list |
+| `gap_score` | float | no | — | `0.70 * learner_gap + 0.30 * repository_relevance`; not a mastery/percentage claim, purely a ranking value |
 | `repo_evidence_ids`, `attempt_evidence_ids` | uuid[] | no | — | Both non-empty (INV-002) |
 | `reason_codes` | string[] | no | — | Transparent categorical causes |
 | `derivation_id`, `expires_at` | uuid/datetime | no | — | Method trace and TTL |
+
+A `GapItem` is eligible only when repository evidence exists, learner-answer evidence exists, and at least one missing/unsupported observation exists for that concept.
 
 ### DerivationRecord
 | Field | Type | Null? | Default | Description |
@@ -178,21 +185,14 @@ Full source files exist only in the transient workspace. The backend persists on
 | `equation_id`, `equation_version` | string | no | — | `methods.md` method |
 | `input_dataset_ids` | string[] | no | — | DS references |
 | `input_record_ids` | uuid[] | no | — | Exact records used |
-| `confidence` | enum | no | — | high, medium, low by rubric |
 | `created_at`, `expires_at` | datetime | no | — | TTL |
 
-### JobEvent
-| Field | Type | Null? | Default | Description |
-|---|---|---:|---|---|
-| `event_id`, `session_id`, `job_id` | uuid | no | generated/— | Stream identity/owner |
-| `stage` | enum | no | — | queued, fetching, parsing, indexing, reasoning, ready, failed |
-| `message_code` | string | no | — | Client-localizable, no source text |
-| `occurred_at`, `expires_at` | datetime | no | — | Replay/TTL |
+There is no `confidence` field on a derivation record — a derived value is either produced from complete evidence or the entity is omitted; there is no graded-confidence output anywhere in the model.
 
 ## Constraints & indexes
 - Foreign keys cascade on session deletion. No entity may outlive `AnalysisSession.expires_at` except sanitized aggregate metrics.
 - Unique: `(snapshot_id, normalized_path)`, `(snapshot_id, qualified_name, declaration_span_id)`, `(question_set_id, ordinal)`, `(session_id, concept_id)` for current learner state.
-- Check: every `EvidenceEdge.evidence_span_ids` is non-empty, each cited span belongs to the same snapshot, and every retained excerpt matches its excerpt hash and 2 KiB bound; enforced before publication and at persistence (INV-001).
+- Check: every `EvidenceEdge` has all three of `source_definition_span_id`, `relationship_span_id`, `target_definition_span_id` populated, each cited span belongs to the same snapshot, and every retained excerpt matches its excerpt hash and 2 KiB bound; enforced before publication and at persistence (INV-001).
 - Check: every `GapItem` has non-empty repository and attempt evidence arrays, and referenced attempts belong to the same session/snapshot lineage (INV-002).
 - Check: `ordinal BETWEEN 1 AND 3`; exactly three questions per completed set.
 - Index: resource ownership `(session_id, id)`, TTL `expires_at`, graph adjacency `(snapshot_id, from_symbol_id, edge_type)` and `(snapshot_id, to_symbol_id, edge_type)`, concept joins `(snapshot_id, concept_id)`.
@@ -202,13 +202,13 @@ Full source files exist only in the transient workspace. The backend persists on
 | Records | Classification | Retention [assumption] | Deletion |
 |---|---|---|---|
 | Transient repository workspace | Public-derived but treated confidential | Until parse completes; hard maximum 15 minutes | `finally` cleanup + periodic sweeper |
-| Session, graph, bounded cited excerpts, narratives, questions, responses, learner state, gaps, derivations, events | Session-confidential | 24 hours from session creation | API-009 or TTL cascade |
+| Session, graph, bounded cited excerpts, narratives, questions, responses, learner state, gaps, derivations | Session-confidential | 24 hours from session creation | Client-held; TTL cascade on backend-persisted portions |
 | Pre-indexed sample graph/questions | Public deployment artifact | Until replaced by a versioned sample | Deployment replacement |
 | Sanitized security/operations logs | Internal | 7 days | Platform retention policy |
 | Anonymous aggregate counters with no session/repo/answer/source fields | Internal | 30 days | Scheduled deletion |
 | Credentials | Secret | Until rotation | Secret-store replacement/revocation |
 
-Repository source, learner response, model prompt packet, cookie, CSRF token, IP address, and URL query strings must not be logged. IP may exist transiently in platform abuse controls; provider defaults must be reviewed [assumption].
+Repository source, learner response, model prompt packet, IP address, and URL query strings must not be logged. IP may exist transiently in platform abuse controls; provider defaults must be reviewed [assumption].
 
 ## Migration notes
 MVP data is disposable. Schema changes increment `schema_version`; incompatible in-memory/session data is expired rather than backfilled. Sample artifacts declare schema/analyzer/rule/equation versions and fail deployment smoke tests if incompatible. Future durable learner state requires a new ADR, explicit migration/rollback, consent, export, and deletion design; it is not implied by this schema.

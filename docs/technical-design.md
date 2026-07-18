@@ -3,27 +3,24 @@
 > **Purpose:** Implementation detail for the current F-001–F-005 hackathon system. See `system-design.md` for boundaries and ADRs for platform decisions.
 
 ## Module breakdown
-### Vercel repository
+### Vercel repository (`xray-client`)
 | Module | Responsibility | Public interface | Collaborators |
 |---|---|---|---|
-| `ui/intake` | Sample/public snapshot form and bounds messaging | pages/components | BFF session and analysis routes |
+| `ui/intake` | Sample/public snapshot form and bounds messaging | pages/components | Backend analysis endpoint (direct call) |
 | `ui/explorer` | Graph, source spans, semantic zoom, accessible path list | view model | graph API |
 | `ui/teachback` | Questions, response form, feedback, gap list | view model | teach-back APIs |
-| `bff/session` | Mint/verify ephemeral session cookie and CSRF token | API-001, API-009 | signed-cookie utility |
-| `bff/proxy` | Validate same-origin requests, attach backend credential, forward allowlisted contracts | API-002–API-008 | Space API |
-| `bff/health` | Judge-safe dependency health summary | API-010 | Space health |
+| `lib/api` | Typed client for the five backend endpoints; session-local state only | fetch wrapper | Space API |
 
-### Hugging Face repository
+### Hugging Face repository (`xray-backend`)
 | Module | Responsibility | Public interface | Collaborators |
 |---|---|---|---|
-| `api` | FastAPI request validation and resource authorization | API-101–API-108 | services |
+| `api` | FastAPI request validation, CORS allowlist enforcement | `GET /health`, `POST /v1/analyses`, `POST /v1/xray`, `POST /v1/teachbacks/questions`, `POST /v1/teachbacks/evaluate` | services |
 | `intake` | Validate source and bounds; download immutable public snapshot read-only | `materialize_snapshot` | host adapter |
 | `analysis` | Parse supported files and build evidence graph | `analyze_snapshot` | Tree-sitter adapter |
 | `evidence` | Immutable session-scoped graph and provenance queries | `get_graph`, `slice_evidence` | ephemeral store |
 | `concepts` | Apply versioned deterministic concept rules | `map_concepts` | evidence graph |
 | `reasoning` | Typed GPT-5.6 narrative/question/evaluation calls | `narrate`, `question`, `evaluate` | LangChain, LangGraph |
 | `learner` | Record attempts and derive eligible gap items | `record_attempt`, `derive_gaps` | methods registry |
-| `jobs` | Job lifecycle and SSE events | `submit`, `events` | analysis/reasoning |
 | `cleanup` | TTL and workspace deletion | scheduled/lazy sweep | ephemeral store |
 
 Dependency versions and concrete SDK method names must be pinned and checked against official docs at scaffold time [assumption].
@@ -43,12 +40,18 @@ class SourceSpan:
     excerpt_text: str  # bounded cited lines retained only to session TTL
 
 @dataclass(frozen=True)
+class EdgeEvidence:
+    source_definition: SourceSpan
+    relationship_site: SourceSpan
+    target_definition: SourceSpan
+
+@dataclass(frozen=True)
 class EvidenceEdge:
     edge_id: str
     edge_type: Literal["imports", "calls", "contains"]
     from_symbol_id: str
     to_symbol_id: str
-    evidence: tuple[SourceSpan, ...]  # non-empty by construction
+    evidence: EdgeEvidence  # exactly three provenance anchors, never fewer
 
 def materialize_snapshot(source: RepositoryInput, limits: IntakeLimits) -> SnapshotWorkspace: ...
 def extract_graph(workspace: SnapshotWorkspace, analyzer_version: str) -> EvidenceGraph: ...
@@ -87,7 +90,7 @@ The validator requires every returned evidence ID to exist in the packet. Narrat
 2. Resolve DNS and reject loopback, link-local, private, metadata, non-HTTPS, user-info, ports outside 443, and redirect to disallowed destination.
 3. Fetch an archive/snapshot without repository credentials and without running repository code.
 4. Stream with byte cap; normalize paths; reject absolute paths, `..`, symlinks, hardlinks, submodules, archives within archives, and special files.
-5. Enforce 5 MiB, 500 files, 100,000 physical lines, TS/JS family, and 60-second bounds [assumption].
+5. Enforce: 40 files maximum, 750KB maximum total supported source, 60KB maximum per file, 5MB maximum compressed archive, 20MB maximum extracted archive, JS/JSX/TS/TSX family only, and a 20-second timeout. Reject rather than truncate on any limit breach.
 6. Mount/use workspace read-only where platform permits [assumption]; never invoke package managers, build scripts, interpreters, or Git mutation commands.
 7. Delete the workspace in `finally`, including timeout/error paths.
 
@@ -101,36 +104,34 @@ A versioned rule registry maps deterministic syntax/edge predicates to concept I
 Start from selected symbols/edges, load only their persisted bounded `SourceSpan.excerpt_text` values, stable IDs, concept rules, and question targets. Never require the deleted full workspace. Deduplicate by excerpt hash and truncate only at whole evidence-record boundaries. Record included IDs in the derivation. Evidence budget/token limits are [assumption] pending scaffold validation.
 
 ### A-005 — Gap derivation (F-003, INV-002)
-Apply EQ-005 from `methods.md`. Join concept evidence to validated evaluation claims through `concept_id`; require at least one repository evidence ref and one teach-back attempt ref. Derive categorical priority deterministically. Never average model confidence, emit a percentage, or infer learner knowledge from reading/click behavior.
+Apply EQ-005 from `methods.md`. Join concept evidence to validated evaluation claims through `concept_id`; require at least one repository evidence ref and one teach-back attempt ref. Compute `gap_score = 70% learner_gap + 30% repository_relevance` deterministically for eligible concepts only. Never average model confidence or infer learner knowledge from reading/click behavior.
 
 ## Sequence diagrams
 ### Analysis
 ```text
-Browser -> BFF: POST session / analysis
-BFF -> FastAPI: authenticated API-101
+Browser -> FastAPI: POST /v1/analyses (CORS-allowlisted origin)
 FastAPI -> Intake: bounded read-only materialize
 Intake -> Analyzer: workspace
 Analyzer -> Evidence: graph + spans
 Evidence -> Validator: INV-001 check
 Validator -> Store: immutable session graph
-FastAPI --> BFF: job id; SSE stages
-BFF --> Browser: ready / clear error / sample option
+FastAPI --> Browser: ready / clear error / sample option
 Intake -> Workspace: delete in finally
 ```
 
 ### Teach-back
 ```text
-Browser -> BFF -> FastAPI: request questions
+Browser -> FastAPI: POST /v1/teachbacks/questions
 FastAPI -> Evidence: bounded packet
 FastAPI -> ReasoningGraph -> GPT-5.6: typed question request
 GPT-5.6 --> ReasoningGraph: structured output
 ReasoningGraph -> Validator: schema + citation check (retry once)
 FastAPI --> Browser: three questions
-Browser -> BFF -> FastAPI: response
+Browser -> FastAPI: POST /v1/teachbacks/evaluate
 FastAPI -> ReasoningGraph -> GPT-5.6: evidence-grounded evaluation
 ReasoningGraph -> Validator: dispositions + citations
 Validator -> LearnerService: validated claims
-LearnerService -> Methods: EQ-005 categories
+LearnerService -> Methods: EQ-005 gap_score
 Methods -> Store: learner state + eligible gaps + derivation
 FastAPI --> Browser: feedback and updated gaps
 ```

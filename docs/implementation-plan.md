@@ -1,41 +1,61 @@
-# Implementation Plan — 5.5-hour Manila build
+# Implementation Plan — five-hour build
 
 ## Build rule
-Riskiest thing first: if deterministic evidence-backed edges do not work, stop—the remainder is a wrapper. Each gate reasserts INV-001–003. Current baseline stays Vercel client + Hugging Face Docker Space.
+Riskiest thing first: if deterministic evidence-backed edges do not work, stop—the remainder is a wrapper. Each gate reasserts INV-001–003. Current baseline stays Vercel client + Hugging Face Docker Space, called directly by the browser over a CORS-allowlisted origin — no BFF/proxy.
 
-## 0:00–0:30 — Scaffold and contracts
-- **Build:** two repos, pinned dependencies, FastAPI health, Vercel shell/BFF stub, shared API schemas, sample fixture.
-- **Owners:** Joshua/Farhana backend; Helena/Dia client; Abu demo/acceptance.
-- **Gate:** both apps boot; client reaches authenticated backend health; secrets absent from bundles/logs.
+Three builder roles per `master-plan-implementation.md` §9, mapped onto the team's real assignments:
+- **Builder A — client explorer:** Helena/Dia
+- **Builder B — deterministic backend:** Joshua/Farhana
+- **Builder C — teaching pipeline:** Farhana (shared with Builder B) with Abu on demo/acceptance across every gate
 
-## 0:30–1:45 — Deterministic graph spike (F-001, F-005)
-- Parse only TS/JS family [assumption]; emit symbols, exact imports/direct calls, source spans; pre-index sample artifact.
-- Reject ambiguity, dynamic calls, unsafe/big inputs; never run repo code.
-- **Gate:** TC-001–003 and TC-N01/N02/N05 pass; one demo path has 100% observed edge precision. If this fails by 1:45, freeze intake to the bundled sample—do not ship generic explain chat.
+## 0:00–0:20 — Contracts, sample, and deployments
+- **Everyone:** create the two repositories (`client` = `xray-client`, `model` = `xray-backend`); deploy a blank Vercel client; deploy a FastAPI `/health` endpoint to the Docker Space (port 7860); lock the sample repository; lock the data contracts; lock intake limits (40 files, 750KB total, 60KB/file, 5MB archive, 20MB extracted, 20s timeout); define stable ID formulas; add the invariant test file before feature code.
+- **Gate:** client deployment opens; backend `/health` responds; both repositories share the same contract version; the demo sample and central path are known.
 
-## 1:45–2:45 — Demo explorer (F-002)
-- Build three-pane shell, graph + path-list, evidence popover, semantic zoom rail, named loading/error/sample states.
-- Wire deterministic graph first; add GPT-5.6 pseudocode/path narrative only through cited evidence schema.
-- **Gate:** select function → edge lights → click source proof → zoom without losing focus; keyboard path works; invalid citation rejects.
+## 0:20–1:05 — Parallel foundation
+- **Builder A:** render mock symbols and edges; implement Inside/Around/Across controls; add selected-symbol state; add keyboard-focusable graph elements; add text-path placeholder; build the source pane.
+- **Builder B:** implement sample intake; configure Tree-sitter parsers (JS/JSX/TS/TSX only); extract modules and symbols; create evidence references; return snapshot metadata.
+- **Builder C:** define concept registry; define question specs; build LangGraph question pipeline with mocked evidence; define structured model schemas; add prohibited-language validator.
+- **Gate:** sample source produces symbol records; mock graph can select a symbol; three mock question specs validate.
 
-## 2:45–3:45 — Teach-back and gap derivation (F-003, F-004)
-- Minimal LangGraph call→validate→one-retry workflow; exactly three questions; evaluate claims; apply EQ-005; show reason/evidence.
-- **Gate:** answer question → supported/missing/unsupported feedback → gap changes; no score/mastery/generic concept; TC-006–009 + INV-002 negatives pass.
+## 1:05–1:55 — F-001 evidence graph
+- **Builder A:** connect UI to `POST /v1/analyses`; render real symbols; add edge evidence drawer; add non-color edge labels.
+- **Builder B:** implement direct relative imports, same-file calls, named imported calls, module relationships; add unresolved-reference records; add provenance tests (exactly three evidence anchors per edge).
+- **Builder C:** build evidence-linked pseudocode endpoint (`POST /v1/xray`); validate all returned evidence IDs; add cached sample explanation.
+- **Gate:** a selected call edge exposes caller definition, call site, and callee definition; unsupported calls produce no edge; model output cannot modify the graph.
 
-## 3:45–4:30 — End-to-end hardening
-- Complete BFF auth/session, CSRF/origin, limits, cleanup, deterministic-only degradation, pre-index sample fallback.
-- **Gate:** TC-010/011, session isolation, log inspection, API contracts, health check; production sample loop succeeds.
+## 1:55–2:35 — F-002 semantic zoom and F-005 public intake
+- **Builder A:** complete Inside/Around/Across behavior; preserve selected context across zoom levels; generate graph text alternatives; add reduced-motion behavior.
+- **Builder B:** implement bounded public snapshot intake; resolve the commit SHA; add archive-size and source-size guards; reject unsafe extraction paths and symlinks; add timeout handling.
+- **Builder C:** implement deterministic concept occurrences; connect concept evidence to selected symbols; complete question selection from actual graph evidence.
+- **Gate:** bundled sample works from the backend; one small public repository can be analyzed; zooming preserves selected symbol and path; repository concepts display without being labeled personal gaps.
 
-## 4:30–5:00 — Design and accessibility pass
-- Final tokens/copy, focus order, graph text alternative, contrast/reduced motion, responsive demo viewport.
-- **Gate:** core journey keyboard-only; banned-copy grep clean; sample badge visible.
+## 2:35–3:20 — F-004 teach-back
+- **Builder A:** build three-question interface; add one-submit evaluation flow; build Supported/Missing/Unsupported feedback sections; make source citations clickable.
+- **Builder B:** produce required claims from graph evidence; build evidence packs for questions (`POST /v1/teachbacks/questions`); add allowlist validation; implement session-local learner-evidence format.
+- **Builder C:** complete LangGraph answer-evaluation pipeline (`POST /v1/teachbacks/evaluate`); connect GPT-5.6 structured output; add model failure fallback; add wording restrictions.
+- **Gate:** the learner can answer all three questions; every supported/missing feedback item cites source; unsupported claims say "not enough evidence"; no mastery wording appears.
 
-## 5:00–5:30 — Rehearse and freeze
-- Record backup demo, warm backend, run smoke test, save Codex `/feedback` Session ID, clean commits, capture README decisions.
-- **Gate:** 90-second live sequence works three times; one-click sample fallback; owners can answer Q&A.
+## 3:20–3:50 — F-003 gap-map update
+- **Builder A:** build gap cards with numeric score/rank; add repository and learner-evidence sections; clicking a gap selects the relevant symbol/path.
+- **Builder B:** implement eligibility rules (repo evidence AND learner-answer evidence AND ≥1 missing/unsupported observation); implement session-local `gap_score = 70% learner_gap + 30% repository_relevance` ranking; ensure unknown concepts are omitted; return "no ranking changed" when appropriate.
+- **Builder C:** generate concise rationale from validated evidence; add cached evaluation for the demo answers; verify no generic fallback concepts appear.
+- **Hard MVP gate:** the complete loop works: sample → graph → evidence → three answers → feedback → updated gap map → return to code. Do not begin F-101 through F-104.
+
+## 3:50–4:20 — Invariants and accessibility
+- Run: edge provenance tests, unknown-evidence-ID tests, no-gap-before-answer tests, intake limit tests, read-only GitHub-adapter tests, keyboard-only graph traversal, visible focus check, reduced-motion check, text-path check, model-unavailable check.
+- **Gate:** hide or delete any feature that does not pass.
+
+## 4:20–4:40 — Deployment reliability
+- Set the backend CORS allowlist (deployed Vercel origin + local dev, no wildcard); store the model key only in Space secrets; confirm the backend listens on port 7860; verify the Vercel production environment points to the Space API; test a fresh browser session; test the bundled sample after a backend restart; test cached explanation and cached evaluation; record a backup demo video; capture one full-screen fallback screenshot.
+- **Gate:** production sample loop succeeds after a cold restart.
+
+## 4:40–5:00 — README and rehearsal
+- Document: product problem, invariant spine, architecture, exact supported scope, read-only behavior, known limitations, Codex collaboration, main Codex `/feedback` Session ID, GPT-5.6 runtime responsibilities, demo path.
+- **Gate:** run the sub-three-minute demo twice without stopping.
 
 ## Honest stopping point
-At 3:45, a coherent demo exists: pre-indexed sample → grounded edge → teach-back → updated gap. Cut public-repo intake breadth, animations, extra concepts, and all F-101–104 before cutting this loop.
+At the 3:50 hard MVP gate, a coherent demo exists: pre-indexed sample → grounded edge → teach-back → updated gap. Cut public-repo intake breadth, animations, extra concepts, and all F-101–104 before cutting this loop.
 
-## Global polish (post-Manila)
+## Global polish (post-hackathon)
 Add one safe public fixture, observability/rollback, README/install/test path, <3-minute video, citation/error polish, Devpost copy, and deployment availability. Do not implement MCP App/local sidecar until after submission; ADR-0002 remains proposed.

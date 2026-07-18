@@ -1,7 +1,7 @@
 # QA — Test Plan & Test Cases — X-Ray
 
 ## Strategy and environments
-Unit-test parser/rules/methods; contract-test BFF↔FastAPI; integration-test model schema/citations; Playwright-style E2E [assumption] for sample flow; manual accessibility and demo rehearsal. Run locally, preview, and judging production with synthetic public fixtures only. Secrets never enter fixtures.
+Unit-test parser/rules/methods; contract-test the client's direct calls against the five FastAPI endpoints; integration-test model schema/citations; Playwright-style E2E [assumption] for sample flow; manual accessibility and demo rehearsal. Run locally, preview, and judging production with synthetic public fixtures only. Secrets never enter fixtures.
 
 ## Traceability matrix
 | F-ID | Test cases | Type | MVP status |
@@ -17,7 +17,7 @@ Unit-test parser/rules/methods; contract-test BFF↔FastAPI; integration-test mo
 | F-104 | TC-104 | contract | deferred |
 
 ## MVP cases
-- **TC-001 / F-001:** parse pinned TS/JS fixture; every rendered import/call edge resolves to existing symbols and non-empty exact source spans.
+- **TC-001 / F-001:** parse pinned JS/JSX/TS/TSX fixture; every rendered import/call edge resolves to existing symbols and exactly three source-span provenance anchors (source definition, relationship site, target definition).
 - **TC-002 / F-001:** inject ambiguous/dynamic call; edge is omitted with “not enough evidence.” Rendered-edge observed precision must be **100%**; ≥70% is supported-edge recall/coverage only.
 - **TC-003 / F-001:** graph counts reproduce EQ-002 and cite DS-002.
 - **TC-004 / F-002:** selected symbol persists across source/pseudocode/path/concept zoom; narrative structural sentences cite existing edge/span IDs.
@@ -37,7 +37,7 @@ Unit-test parser/rules/methods; contract-test BFF↔FastAPI; integration-test mo
 | INV-003 | TC-N05 scan/runtime probe for writes, tokens, git mutation | No write path, credential, commit, or PR exists |
 
 ## API/security/ops gates
-Two sessions cannot cross-read; CSRF/origin and BFF credential checks pass; rate limits return 429; API-001–108 schemas match; logs contain no source/answers/prompts/secrets; TTL/delete cascades; backend restart returns honest 410; API-010 and sample smoke test pass after rollback.
+Two sessions cannot cross-read; CORS origin-allowlist checks pass (disallowed origins rejected before body processing); rate limits return 429; the five documented endpoint schemas match; logs contain no source/answers/prompts/secrets; TTL/delete cascades; backend restart returns honest 410; `/health` and sample smoke test pass after rollback.
 
 ## Exit criteria
 All MVP and invariant cases pass; no critical/high security defect; sample E2E passes three times in production; public fixture succeeds once; fallback rehearsed; final-feature tests remain skipped with reasons, not falsely green.
