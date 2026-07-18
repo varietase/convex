@@ -10,7 +10,7 @@ A read-only proof-of-comprehension layer for AI-assisted code. Start with [`inde
 4. [`system-design.md`](system-design.md) — two-repo architecture.
 
 ## Run locally
-Exact commands and pinned versions do not exist yet [assumption]. At scaffold: document prerequisites in each repo README; run the Hugging Face/FastAPI backend first, verify `/health` and the sample flow; then run the Vercel client and complete the sample loop by calling the backend directly (CORS-allowlisted origin — no BFF/proxy). Never put secrets in `.env.example` values.
+The backend requires Python 3.12–3.14 and `uv`: `cd model`, copy `.env.example` to `.env`, run `uv sync --frozen`, then `uv run uvicorn app.main:app --host 127.0.0.1 --port 7860`; run `uv run pytest` for its current gate. Exact client commands remain [assumption]. Verify `/health`, then run the client against the Space origin directly (CORS-allowlisted origin — no BFF/proxy). Never put secrets in `.env.example` values.
 
 ## Where things live
 - Vercel client repository: `client` (`xray-client`) — UI, calls the backend directly.

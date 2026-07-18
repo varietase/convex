@@ -4,7 +4,7 @@
 >
 > **What this is not.** It does not freeze the product. It keeps change coherent and prevents rejected directions or speculative architecture from silently becoming current truth.
 >
-> **Last reconciled:** initial first-dependency-phase generation; calendar date not supplied [assumption].
+> **Last reconciled:** 2026-07-18 — backend contracts-and-health scaffold.
 
 ## 1. Names & immutable identifiers (read first)
 | Name / ID | Kind | Where it appears | Rule |
@@ -23,13 +23,21 @@
 | The product is X-Ray for AI Code, shortened to X-Ray. | The MVP can deliver the full proof-of-comprehension loop within the four-day build window. | Student builders will choose to pause shipping and use the product. |
 | The wedge is proof-of-comprehension: deterministic structural evidence + learner-state/gap map + teach-back. | Deterministic analysis can reach the required precision on the selected demo repositories. | The product has a validated payer or viable revenue model. |
 | The product is not a generic explainer, chatbot, code generator, or IDE. | A bundled sample or bounded public repository snapshot is sufficient for the MVP demo and first user tests. | Any institutional payer will enter an evaluation or purchase process. |
-| Structural claims must trace to deterministic source evidence. | The exact client framework, graph renderer, static-analysis libraries, model configuration, supported languages, and repository bounds remain to be chosen [assumption]. | The tool improves seven-day retention or interview outcomes. |
+| Structural claims must trace to deterministic source evidence. | The client framework, graph renderer, deployment IDs, persistence mechanism, and measured runtime bounds remain to be chosen or verified [assumption]. | The tool improves seven-day retention or interview outcomes. |
 | Learner recommendations must derive from the real repository and demonstrated answers. | The user-facing experience can meet the stated WCAG 2.2 AA target in the hackathon window. | Learner-state scoring thresholds or concept mastery levels are known. |
 | The product is read-only on user code. | Deployment will remain accessible through Global judging as required by context. | Private repository intake, authentication, persistence, and multi-user behavior are part of MVP. |
-| Current implementation baseline is two repositories: a Vercel-hosted client and a Hugging Face Docker Space backend using FastAPI, LangChain, and LangGraph. | Codex and GPT-5.6 will be used meaningfully, but exact responsibilities are not yet specified [assumption]. | A single-repository, local-only, desktop, IDE-native, or other architecture is current. |
+| Current implementation baseline is two repositories: a Vercel-hosted client and a Hugging Face Docker Space backend using FastAPI, LangChain, and LangGraph. | The direct browser-to-Space contract integration remains to be verified. | A single-repository, local-only, desktop, IDE-native, or other architecture is current. |
+| The backend scaffold pins FastAPI, Tree-sitter for JS/JSX/TS/TSX, LangChain/OpenAI, LangGraph, the `gpt-5.6` model alias, intake limits, and contract version `1.0.0`; 29 local tests and a live local HTTP health smoke pass. | The graph-grounded GPT-5.6 narrative/question/evaluation pipelines remain to be implemented and verified end to end. | Passing the scaffold proves Hugging Face production readiness or the full product loop. |
 | MVP is F-001 through F-005; Final is F-101 through F-104. | Model-generated narrative can explain deterministic graph evidence without becoming the source of structural truth. | Unsupported structural relations can safely be inferred by a model. |
 
 ## 3. Pivots & decisions (newest first)
+### 2026-07-18 — Lock the first backend contract and readiness scaffold
+- **Type:** implementation
+- **Change:** provisional backend versions and UUIDv4 graph IDs → lockfile-pinned Python 3.12 backend, contract `1.0.0`, analyzer `xray-js-ts-1`, current FastAPI/Tree-sitter/LangChain/LangGraph/OpenAI integrations, `gpt-5.6`, content-derived SHA-256 snapshot/symbol/edge IDs, the documented intake limits, and sample `xray-demo-v1` with a named-import/call central path
+- **Why:** The 0:00–0:20 gate requires a reproducible health surface, shared contract, sample, limits, stable IDs, and invariant tests before feature work. Current official API checks prevent coding fast-moving dependencies from memory.
+- **Invalidated:** The API-spec assumption that graph resource IDs are random UUIDv4 values; claims that backend dependency versions, supported language family, limits, or local commands are still wholly undecided.
+- **Recorded as:** `model` branch `feat/contracts-health`; canonical API/data/technical documents reconciled in this change. Live Hugging Face and Vercel deployment identifiers remain open.
+
 ### Initial dependency phase — Lock the proof-of-comprehension wedge
 - **Type:** use-case
 - **Change:** broad code explanation / visualization → proof-of-comprehension through deterministic evidence, learner-state/gap mapping, and teach-back
@@ -66,6 +74,9 @@
 ## 5. Invariant audit
 | Phase | INV-### | Change that touched it | Audit verdict |
 |---|---|---|---|
+| Backend scaffold 2026-07-18 | INV-001 | Added strict structural-edge schema and stable evidence ID formulas. | **Kept:** every edge requires source definition, relationship site, and target definition; extra/model-only evidence fields fail validation. |
+| Backend scaffold 2026-07-18 | INV-002 | Added strict concept-gap evidence schema. | **Kept:** repository and learner-attempt evidence arrays are both required and non-empty. |
+| Backend scaffold 2026-07-18 | INV-003 | Added the five-route contract registry and activated only read-only `/health`. | **Kept:** no mutation route exists; wildcard/disallowed browser origins fail closed. |
 | Initial dependency phase | INV-001 | Defined graph extraction, semantic zoom, teach-back evaluation, and narrative boundary. | **Kept:** every structural edge requires deterministic source evidence; unsupported edges are omitted. |
 | Initial dependency phase | INV-002 | Defined learner-state and concept-gap behavior. | **Kept:** every shown gap requires repository and demonstrated-answer evidence; generic top-N lists are blocked. |
 | Initial dependency phase | INV-003 | Defined repository intake and the two-repository deployment baseline. | **Kept:** intake and all downstream behavior remain read-only; writes, commits, and pull requests are forbidden. |
@@ -74,7 +85,7 @@
 - **Adoption risk:** The primary user may not pause to prove comprehension during a time-pressured build; behavior remains unvalidated.
 - **Technical trust risk:** Supported static analysis must reach at least 70% precision on the held-out demo set, with unsupported edges omitted.
 - **Scope risk:** The MVP must keep F-001 through F-005 as one loop; adding F-101 through F-104 before that loop works is a scope failure.
-- **Architecture detail risk:** Client framework, graph renderer, static-analysis libraries, supported languages, repository bounds, model configuration, persistence, and API contract are [assumption].
+- **Architecture detail risk:** Client framework, graph renderer, deployment IDs, persistence, session behavior, and measured runtime limits remain [assumption]; backend libraries, JS/TS language family, contract version, intake caps, and model alias are locked but not yet verified end to end on Hugging Face.
 - **Operational risk:** The Vercel client and Hugging Face Docker Space must remain accessible through Global judging; monitoring and recovery details are [assumption].
 - **Payer risk:** No payer has been found; institutional buyers and purchase intent remain unvalidated.
 - **Accessibility risk:** Full keyboard graph traversal and text-equivalent paths may be difficult in the build window but remain part of the brand baseline.

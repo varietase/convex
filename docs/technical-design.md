@@ -23,7 +23,7 @@
 | `learner` | Record attempts and derive eligible gap items | `record_attempt`, `derive_gaps` | methods registry |
 | `cleanup` | TTL and workspace deletion | scheduled/lazy sweep | ephemeral store |
 
-Dependency versions and concrete SDK method names must be pinned and checked against official docs at scaffold time [assumption].
+Backend dependency versions are pinned in `model/pyproject.toml` and `model/uv.lock`; the Docker requirements export also pins transitive hashes. FastAPI/CORS, Hugging Face Docker Space, py-tree-sitter 0.26, LangGraph `StateGraph`, LangChain `ChatOpenAI.with_structured_output`, and OpenAI `gpt-5.6` surfaces were checked against official docs on 2026-07-18. Client dependency pins remain open [assumption].
 
 
 ## Class / function-level design

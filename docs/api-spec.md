@@ -5,7 +5,7 @@
 ## Overview
 - Backend base: the deployed Hugging Face Space origin, called directly by the browser.
 - Access control: FastAPI CORS allowlist (deployed Vercel origin + local development origins), never a wildcard. There is no session cookie, CSRF token, or bearer credential — learner/analysis state is held client-side and resubmitted with each request.
-- Resource IDs are opaque UUIDv4 strings [assumption]. Times are RFC 3339 UTC.
+- Request/session/artifact IDs are opaque UUIDv4 strings [assumption]. Snapshot, symbol, and structural-edge IDs are opaque 64-character SHA-256 values derived from immutable evidence using the formulas in `technical-design.md`; times are RFC 3339 UTC.
 - Every response carries `X-Request-ID`; JSON successes also include `request_id`. Errors use `{code, message, limits?}` per the schema below.
 - Repository contents, evidence packets, and learner responses are not accepted in query strings.
 - There are intentionally no repository-mutation endpoints (no commit/push/PR/write route of any kind).
@@ -31,7 +31,7 @@ StructuralEdge = {
 }
 
 ApiError = {
-  "code":"UNSUPPORTED_SOURCE"|"LIMIT_EXCEEDED"|"ANALYSIS_TIMEOUT"|"REPOSITORY_NOT_FOUND"|"NOT_ENOUGH_EVIDENCE"|"MODEL_UNAVAILABLE",
+  "code":"ORIGIN_NOT_ALLOWED"|"UNSUPPORTED_SOURCE"|"LIMIT_EXCEEDED"|"ANALYSIS_TIMEOUT"|"REPOSITORY_NOT_FOUND"|"NOT_ENOUGH_EVIDENCE"|"MODEL_UNAVAILABLE",
   "message":"string",
   "limits":{"key":0}?
 }
@@ -43,7 +43,7 @@ Every rendered `StructuralEdge` carries exactly three evidence anchors (INV-001)
 
 ### `GET /health`
 - **Serves:** deployment and model/parser readiness.
-- **Response 200/503:** `{status:"ok"|"degraded", sample_ready, parser_ready, model_configured, checked_at}`; no secret/config detail.
+- **Response 200/503:** `{request_id,status:"ok"|"degraded",sample_ready,parser_ready,model_configured,checked_at,contract_version,analyzer_version}`; no secret/config detail. Headers include the same `X-Request-ID` and `X-Contract-Version`.
 - **Auth/authz:** none; safe, read-only, CORS-allowlisted like every other route.
 - **Errors:** none beyond standard 5xx.
 
@@ -75,6 +75,7 @@ Every rendered `StructuralEdge` carries exactly three evidence anchors (INV-001)
 ## Canonical error codes
 | Code | HTTP | Meaning |
 |---|---:|---|
+| `ORIGIN_NOT_ALLOWED` | 403 | Browser `Origin` is absent from the exact CORS allowlist; rejected before route/body handling |
 | `UNSUPPORTED_SOURCE` | 422 | Private repo, unsupported language, or malformed source reference |
 | `LIMIT_EXCEEDED` | 413 | File count/size/archive/timeout bound exceeded — rejected, not truncated |
 | `ANALYSIS_TIMEOUT` | 504 | Intake/analysis exceeded the 20-second bound |

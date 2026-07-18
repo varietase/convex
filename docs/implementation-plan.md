@@ -12,6 +12,8 @@ Three builder roles per `master-plan-implementation.md` §9, mapped onto the tea
 - **Everyone:** create the two repositories (`client` = `xray-client`, `model` = `xray-backend`); deploy a blank Vercel client; deploy a FastAPI `/health` endpoint to the Docker Space (port 7860); lock the sample repository; lock the data contracts; lock intake limits (40 files, 750KB total, 60KB/file, 5MB archive, 20MB extracted, 20s timeout); define stable ID formulas; add the invariant test file before feature code.
 - **Gate:** client deployment opens; backend `/health` responds; both repositories share the same contract version; the demo sample and central path are known.
 
+**Status 2026-07-18:** backend branch `feat/contracts-health` implements contract `1.0.0`, local sample `xray-demo-v1`, stable IDs, locked limits, invariant schemas, and `/health`; 29 tests and a live local smoke pass. Hugging Face deployment, Vercel deployment/shared client contract, and the final judge-facing sample remain open, so the 0:20 gate is not yet complete.
+
 ## 0:20–1:05 — Parallel foundation
 - **Builder A:** establish dark-first token scaffolding from `design-system.md`; render mock symbols and edges; implement Inside/Around/Across controls; add selected-symbol state; add keyboard-focusable graph elements; add text-path placeholder; build the source pane.
 - **Builder B:** implement sample intake; configure Tree-sitter parsers (JS/JSX/TS/TSX only); extract modules and symbols; create evidence references; return snapshot metadata.
