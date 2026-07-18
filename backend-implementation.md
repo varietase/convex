@@ -82,7 +82,9 @@ Suggested first branch: `feat/deterministic-evidence`; follow with `feat/grounde
 
 - [x] Configure JS, JSX, TypeScript, and TSX Tree-sitter parsers and analyze the bundled `xray-demo-v1` fixture. Verified by `model` commit `4b86a95`; the full 51-test backend suite passes.
 - [ ] Extract modules, symbols, declaration spans, imports, direct calls, and unresolved references.
-  - [x] Module records, named top-level function symbols, and identifier-only declaration spans are implemented in `model` commit `d151a11`; 61 backend tests pass. Imports, calls, and unresolved references remain open.
+  - [x] Module records, named top-level function symbols, and identifier-only declaration spans are implemented in `model` commit `d151a11`; 61 backend tests pass.
+  - [x] Static import references and unsupported dynamic-import records are implemented in `model` commit `9e03645`; 68 backend tests pass. Import target resolution remains open.
+  - [x] Direct identifier call references plus explicit unsupported member, computed, optional, dynamic, and caller-scope records are implemented on `model/feat/direct-call-references`; 80 backend tests pass. Call target resolution and ambiguity classification remain open.
 - [ ] Emit only exact relative imports and uniquely resolved same-file/named-import calls; omit dynamic, computed, reflective, injected, ambiguous, and parser-failed relations.
 - [ ] Validate every published graph edge has the three required provenance anchors and snapshot-scoped spans/symbols.
 - [ ] Implement versioned deterministic concept occurrences, evidence packet slicing, and required-claim construction using bounded packets only.
@@ -94,6 +96,7 @@ Suggested first branch: `feat/deterministic-evidence`; follow with `feat/grounde
 
 - [ ] Symbol, import, call, unresolved-reference, and evidence-anchor fixtures (TC-001–TC-003).
   - [x] Sample symbol/declaration fixtures, export/nesting cases, duplicate-path rejection, and snapshot-ID validation are covered by `d151a11`.
+  - [x] Raw import/call fixtures cover the bundled sample, supported import forms, dynamic imports, direct calls across JS/JSX/TS/TSX, unsupported call targets/scopes, stable ordering, and inventory validation. Resolution and evidence-anchor fixtures remain open.
 - [ ] Graph invariant failures and model-invented-edge rejection (TC-N01–TC-N02).
 - [ ] Gap eligibility and derivation tests (TC-006–TC-007, TC-N03–TC-N04).
 - [ ] Exactly-three-question, citation-validation, unsupported-claim, prohibited-language, and model-unavailable tests (TC-008–TC-009).
