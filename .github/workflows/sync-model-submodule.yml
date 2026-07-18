@@ -1,24 +1,21 @@
-name: Sync model submodule
+name: Sync submodules
 
-# Keeps the `model` submodule pointer following the model repo's main branch.
+# Keeps the `model` and `client` submodule pointers following each repo's
+# main branch (set via `branch = main` in .gitmodules).
 # Triggers:
 #   - manual button (Actions tab -> this workflow -> Run workflow)
 #   - every 6 hours as a safety net
-#   - instantly, when the model repo dispatches `model-main-updated`
-#     (see model/.github/workflows/notify-parent.yml — optional, needs a PAT)
 on:
   workflow_dispatch:
   schedule:
     - cron: "0 */6 * * *"
-  repository_dispatch:
-    types: [model-main-updated]
 
 # Allow the built-in GITHUB_TOKEN to push the pointer-bump commit.
 permissions:
   contents: write
 
 concurrency:
-  group: sync-model-submodule
+  group: sync-submodules
   cancel-in-progress: false
 
 jobs:
@@ -30,16 +27,16 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Advance model submodule to origin/main
-        run: git submodule update --remote --init model
+      - name: Advance submodules to their tracked main branches
+        run: git submodule update --remote --init
 
-      - name: Commit and push if the pointer moved
+      - name: Commit and push if any pointer moved
         run: |
-          if git diff --quiet -- model; then
-            echo "model submodule already at latest main — nothing to do."
+          if git diff --quiet -- model client; then
+            echo "submodules already at their latest main — nothing to do."
             exit 0
           fi
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "chore: bump model submodule to latest main" -- model
+          git commit -m "chore: bump submodules to latest main" -- model client
           git push
