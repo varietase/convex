@@ -1,2 +1,5 @@
 # FMD framework (local context-engineering tooling)
 fmd/
+
+# local Claude Code settings
+.claude/settings.json

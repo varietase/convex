@@ -1,0 +1,6 @@
+[submodule "client"]
+	path = client
+	url = https://github.com/varietase/client.git
+[submodule "model"]
+	path = model
+	url = https://github.com/varietase/model.git
