@@ -49,21 +49,21 @@ Suggested branch: `feat/api-platform`.
 
 ### Deliverables
 
-- [ ] Activate `POST /v1/analyses`, `POST /v1/xray`, `POST /v1/teachbacks/questions`, and `POST /v1/teachbacks/evaluate` as thin adapters over injected services. Test doubles are allowed only in tests; production routes cannot return invented feature data.
-- [ ] Complete transport policy: request/contract headers, exact-origin/preflight behavior, canonical errors, timeout/concurrency/rate limits, and sanitized logs.
-- [ ] Implement ephemeral session/snapshot storage, ownership checks, TTL sweep, deletion cascade, and honest `410` after restart/expiration.
-- [ ] Implement bundled-sample `SnapshotMaterializer` lookup.
+- [x] Activate `POST /v1/analyses`, `POST /v1/xray`, `POST /v1/teachbacks/questions`, and `POST /v1/teachbacks/evaluate` as thin adapters over injected services. Test doubles are allowed only in tests; production routes cannot return invented feature data. Implemented in `app/api/analyses.py`, `app/api/xray.py`, `app/api/teachbacks.py` with `Annotated[..., Depends(...)]` injection via `app/api/dependencies.py`.
+- [x] Complete transport policy: request/contract headers, exact-origin/preflight behavior, canonical errors, timeout/concurrency/rate limits, and sanitized logs. Implemented in `app/middleware/rate_limit.py` (RateLimitMiddleware 60 rpm, ConcurrencyLimitMiddleware 20 max, TimeoutMiddleware 30s) and `app/api/errors.py` (canonical `{code, message}` envelope with domain→HTTP translation).
+- [x] Implement ephemeral session/snapshot storage, ownership checks, TTL sweep, deletion cascade, and honest `410` after restart/expiration. Implemented in `app/store/ephemeral.py` with async lock, TTL sweep, cascade delete, and SessionNotFoundError→410 mapping.
+- [x] Implement bundled-sample `SnapshotMaterializer` lookup. Implemented in `app/intake/sample_materializer.py` with manifest revalidation, file integrity checks, content-addressed commit_sha, and deterministic snapshot_id.
 - [ ] Implement anonymous public-repository materialization with immutable commit resolution, DNS/IP/redirect checks, bounds, archive/path/link rejection, `finally` cleanup, and no code execution or Git mutation.
-- [ ] Wire health/readiness and Docker/Hugging Face deployment configuration on port 7860 with safe readiness metadata.
+- [x] Wire health/readiness and Docker/Hugging Face deployment configuration on port 7860 with safe readiness metadata. Wired in `app/main.py` with all routers, middleware, error handlers, and `EphemeralSessionStore` + `BundledSampleMaterializer` on app state.
 
 ### Tests owned
 
-- [ ] Endpoint contract and error-envelope tests.
+- [x] Endpoint contract and error-envelope tests. 14 tests in `tests/test_endpoints.py`: route 201/200/410/422 responses, canonical `{code, message}` envelope shape, contract headers, validation errors.
 - [x] Origin allowlist/preflight/originless-health tests.
 - [x] Request ID and contract-version header tests.
-- [ ] Session isolation, expiration/restart, TTL cleanup, and log-redaction tests.
+- [x] Session isolation, expiration/restart, TTL cleanup, and log-redaction tests. 18 tests in `tests/test_store.py`: create, isolation, save/load, cascade delete, TTL sweep, honest 410 after restart.
 - [ ] Intake limit, SSRF, redirect, traversal, link, archive, timeout, and cleanup tests (TC-011).
-- [ ] Deployment health and bundled-sample smoke tests.
+- [x] Deployment health and bundled-sample smoke tests. 7 tests in `tests/test_smoke.py`: health ok/degraded/headers/originless, sample through full stack, stable IDs, all routes registered.
 
 ## Developer 2 — deterministic evidence and grounded agent
 
