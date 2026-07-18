@@ -1,0 +1,14 @@
+#!/bin/sh
+LEDGER="docs/DECISION-LEDGER.md"
+staged=$(git diff --cached --name-only)
+adr_changed=$(printf '%s\n' "$staged" | grep -E '^docs/adr/' || true)
+ledger_changed=$(printf '%s\n' "$staged" | grep -F "$LEDGER" || true)
+if [ -n "$adr_changed" ] && [ -z "$ledger_changed" ]; then
+  echo "BLOCKED: docs/adr changed without $LEDGER. Add the matching §3 decision in the same commit."
+  exit 1
+fi
+inv_surface=$(printf '%s\n' "$staged" | grep -E '(^|/)(data|content|copy)/|design-system|\.csv$' || true)
+if [ -n "$inv_surface" ] && [ -z "$ledger_changed" ]; then
+  echo "REMINDER: audit any touched INV-### in $LEDGER §5 before merge."
+fi
+exit 0

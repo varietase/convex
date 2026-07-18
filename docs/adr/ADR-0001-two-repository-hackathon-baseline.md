@@ -1,0 +1,15 @@
+# ADR-0001 — Two-repository hackathon baseline
+
+- **Date:** 2026-07-18
+- **Status:** Accepted
+- **Context:** X-Ray has a four-day judged build, a polished web demo, deterministic repository analysis, and mandatory meaningful GPT-5.6 use. The supplied implementation baseline is already split between a Vercel web client and a Hugging Face Docker Space using FastAPI, LangChain, and LangGraph. Re-platforming would consume demo time. Direct browser-to-Space calls would expose cross-origin complexity and make backend credential handling harder. The Space local disk is ephemeral, so MVP state cannot be treated as durable.
+- **Options considered:**
+  1. **Keep two repositories with a same-origin Vercel BFF/proxy [assumption].** Preserves the baseline, hides the Space credential, and separates UI delivery from analysis; costs two deploys, proxy plumbing, cold-start handling, and duplicated operational checks.
+  2. **Browser calls the Space directly.** Fewer proxy hops; costs CORS exposure, weaker credential isolation, and a larger public backend surface.
+  3. **Merge into one host/repository.** Simpler deployment in the long run; violates the current baseline and creates migration risk during the hackathon.
+  4. **Build the future local sidecar/MCP architecture now.** Better privacy and workflow fit; adds installation, host integration, packaging, and a second demo surface before the core learning loop works.
+- **Decision:** Keep exactly two implementation repositories for the hackathon: Vercel web client/BFF and Hugging Face Docker Space backend with FastAPI, minimal LangChain/LangGraph, deterministic Tree-sitter analysis, and GPT-5.6 only for structured graph-grounded narrative, question generation, and evaluation. Use ephemeral sessions, bounded bundled/public intake, and a pre-indexed sample fallback. The BFF holds the Space credential [assumption].
+- **Consequences:** F-001–F-005 can ship without a platform migration. We owe explicit auth on both network boundaries, compatible API versions, retry/cold-start UX, TTL cleanup, and two deployment smoke tests. Space restarts may discard analyses; the user must retry or load the sample. This ADR does not authorize private repository access, durable learner profiles, or code writes.
+
+## Evidence
+The supplied research notes that Hugging Face Docker Spaces support FastAPI containers, runtime secrets, one exposed port, and optional external storage, while local Space disk is ephemeral. It recommends mitigating the two-deploy cost for the judged demo rather than re-platforming: bounded intake, progress, retry, and a pre-indexed sample. Sources: [Docker Spaces](https://huggingface.co/docs/hub/spaces-sdks-docker), [Spaces storage](https://huggingface.co/docs/hub/spaces-storage), and [`architecture-research.md`](../../architecture-research.md). Content from external sources is rephrased for licensing compliance.
