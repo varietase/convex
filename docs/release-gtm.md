@@ -9,7 +9,7 @@ A release candidate passes only when a clean-browser user can load a visibly lab
 - **INV-001:** every rendered structural edge has deterministic source evidence; uncertainty is omitted.
 - **INV-002:** every personal gap item has both repository and learner-attempt evidence; no generic list.
 - **INV-003:** intake and analysis are read-only; no write credential, mutation route, commit, branch, or pull request.
-- **Architecture:** keep the current two repositories: Vercel web client/BFF and Hugging Face Docker Space with FastAPI, deterministic analysis, minimal LangChain/LangGraph, and GPT-5.6 above the graph.
+- **Architecture:** keep the current two repositories: Vercel web client calling the Hugging Face Docker Space (FastAPI, deterministic analysis, minimal LangChain/LangGraph, GPT-5.6 above the graph) directly over HTTPS — no BFF/proxy; access control is a CORS origin allowlist.
 - **Scope rule:** cut breadth and polish before cutting provenance, teach-back, text-path access, sample labeling, or the gap update.
 
 ## Release plan & phases
@@ -33,8 +33,8 @@ A release candidate passes only when a clean-browser user can load a visibly lab
 ## Rollout strategy
 ### Deployment order
 1. Pin and test the backend image; deploy the Hugging Face Space first.
-2. Through the authenticated BFF path, pass API-106 health, invariant fixtures, sample analysis, and `graph → questions → attempt → gaps` smoke.
-3. Deploy Vercel preview/BFF against that backend; pass contract, keyboard, responsive, clean-session, and secret-bundle checks.
+2. Calling the backend directly, pass `GET /health`, invariant fixtures, sample analysis, and `graph → questions → attempt → gaps` smoke.
+3. Deploy Vercel preview against that backend; pass contract, keyboard, responsive, clean-session, and secret-bundle checks.
 4. Promote that exact preview; repeat the smoke from a logged-out browser. A second-network check is **[assumption]** if connectivity permits.
 5. Record known-good identifiers for both repositories in the private team channel **[assumption]**.
 
@@ -43,7 +43,7 @@ Runtime switches for public-repository intake and model-backed views are **[assu
 
 | Failure | User-visible result | Action / owner | Preserved rule |
 |---|---|---|---|
-| Space cold/down | One warm-up retry, degraded health, explicit sample option | Farhana checks API-106; rollback image if needed | No fake live result |
+| Space cold/down | One warm-up retry, degraded health, explicit sample option | Farhana checks `GET /health`; rollback image if needed | No fake live result |
 | Public fetch fails | Canonical reason and sample option | Do not bypass host/bounds; Farhana | INV-003 |
 | Parser is uncertain | Edge absent; “not enough evidence” | Joshua fixes deterministic rule/fixture later | INV-001 |
 | GPT-5.6 unavailable or output rejected | Graph, source, and text path remain; reasoning view unavailable | One validated retry; Joshua/Farhana disable or rollback model path | Graph truth unchanged |
@@ -69,12 +69,12 @@ Runtime switches for public-repository intake and model-backed views are **[assu
 
 ### Technical, security, and operations
 - [ ] Frontend type/unit/contract/accessibility/build checks and backend fixture/invariant/API checks pass.
-- [ ] API-001–API-108 auth/authz matches the spec; no backend/model secret reaches browser or logs.
-- [ ] SSRF, traversal, links/archives, oversize, timeout, cleanup, CSRF/origin, and two-session isolation tests pass.
+- [ ] The five documented endpoints match the spec; no backend/model secret reaches browser or logs.
+- [ ] SSRF, traversal, links/archives, oversize, timeout, cleanup, CORS-origin allowlist, and two-session isolation tests pass.
 - [ ] INV-001 and INV-002 negative fixtures fail closed; held-out rendered edges have 100% observed precision.
 - [ ] INV-003 checks find no write credential, repository execution, mutation API, commit, or pull-request path.
-- [ ] Success/error log samples contain no source, full repository URL/query, response, prompt, cookie, or secret.
-- [ ] API-010/API-106 pass after warm-up; known-good IDs and responders are recorded; rollback is tested.
+- [ ] Success/error log samples contain no source, full repository URL/query, response, prompt, or secret.
+- [ ] `GET /health` passes after warm-up; known-good IDs and responders are recorded; rollback is tested.
 
 ### Manila and Global
 - [ ] Dia drives; Abu narrates; Joshua owns technical Q&A; Farhana watches health/rollback.

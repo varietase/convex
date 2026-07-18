@@ -10,12 +10,12 @@
 ### Backend first
 1. Build the Docker image with lockfile-pinned dependencies; validate FastAPI, Tree-sitter grammar, LangChain/LangGraph, and model SDK versions against official docs at scaffold [assumption].
 2. Run unit/fixture tests, including invariant tests and the pre-indexed sample.
-3. Deploy the Space exposing one application port.
-4. Set Space secrets by name, run authenticated API-106, then run sample analysis.
+3. Deploy the Space exposing one application port (`7860`).
+4. Set Space secrets by name, run `GET /health`, then run sample analysis via `POST /v1/analyses`.
 
-### Frontend/BFF second
+### Frontend second
 1. Run type, unit, contract, accessibility, and build checks.
-2. Set Vercel environment variables by name.
+2. Set Vercel environment variables by name (including the backend origin the client calls directly).
 3. Deploy preview; run full sample loop against production-like backend.
 4. Promote to production and run the same smoke test.
 
@@ -25,29 +25,27 @@ Rollback Vercel to the previous deployment and the Space to the previous known-g
 ## Configuration & secrets
 | Name | Runtime | Purpose |
 |---|---|---|
-| `XRAY_BACKEND_BASE_URL` | Vercel | Space origin |
-| `XRAY_BACKEND_TOKEN` | Vercel + Space | BFF-to-Space authentication |
-| `XRAY_SESSION_SIGNING_KEY` | Vercel | Ephemeral cookie signing |
-| `XRAY_ALLOWED_ORIGINS` | Vercel + Space | Origin/host validation |
+| `XRAY_BACKEND_BASE_URL` | Vercel | Space origin the client calls directly |
+| `XRAY_ALLOWED_ORIGINS` | Space | FastAPI CORS allowlist (deployed Vercel origin + local dev) |
 | `OPENAI_API_KEY` | Space | GPT-5.6 calls |
 | `XRAY_MODEL_NAME` | Space | Pinned GPT-5.6 identifier [assumption] |
 | `XRAY_LIMIT_*` | Space | Intake/time bounds from API spec |
 | `XRAY_SAMPLE_MANIFEST` | Space | Immutable fallback sample version |
 
-Use Vercel and Hugging Face secret stores, never repository files. Rotate backend and signing credentials after exposure or team-member departure; invalidate active ephemeral sessions when signing keys rotate.
+Use the Hugging Face Space secret store for `OPENAI_API_KEY`, never repository files. Vercel holds no backend credential — there is nothing to rotate on that side beyond normal deployment config.
 
 
 ## Observability
-Use structured logs on both platforms with shared `request_id` and hashed ephemeral `session_id`. Never log source, learner answers, prompts, cookies, URLs with query strings, or secret values.
+Use structured logs on both platforms with shared `request_id`. Never log source, learner answers, prompts, URLs with query strings, or secret values.
 
 ### Signals
 | SLI | Measurement | Why |
 |---|---|---|
-| Frontend availability | API-010 success and page load | Judge access |
-| Backend reachability | Authenticated API-106 via BFF | Detect cold/down Space |
+| Frontend availability | `GET /health` success and page load | Judge access |
+| Backend reachability | `GET /health` | Detect cold/down Space |
 | End-to-end sample success | Scheduled/manual sample loop | Core demo truth |
-| Analysis success by stage | terminal ready/failed counts | Locate fetch/parser/model failures |
-| Analysis stage latency | coarse stage duration buckets | Cold start/bounds tuning |
+| Analysis success/failure | `POST /v1/analyses` response counts | Locate fetch/parser/model failures |
+| Analysis latency | request duration buckets (bounded by the 20s timeout) | Cold start/bounds tuning |
 | Invariant rejects | evidence-edge/gap validation rejects | Trust regression |
 | Model output rejects | schema/citation validation failure | Safe model degradation |
 | Cleanup lag | expired workspaces/sessions past TTL | Privacy/storage control |
@@ -57,7 +55,7 @@ Platform log/metric retention must match `data-model.md`; provider defaults need
 
 ## Alerts & thresholds [assumption]
 These are initial hackathon thresholds, not measured SLOs:
-- **Page immediately:** API-010 fails 2 consecutive 1-minute checks; authenticated API-106 fails after one warm-up retry; sample loop fails; any invariant violation is published; suspected secret exposure.
+- **Page immediately:** `GET /health` fails 2 consecutive 1-minute checks or after one warm-up retry; sample loop fails; any invariant violation is published; suspected secret exposure.
 - **Investigate within 30 minutes:** >20% analysis failure over 10 requests; >20% model-output rejection over 10 calls; p95 analysis exceeds the 60-second bound; cleanup lag exceeds 30 minutes; disk >80%; repeated 429 during judge test.
 - **No page:** a single user input rejection, intentionally omitted ambiguous edge, or one model retry that succeeds.
 
@@ -65,10 +63,10 @@ Alert destination/owner tooling is [assumption]. During Manila, Farhana is first
 
 ## Runbook — common incidents
 ### Space cold/unavailable
-- **Symptom:** API-010 degraded; BFF gets timeout/503.
-- **Diagnose:** call API-106 through authenticated BFF path; inspect Space build/runtime status and latest deployment.
+- **Symptom:** `GET /health` degraded; client gets timeout/503 calling the Space directly.
+- **Diagnose:** call `GET /health` directly; inspect Space build/runtime status and latest deployment.
 - **Fix:** allow one warm-up retry; rollback failed image; reduce concurrency. Offer visibly labeled pre-indexed sample while live analysis is unavailable.
-- **Verify:** API-106 then full sample graph → question → attempt → gap loop.
+- **Verify:** `GET /health` then full sample graph → question → attempt → gap loop.
 
 ### Public repository fetch fails
 - **Symptom:** `INVALID_SOURCE`, timeout, or bounds error.
@@ -97,7 +95,7 @@ Alert destination/owner tooling is [assumption]. During Manila, Farhana is first
 ### Cross-session access suspected
 - **Symptom:** resource appears under wrong session or unusual 404/auth events.
 - **Diagnose:** disable affected routes; run ownership tests using two fresh sessions; inspect sanitized request IDs.
-- **Fix:** patch authorization, rotate signing key/backend token, invalidate sessions, delete transient state.
+- **Fix:** patch authorization, delete transient state.
 - **Verify:** full session-isolation suite and manual two-session attempt.
 
 ### Secret exposure
@@ -108,11 +106,11 @@ Alert destination/owner tooling is [assumption]. During Manila, Farhana is first
 ## Backup & recovery
 MVP user/session data is intentionally ephemeral and is **not backed up**. Recovery means redeploying code/config and recreating a session, not restoring learner responses. Back up/version in source control only: both application repositories, lockfiles, Docker config, schemas, Tree-sitter queries, concept rules, method registry, test fixtures, and pre-indexed sample artifact. Secrets are recreated from approved team secret stores, never backups in the repository.
 
-Before judging, export or tag a known-good deployment identifier for each repository [assumption] and test rollback once. Restore test: deploy backend artifact, pass API-106 and invariant fixtures, deploy Vercel artifact, complete the end-to-end sample loop. External durable storage or learner-state backup is future scope requiring an ADR and privacy review.
+Before judging, export or tag a known-good deployment identifier for each repository [assumption] and test rollback once. Restore test: deploy backend artifact, pass `GET /health` and invariant fixtures, deploy Vercel artifact, complete the end-to-end sample loop. External durable storage or learner-state backup is future scope requiring an ADR and privacy review.
 
 ## Judge-day checklist
-- [ ] Production page and API-010 load from a clean browser.
-- [ ] Backend authenticated health passes after warm-up.
+- [ ] Production page and `GET /health` load from a clean browser.
+- [ ] Backend health passes after warm-up.
 - [ ] Bundled sample full loop passes and sample version is visible.
 - [ ] One bounded public fixture passes; one oversize/unsafe fixture rejects safely.
 - [ ] GPT-5.6 structured output and invalid-citation rejection both tested.
