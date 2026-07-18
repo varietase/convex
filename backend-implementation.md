@@ -133,6 +133,7 @@ Suggested first branch: `feat/deterministic-evidence`; follow with `feat/grounde
 - [x] **4. Gap and safety:** TTL, errors, rate limits, and public-intake safety; deterministic EQ-005 gap derivation; no gap before validated attempt evidence.
   - [x] TTL sweep, canonical errors, and rate/concurrency limits pre-existed; deterministic EQ-005 gap derivation with INV-002 fail-closed eligibility landed on `model/feat/grounded-evaluation` (`80390bb`). The public-intake safety boundary (SSRF, bounds, archive/path/link rejection, `finally` cleanup, no code execution) completes this item on `model/feat/public-intake`; the real-network manual check is deferred to the release stint.
 - [ ] **5. Release:** Space configuration, production checks, sample fallback, and model-unavailable behavior; production sample loop succeeds three times.
+  - [x] Code-side release readiness complete on `model/feat/release-readiness`: `tests/test_release.py` pins the Space configuration (Docker port 7860, non-root user, hash-required install, health probe, HF front-matter), the requirements build input is re-synced with `pyproject` (declared `httpx` now recorded) and guarded by a permanent sync test, production settings enforce a deployed HTTPS origin, and keyless deployments serve the full graph with the canonical 503 `MODEL_UNAVAILABLE` envelope. The bundled-sample loop succeeds three consecutive times in-process (identical snapshot/symbol/edge IDs, three evaluations + derived gap each loop), and `scripts/production_smoke.py` runs the literal 3× loop against a deployed instance — verified locally keyless: 3/3 loops in deterministic-only mode, immutable IDs, exit 0. README release notes refreshed. Only the live deployed run (keyed) remains for this item; full 368-test suite passes.
 
 Merge the deterministic graph first because it is the highest-risk proof. The platform branch may use test doubles until that merge, then replaces them with the real services. Keep model reasoning in the second evidence/agent merge so model work cannot hide missing deterministic evidence.
 
@@ -146,7 +147,7 @@ sample -> deterministic graph -> cited selected edge -> three teach-back answers
 ```
 
 - [ ] Complete the end-to-end loop above against the bundled sample.
-- [ ] Run all MVP and invariant cases.
+- [x] Run all MVP and invariant cases. Every TC-001–TC-011 and TC-N01–TC-N05 case has an implemented, passing test face in the 368-test backend suite (deterministic graph, packet/claims, reasoning/questions/evaluation, gap derivation, intake safety, invariants, release checks).
 - [ ] Validate the five documented endpoints and inspect sanitized success/error logs.
 - [ ] Run the production bundled-sample smoke test.
 - [ ] Keep F-101 through F-104 closed until every preceding completion item passes.
