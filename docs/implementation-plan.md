@@ -57,6 +57,10 @@ one executable gate. The demo-critical path comes before polish; optional work i
 | TASK-010 | CI/release proof (pytest + client checks on PR); deferred per current team decision; test | — | Farhana | .github/workflows | — | blocked | `cd model && uv run pytest` |
 | TASK-011 | Demo script + shot-list for the sub-3-min video; docs | — | Abu | docs/pitch-kit.md | — | ready | `git diff --stat docs/pitch-kit.md` |
 | TASK-012 | Final <3-min video + README/Codex write-up + Devpost submit; docs | TASK-009 | Abu | README.md, docs/pitch-kit.md | — | blocked | `git diff --stat README.md docs/pitch-kit.md` |
+| TASK-013 | Comprehension-delta ledger; F-101 | — | Abu (steward, unassigned) | none/f-101-deferred | — | cut | `grep -c "F-101" docs/prd.md` |
+| TASK-014 | In-workflow MCP App / extension surface; F-102 | — | Abu (steward, unassigned) | none/f-102-deferred | — | cut | `grep -c "F-102" docs/prd.md` |
+| TASK-015 | Cross-repository learner graph; F-103 | — | Abu (steward, unassigned) | none/f-103-deferred | — | cut | `grep -c "F-103" docs/prd.md` |
+| TASK-016 | Agent teaching contract; F-104 | — | Abu (steward, unassigned) | none/f-104-deferred | — | cut | `grep -c "F-104" docs/prd.md` |
 
 ## 4. Current execution view (derived from §3 — categorized; recompute at each checkpoint)
 
@@ -101,9 +105,20 @@ one executable gate. The demo-critical path comes before polish; optional work i
 
 _None verified._ The backend being feature-complete for F-001–F-005 is recorded in the [Decision Ledger](DECISION-LEDGER.md) truth table as **PROVISIONAL** (unverified until a deployed-Space keyed smoke), so it is a ledger fact rather than a live task row. Nothing in the release-coherence critical path has observed `done` evidence yet.
 
+### ✂️ Cut — explicitly out of scope for this build
+
+| ID | Outcome | F-ID | Why cut |
+|----|---------|------|---------|
+| TASK-013 | Comprehension-delta ledger | F-101 | Final-tier feature. BR-009: "Final features F-101 through F-104 SHALL NOT displace completion of the F-001–F-005 end-to-end demo loop." That loop is not yet live end to end. |
+| TASK-014 | In-workflow MCP App / extension surface | F-102 | Same as above; also ADR-0002 marks this a future recommendation only, not current work. |
+| TASK-015 | Cross-repository learner graph | F-103 | Same as above; MVP sessions are ephemeral/session-scoped by design (no cross-repo learner state). |
+| TASK-016 | Agent teaching contract | F-104 | Same as above; no MCP tool surface exists in the current two-repository architecture. |
+
+These are recorded as `cut`, not omitted, so F-101–F-104 stay traceable and are not silently forgotten — and so no one accidentally starts them before the MVP loop (TASK-001→TASK-012) is proven end to end, per the Decision Ledger: "Do not start F-101 through F-104 until the complete F-001 through F-005 loop works." Revisit only after `TASK-009` (full loop verified) is `done`.
+
 ### Derived scheduling summary
 
-- **Execution waves:** w0 {TASK-001, TASK-002, TASK-004, TASK-010, TASK-011} · w1 {TASK-003} · w2 {TASK-005} · w3 {TASK-006, TASK-007} · w4 {TASK-008} · w5 {TASK-009} · w6 {TASK-012}.
+- **Execution waves:** w0 {TASK-001, TASK-002, TASK-004, TASK-010, TASK-011, TASK-013, TASK-014, TASK-015, TASK-016} · w1 {TASK-003} · w2 {TASK-005} · w3 {TASK-006, TASK-007} · w4 {TASK-008} · w5 {TASK-009} · w6 {TASK-012}. TASK-013–016 (F-101–F-104) are `cut` and have no dependents; they sit in w0 only because they have no dependencies, not because they are active MVP work.
 - **Safe parallel set (now):** TASK-002, TASK-004, TASK-011 (disjoint scopes; TASK-001 is external and owned by Farhana in parallel).
 - **Integration order:** clear TASK-001 → TASK-003 → TASK-005 → (TASK-006 ∥ TASK-007) → TASK-008 → TASK-009 → TASK-012.
 - **Cut line (if time slips):** public-repo breadth beyond one fixture → decorative polish/animation → extra concepts. **Never cut the sample loop or the video.** If integration slips, demo the real backend loop via a minimal wired surface, not the static preview.
@@ -165,6 +180,7 @@ At one checkpoint, make one coherent transaction:
 | Timestamp / event | Tasks changed | Why / evidence | Canonical docs reconciled |
 |-------------------|---------------|----------------|---------------------------|
 | 2026-07-20T01:22 PHT · FMD 4.2→4.3 migration | TASK-001…TASK-012 seeded | Establish the living execution plan as the sole execution-state owner; derived from `next-steps.md`, the Decision Ledger, and read-only repo/submodule state. No code/submodule/deploy state observed to change. | index · AGENTS · onboarding · Decision Ledger (ownership + §3 pivot); next-steps re-labeled historical |
+| 2026-07-20T02:06 PHT · Final-tier traceability checkpoint | TASK-013…TASK-016 added, status `cut` | Made F-101–F-104 explicitly traceable and `cut` rather than absent, per BR-009 and the Decision Ledger's "do not start F-101–104 until the F-001–005 loop works." No MVP task/dependency/status changed. | none (no owned truth changed; PRD/system-design/QA already state this rule) |
 
 ---
 
