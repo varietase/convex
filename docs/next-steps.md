@@ -1,8 +1,16 @@
-# Next Steps — convex Global Stage
+# Next Steps — convex Global Stage (historical / detail background)
 
-**Maintained by:** Abu · **Updated:** 2026-07-19 · **Status:** active execution tracker
+**Maintained by:** Abu · **Updated:** 2026-07-19 · **Status:** historical background — superseded by the living plan
 
-> **Scope:** this plan runs from now **through the final build and the Devpost submission** — not just the immediate next steps. It is the single doc the team follows. It is a plan, not canonical truth; the Decision Ledger still wins.
+> **⚠️ Not the active execution tracker.** Under FMD 4.3, the single owner of current execution state
+> (task status, owners, dependencies, gates, ready/blocked/parallel/cut) is
+> [`implementation-plan.md`](implementation-plan.md). This document is retained as the **narrative
+> background and rationale** behind that plan — the day-by-day thinking, critical-path analysis,
+> workstreams, onboarding notes, and GC copy. When it disagrees with the living plan, the living plan
+> wins. Its `TASK-###` mapping: D1→TASK-002 · D3→TASK-004 · D4→TASK-008 · WS-A→TASK-001/003 ·
+> WS-B→TASK-005 · WS-C→TASK-006/007 · WS-D→TASK-010 · WS-E→TASK-011/012.
+>
+> **Scope:** this plan runs from now **through the final build and the Devpost submission** — not just the immediate next steps. It is a plan, not canonical truth.
 >
 > **One-paragraph truth.** The thesis, the deterministic-analysis backend (300+ tests, feature-complete for F-001–F-005), the reasoning constraints, and a polished client are all real. What is left is **release coherence**: deploy the backend, wire the live client to it, and land the F-001→F-005 loop end to end. The backend code is done; the gap is deployment + integration, not features.
 >
