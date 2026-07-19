@@ -13,9 +13,9 @@ This repository is the shared system-context and planning hub for the hackathon 
 - Current architecture: Cloudflare Workers web client (live at `https://convex.varietase.workers.dev`) plus Hugging Face Docker Space backend
 - Client context: sibling [client README](../client/README.md)
 - Backend/model context: `model/` contains the Hugging Face FastAPI backend (`xray-backend`) — deterministic Tree-sitter analysis, evidence graph, grounded GPT-5.6 reasoning, and gap derivation, with a 300+ test suite (tracked as a submodule)
-- Source of truth: [docs/DECISION-LEDGER.md](docs/DECISION-LEDGER.md)
+- Source of truth: [docs/index.md](docs/index.md) §0 ownership map — see below
 
-If any document disagrees with the Decision Ledger, the Decision Ledger wins until the docs are reconciled.
+Under FMD 4.3, ownership is by concern, not a single overriding document: product behavior/features/journeys/invariants live in [docs/prd.md](docs/prd.md), architecture/deployment in [docs/system-design.md](docs/system-design.md), test intent/traceability in [docs/qa-test-plan.md](docs/qa-test-plan.md), current execution state/task ownership/dependencies/gates in [docs/implementation-plan.md](docs/implementation-plan.md), and decisions/pivots/rejected approaches/names/immutable IDs in [docs/DECISION-LEDGER.md](docs/DECISION-LEDGER.md) and its ADRs. A decision that affects product behavior or architecture is recorded in the ledger **and** reconciled into its owning doc in the same checkpoint. If two documents disagree, that is a failed checkpoint to reconcile at the concern's owning doc — not a case where one document silently wins.
 
 ## Product Boundary
 
@@ -351,10 +351,10 @@ Start here:
 
 | Doc | Owns |
 |---|---|
-| [docs/DECISION-LEDGER.md](docs/DECISION-LEDGER.md) | Live truth, decisions, pivots, rejected directions, immutable IDs |
+| [docs/DECISION-LEDGER.md](docs/DECISION-LEDGER.md) | Decisions, pivots, rejected directions, names/immutable IDs |
 | [docs/index.md](docs/index.md) | Documentation map and reading paths |
 | [docs/prd.md](docs/prd.md) | Product requirements, features, user journeys, acceptance criteria |
-| [docs/implementation-plan.md](docs/implementation-plan.md) | Time-boxed build schedule and gates |
+| [docs/implementation-plan.md](docs/implementation-plan.md) | **Living execution-state owner (FMD 4.3):** current `TASK-###` status, owners, dependencies, gates, and derived ready/blocked/parallel/cut view; historical Manila schedule preserved as its Appendix A |
 | [docs/qa-test-plan.md](docs/qa-test-plan.md) | Test cases, traceability, invariant negative tests |
 
 Core system docs:

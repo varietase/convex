@@ -1,14 +1,14 @@
 # Documentation Index — convex
 
-**Maintained by:** Abu · **Last updated:** 2026-07-18 · **FMD:** 4.2.0
+**Maintained by:** Abu · **Last updated:** 2026-07-20 · **FMD:** 4.3.0
 
-> **How to use this index.** Each document owns one concern. If two documents disagree, the Decision Ledger wins. Start with the four marked ⭐ below — they're the minimum context for any builder joining mid-sprint.
+> **How to use this index.** Each document owns one concern (see the map below). Under FMD 4.3 there is no single doc that "wins" every disagreement — ownership is by concern: product behavior lives in the PRD, architecture in System Design, test intent in the QA Plan, **current execution state in the Implementation Plan**, and decisions/pivots/names/immutable IDs in the Decision Ledger and ADRs. If two documents disagree, that is a failed checkpoint: reconcile it at the concern's owning doc rather than letting either silently override. Start with the four marked ⭐ below — they're the minimum context for any builder joining mid-sprint.
 
 ## 0. Source-of-truth map
 
 | Concern | Canonical owner | What's inside (one-liner) |
 |---|---|---|
-| Live truth, pivots, immutable IDs | ⭐ [Decision Ledger](DECISION-LEDGER.md) | The append-only record of what is currently true, what was rejected, and which IDs are frozen. If you're unsure whether something is decided, check here first. |
+| Decisions, pivots, rejected approaches, names/immutable IDs | ⭐ [Decision Ledger](DECISION-LEDGER.md) | The append-only record of decisions, pivots, rejected approaches, frozen names/IDs, and decision assumptions. It owns *decision history*, not current execution state or product/architecture truth — those live in their own docs below. If you're unsure whether something was *decided*, check here first. |
 | Problem, segment, feature/invariant origin | [idea.md](../idea.md) | The original problem statement, peer-reviewed evidence, target users, kill criteria, and the feature/invariant spine (F-001–F-005, INV-001–003). This is where we explain *why* we're building convex. |
 | Build context and rubric | [context.md](../context.md) | Hackathon rules, team size, time budget, judging rubric, and hard submission requirements (Codex use, YouTube demo, etc.). Read this to know what we're being scored on. |
 | Brand and voice | [brand.md](../brand.md) | Product name, category phrase, visual direction, UI copy rules (say/don't-say), and accessibility baseline. Governs all user-facing text and design decisions. |
@@ -22,8 +22,8 @@
 | UI tokens, components, states, copy | [Design System](design-system.md) | CSS tokens, semantic/component styling, component inventory with states, interaction patterns, accessibility contracts, graph/chart encoding rules, and exact copy for every UI condition. The frontend implementation spec. |
 | Tests and traceability | ⭐ [QA Plan](qa-test-plan.md) | Test cases (TC-001–TC-011, TC-N01–N05), traceability matrix linking each F-ID to tests, invariant negative tests, API/security gates, and exit criteria. |
 | Auth, threats, compliance | [Security](security-compliance.md) | Threat model, SSRF/traversal/injection mitigations, credential handling, session isolation, log sanitization, and INV-003 enforcement specifics. |
-| Build sequence | ⭐ [Implementation Plan](implementation-plan.md) | The 5.5-hour Manila build schedule: time blocks, owners, gates, and the honest stopping point. This is Joshua's working document — check it for current task assignments. |
-| Global execution plan | ⭐ [Next Steps](next-steps.md) | Day-by-day ship plan to the Global deadline: per-member tasks, deploy ownership, blockers, and the honest stopping point. The single doc the team follows now. |
+| Current execution state, task ownership, dependencies, gates | ⭐ [Implementation Plan](implementation-plan.md) | **The living execution-state owner (FMD 4.3):** stable `TASK-###` rows with status, one owner each, dependencies, bounded write scopes, work refs, executable gates, and the derived ready/blocked/parallel/cut view + waves. Check here for what to do next. The historical Manila five-hour schedule is preserved as its Appendix A. |
+| Global-stage rationale (historical) | [Next Steps](next-steps.md) | **Historical background** behind the living plan: day-by-day ship reasoning, critical-path analysis, workstreams, blockers, onboarding notes, and GC copy. Superseded as the execution tracker by the Implementation Plan; retained for provenance. |
 | Build-time agent roster | [SAD](sad.md) | Which AI agents help build convex (graph-engineer, product-ui-engineer, reasoning-engineer, trust-reviewer), their boundaries, and what they must not do. |
 | Deployment and incidents | [Ops](ops.md) | Deployment steps for Cloudflare Workers and HF Space, health checks, monitoring, rollback procedures, and incident response for judging availability. |
 | Release and validation | [Release/GTM](release-gtm.md) | Release phases (M0–M3, G1–G3), scope-cut order, rollout strategy, launch checklist, and submission deadlines. The ship plan. |

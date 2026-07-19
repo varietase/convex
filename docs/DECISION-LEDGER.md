@@ -1,10 +1,10 @@
 # Decision Ledger — convex
 
-> **What this is.** The append-only record of current truth, pivots, rejected approaches, naming decisions, and invariant audits. If another project document disagrees with this ledger, this ledger wins until reconciliation.
+> **What this is.** The append-only record of decisions, pivots, rejected approaches, naming decisions, immutable IDs, decision assumptions, and invariant audits. Under FMD 4.3 it owns *decision history* — not a veto over every other doc. Concern ownership: product behavior → `docs/prd.md`; architecture/deployment → `docs/system-design.md`; test intent → `docs/qa-test-plan.md`; **current execution state → `docs/implementation-plan.md`**; decisions/pivots/names/immutable IDs → this ledger and ADRs. A decision that affects product behavior or architecture is recorded here **and** reconciled into its owning doc in the same checkpoint; this ledger does not silently override the PRD, system design, or QA plan. A disagreement is a failed checkpoint to reconcile, not a winner to pick.
 >
-> **What this is not.** It does not freeze the product. It keeps change coherent and prevents rejected directions or speculative architecture from silently becoming current truth.
+> **What this is not.** It does not freeze the product, and it is no longer the "live truth" tracker for execution status — that moved to the living implementation plan. It keeps change coherent and prevents rejected directions or speculative architecture from silently becoming current truth.
 >
-> **Last reconciled:** 2026-07-19 — Cloudflare Workers client deployment (ADR-0003) + backend grounded-reasoning/graph-projection/public-intake milestone; client live at `https://convex.varietase.workers.dev`.
+> **Last reconciled:** 2026-07-20 — FMD 4.2.0 → 4.3.0 migration (execution state moved to `docs/implementation-plan.md`; ownership framing updated; ADR-0007). Prior: 2026-07-19 — Cloudflare Workers client deployment (ADR-0003) + backend grounded-reasoning/graph-projection/public-intake milestone; client live at `https://convex.varietase.workers.dev`.
 
 ## 1. Names & immutable identifiers (read first)
 | Name / ID | Kind | Where it appears | Rule |
@@ -30,6 +30,14 @@
 | MVP is F-001 through F-005; Final is F-101 through F-104. | Model-generated narrative can explain deterministic graph evidence without becoming the source of structural truth. | Unsupported structural relations can safely be inferred by a model. |
 
 ## 3. Pivots & decisions (newest first)
+### 2026-07-20 — Adopt FMD 4.3 living-execution model
+- **Type:** process
+- **Change:** Upgraded the vendored factory FMD 4.2.0 → 4.3.0. `docs/implementation-plan.md` became the **living execution-state owner** (stable `TASK-###` rows: status, one owner, dependencies, bounded write scope, work ref, executable gate/evidence; derived waves + ready/blocked/parallel/cut view). Canonical ownership is now by concern (PRD = product, system design = architecture, QA = test intent, implementation plan = execution state, this ledger + ADRs = decisions/history); the old "if a doc disagrees, the ledger wins" rule is retired in favor of reconcile-at-owner. `docs/next-steps.md` was re-labeled historical/detail background and points active status to the living plan.
+- **Why:** FMD 4.2 docs drifted each sprint and no artifact owned trustworthy execution state; ADR-0007 records the factory-side rationale. A team using markdown + chat needs one honest "what's next" surface with a deterministic structural gate (`check-implementation-plan.py`).
+- **Invalidated:** the framing that this ledger is "live/current truth" that overrides other docs; that `next-steps.md` is the active execution tracker; that `implementation-plan.md` is only the historical Manila five-hour schedule (now its Appendix A).
+- **Open:** the 12 seeded `TASK-###` rows are honest but mostly `blocked`/`ready`; nothing is verified `done`. External blocker TASK-001 (OpenAI + Hugging Face credentials) still gates the deploy→integration→loop chain. D3 (session TTL) is directed to 1800s to match shipped code but its ledger/`data-model.md` reconciliation is TASK-004's execution.
+- **Recorded as:** ADR-0007 (factory); this entry; docs reconciled in the same migration checkpoint — `index.md`, `AGENTS.md`, `onboarding.md`, and this ledger's ownership framing. No code, submodules, secrets, deployment config, or host automation were touched.
+
 ### 2026-07-19 — Cloudflare Workers client deployment + backend feature-complete milestone
 - **Type:** platform + implementation
 - **Change:** (1) Client host Vercel → **Cloudflare Workers (OpenNext)**, live at `https://convex.varietase.workers.dev` (ADR-0003; supersedes ADR-0001's host choice only). (2) The backend is now feature-complete for F-001–F-005 — deterministic evidence graph, grounded explain/question/evaluate pipelines, EQ-005 gap derivation, and fail-closed public-repo intake — with 300+ passing tests.

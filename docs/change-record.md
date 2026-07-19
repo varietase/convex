@@ -22,4 +22,15 @@
 - **Invariants touched:** INV-001 kept; INV-002 kept; INV-003 kept.
 - **Docs affected:** README, AGENTS, context, DECISION-LEDGER, ADR-0001/0003, system-design, ops, api-spec, security-compliance, prd, release-gtm, pitch-kit, technical-design, onboarding, index, architecture-research, implementation-plan, master-plan-implementation, next-steps.
 
-Future changes append CR-003+. Never rewrite this record; supersede it.
+## CR-003 — FMD 4.2 → 4.3 living-execution migration
+- **Status:** Applied
+- **Date:** 2026-07-20
+- **Owner:** Abu
+- **Change:** Upgraded the vendored FMD factory 4.2.0 → 4.3.0 (`fmd/VERSION`; ADR-0007). Made `docs/implementation-plan.md` the sole living execution-state owner: stable `TASK-###` rows (status, one owner, dependencies, bounded write scope, work ref, executable gate/evidence), a categorized derived view (blockers/ready/blocked/deferred/in-review-done), a dependency graph, and the checkpoint/branch/PR protocol; the Manila five-hour schedule is preserved un-rewritten as its Appendix A. Re-labeled `docs/next-steps.md` as historical/detail background pointing to the living plan. Replaced the "Decision Ledger wins on disagreement" rule everywhere it appeared (`README.md`, `docs/index.md`, `docs/DECISION-LEDGER.md`, `AGENTS.md`, `docs/onboarding.md`) with FMD 4.3 concern-based ownership: product → PRD, architecture → system design, test intent → QA plan, execution state → implementation plan, decisions/pivots/names/immutable IDs → this ledger and ADRs. Seeded 12 `TASK-###` rows from `docs/next-steps.md`, the Decision Ledger, and read-only repository/submodule inspection (no invented facts): credential unblock, model re-pin, HF Space deploy, TTL reconciliation, client API wiring, evidence/graph UI, teach-back/gap UI, live-loop cutover, verified full loop, deferred CI, demo script, and final submission.
+- **Reason:** FMD 4.2 docs drifted every sprint and no artifact owned trustworthy execution state (ADR-0007's trigger); the "ledger wins" framing also conflicted with the new concern-ownership model and needed reconciling everywhere it was asserted, not just in the plan.
+- **Architecture:** Unchanged — two repositories, Cloudflare Workers client + Hugging Face Docker Space backend, direct browser→Space call, CORS allowlist, no BFF/proxy. No code, dependencies, secrets, deployment configuration, or submodule pins were touched; `client`/`model` pre-existing local modifications were left untouched.
+- **Invariants touched:** INV-001 kept; INV-002 kept; INV-003 kept.
+- **Docs affected:** `README.md`, `AGENTS.md`, `docs/index.md`, `docs/DECISION-LEDGER.md`, `docs/onboarding.md`, `docs/implementation-plan.md`, `docs/next-steps.md` (re-labeled, not deleted), this change record.
+- **Validation required:** `python3 fmd/tools/check-implementation-plan.py docs/implementation-plan.md` and `--strict` both `APPROVE` with zero same-wave write-scope overlaps; `git diff --check` clean.
+
+Future changes append CR-004+. Never rewrite this record; supersede it.
