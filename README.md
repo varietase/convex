@@ -177,7 +177,7 @@ Important model rules:
 - There is no `confidence` field for structural truth. An edge is either established or omitted.
 - There is no source mutation entity, provider write token, commit, branch, or PR model.
 - Full source files exist only in the transient workspace; the backend persists only bounded cited excerpts until TTL.
-- MVP sessions are disposable, with a 24-hour TTL assumed in the docs.
+- MVP sessions are disposable, with a 30-minute (1800-second) process-scoped TTL matching the shipped backend store.
 
 ## Methods and Ranking
 

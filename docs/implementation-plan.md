@@ -48,7 +48,7 @@ one executable gate. The demo-critical path comes before polish; optional work i
 | TASK-001 | Credential unblock: OpenAI GPT-5.6 key + Hugging Face write token (backup Geinel); infra | — | Farhana | none (external credentials; no repo write) | — | blocked | `curl -fsS -H "Authorization: Bearer $OPENAI_API_KEY" https://api.openai.com/v1/models` |
 | TASK-002 | Re-pin root model gitlink 80390bb→d06dc29 (D1); F-001 | — | Joshua | model | — | ready | `git submodule status && cd model && uv run pytest` |
 | TASK-003 | Deploy backend to HF Space; /health green; keyed production_smoke ×3 (Joshua handoff, out 21-22); F-005 | TASK-001 | Geinel | none (HF Space runtime config; no repo write) | — | blocked | `python model/production_smoke.py` |
-| TASK-004 | Reconcile session TTL to 1800s in docs (D3: match shipped code); docs | — | Joshua | docs/data-model.md, README.md | — | ready | `grep -R "1800" docs/data-model.md` |
+| TASK-004 | Reconcile session TTL to 1800s in docs (D3: match shipped code); docs | — | Joshua | docs/data-model.md, README.md | task/TASK-004-session-ttl | in_review | `result: PASS — grep -R "1800" docs/data-model.md README.md; plan checker unavailable (fmd/tools/check-implementation-plan.py absent)` |
 | TASK-005 | Typed client API client; wire /v1 to live Space (sessionId/snapshotId, error envelope, base URL env); F-002 | TASK-003 | Jim | client/src/lib | — | blocked | `cd client && npm run typecheck && npm run build` |
 | TASK-006 | Evidence/graph surface: FocusWorkspace, EvidenceGraph, GraphLegend, PathList, CodePane, EvidenceDrawer, OmittedNotice; F-001 | TASK-005 | Helena | client/src/components/focus | — | blocked | `cd client && npm run build` |
 | TASK-007 | Teach-back/gap surface: TeachBackCard, ResponseFindings, GapList/GapItem (gap_score, never %), a11y; F-004 | TASK-005 | Dia | client/src/components/teachback | — | blocked | `cd client && npm run build` |
@@ -80,7 +80,7 @@ one executable gate. The demo-critical path comes before polish; optional work i
 | ID | Outcome | Owner | Write scope | Gate |
 |----|---------|-------|-------------|------|
 | TASK-002 | Re-pin model 80390bb→d06dc29 (D1) | Joshua | model | `git submodule status && cd model && uv run pytest` |
-| TASK-004 | Reconcile session TTL → 1800s in docs (D3) | Joshua | docs/data-model.md, README.md | `grep -R "1800" docs/data-model.md` |
+| TASK-004 | Reconcile session TTL → 1800s in docs (D3) | Joshua | docs/data-model.md, README.md | `grep -R "1800" docs/data-model.md README.md` |
 | TASK-011 | Demo script + shot-list | Abu | docs/pitch-kit.md | `git diff --stat docs/pitch-kit.md` |
 
 ### ⚪ Blocked — waiting on an unfinished dependency
