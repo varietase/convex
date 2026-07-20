@@ -4,14 +4,14 @@
 
 ## Deploy
 ### Environments
-- **Preview:** Cloudflare Workers preview + non-production Hugging Face Space/config [assumption].
-- **Judging:** Cloudflare Workers production + Hugging Face Docker Space production. Repository identifiers are intentionally not invented.
+- **Preview:** Cloudflare Workers preview + non-production EC2/config [assumption].
+- **Judging:** Cloudflare Workers production + AWS EC2 production. Repository identifiers are intentionally not invented.
 
 ### Backend first
-1. Build the Docker image with lockfile-pinned dependencies; validate FastAPI, Tree-sitter grammar, LangChain/LangGraph, and model SDK versions against official docs at scaffold [assumption].
+1. Build the application with lockfile-pinned dependencies; validate FastAPI, Tree-sitter grammar, LangChain/LangGraph, and model SDK versions against official docs at scaffold [assumption].
 2. Run unit/fixture tests, including invariant tests and the pre-indexed sample.
-3. Deploy the Space exposing one application port (`7860`).
-4. Set Space secrets by name, run `GET /health`, then run sample analysis via `POST /v1/analyses`.
+3. Deploy to the EC2 instance and start the application.
+4. Set EC2 environment variables / secrets, run `GET /health`, then run sample analysis via `POST /v1/analyses`.
 
 ### Frontend second
 1. Run type, unit, contract, accessibility, and build checks.
@@ -20,19 +20,19 @@
 4. Promote to production and run the same smoke test.
 
 ### Rollback
-Rollback the Cloudflare Worker to the previous deployment and the Space to the previous known-good image/commit. Keep API v1 backward compatible across the overlap. If live analysis is unhealthy, keep the UI available in explicit sample-fallback mode; never fabricate a successful analysis.
+Rollback the Cloudflare Worker to the previous deployment and the EC2 backend to the previous known-good deployment. Keep API v1 backward compatible across the overlap. If live analysis is unhealthy, keep the UI available in explicit sample-fallback mode; never fabricate a successful analysis.
 
 ## Configuration & secrets
 | Name | Runtime | Purpose |
 |---|---|---|
-| `XRAY_BACKEND_BASE_URL` | Cloudflare | Space origin the client calls directly |
-| `XRAY_CORS_ORIGINS` | Space | FastAPI CORS allowlist (deployed Cloudflare origin + local dev) |
-| `OPENAI_API_KEY` | Space | GPT-5.6 calls |
-| `XRAY_MODEL_ID` | Space | Pinned GPT-5.6 identifier [assumption] |
-| `XRAY_LIMIT_*` | Space | Intake/time bounds from API spec |
-| `XRAY_SAMPLE_MANIFEST` | Space | Immutable fallback sample version |
+| `XRAY_BACKEND_BASE_URL` | Cloudflare | EC2 backend origin the client calls directly |
+| `XRAY_CORS_ORIGINS` | EC2 | FastAPI CORS allowlist (deployed Cloudflare origin + local dev) |
+| `OPENAI_API_KEY` | EC2 | GPT-5.6 calls |
+| `XRAY_MODEL_ID` | EC2 | Pinned GPT-5.6 identifier [assumption] |
+| `XRAY_LIMIT_*` | EC2 | Intake/time bounds from API spec |
+| `XRAY_SAMPLE_MANIFEST` | EC2 | Immutable fallback sample version |
 
-Use the Hugging Face Space secret store for `OPENAI_API_KEY`, never repository files. The Cloudflare Workers client holds no backend credential — there is nothing to rotate on that side beyond normal deployment config.
+Use EC2 environment variables or a secrets manager for `OPENAI_API_KEY`, never repository files. The Cloudflare Workers client holds no backend credential — there is nothing to rotate on that side beyond normal deployment config.
 
 
 ## Observability
@@ -42,7 +42,7 @@ Use structured logs on both platforms with shared `request_id`. Never log source
 | SLI | Measurement | Why |
 |---|---|---|
 | Frontend availability | `GET /health` success and page load | Judge access |
-| Backend reachability | `GET /health` | Detect cold/down Space |
+| Backend reachability | `GET /health` | Detect cold/down backend |
 | End-to-end sample success | Scheduled/manual sample loop | Core demo truth |
 | Analysis success/failure | `POST /v1/analyses` response counts | Locate fetch/parser/model failures |
 | Analysis latency | request duration buckets (bounded by the 20s timeout) | Cold start/bounds tuning |
@@ -62,10 +62,10 @@ These are initial hackathon thresholds, not measured SLOs:
 Alert destination/owner tooling is [assumption]. During Manila, Farhana is first DevOps responder and Joshua first backend responder per team context; Global adds Jim/Geinel.
 
 ## Runbook — common incidents
-### Space cold/unavailable
-- **Symptom:** `GET /health` degraded; client gets timeout/503 calling the Space directly.
-- **Diagnose:** call `GET /health` directly; inspect Space build/runtime status and latest deployment.
-- **Fix:** allow one warm-up retry; rollback failed image; reduce concurrency. Offer visibly labeled pre-indexed sample while live analysis is unavailable.
+### Backend cold/unavailable
+- **Symptom:** `GET /health` degraded; client gets timeout/503 calling the backend directly.
+- **Diagnose:** call `GET /health` directly; inspect EC2 instance status and latest deployment.
+- **Fix:** allow one warm-up retry; rollback failed deployment; reduce concurrency. Offer visibly labeled pre-indexed sample while live analysis is unavailable.
 - **Verify:** `GET /health` then full sample graph → question → attempt → gap loop.
 
 ### Public repository fetch fails
@@ -88,7 +88,7 @@ Alert destination/owner tooling is [assumption]. During Manila, Farhana is first
 
 ### Session loss after restart
 - **Symptom:** 410 on previously active analysis.
-- **Diagnose:** compare Space restart/deploy time; confirm no persistence promise was made.
+- **Diagnose:** compare EC2 restart/deploy time; confirm no persistence promise was made.
 - **Fix:** explain expiration and start a new analysis or sample. Do not reconstruct learner state from logs.
 - **Verify:** new session works and stale resource remains inaccessible.
 

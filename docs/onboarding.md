@@ -11,11 +11,11 @@ A read-only proof-of-comprehension layer for AI-assisted code. Start with [`inde
 5. [`DECISION-LEDGER.md`](DECISION-LEDGER.md) — decisions, pivots, names/immutable IDs.
 
 ## Run locally
-The backend requires Python 3.12–3.14 and `uv`: `cd model`, copy `.env.example` to `.env`, run `uv sync --frozen`, then `uv run uvicorn app.main:app --host 127.0.0.1 --port 7860`; run `uv run pytest` for its current gate. The client (`cd client`) runs with `npm install` then `npm run dev`; verify with `npm run typecheck` and `npm run build`; deploy with `npm run deploy` (OpenNext → Cloudflare Workers). Verify `/health`, then run the client against the Space origin directly (CORS-allowlisted origin — no BFF/proxy). Never put secrets in `.env.example` values.
+The backend requires Python 3.12–3.14 and `uv`: `cd model`, copy `.env.example` to `.env`, run `uv sync --frozen`, then `uv run uvicorn app.main:app --host 127.0.0.1 --port 7860`; run `uv run pytest` for its current gate. The client (`cd client`) runs with `npm install` then `npm run dev`; verify with `npm run typecheck` and `npm run build`; deploy with `npm run deploy` (OpenNext → Cloudflare Workers). Verify `/health`, then run the client against the EC2 backend origin directly (CORS-allowlisted origin — no BFF/proxy). Never put secrets in `.env.example` values.
 
 ## Where things live
 - Cloudflare Workers client repository: `client` (`xray-client`), live at `https://convex.varietase.workers.dev` — UI, calls the backend directly.
-- Hugging Face repository: `model` (`xray-backend`) — FastAPI + deterministic parser + minimal LangChain/LangGraph.
+- AWS EC2 backend: `model` (`xray-backend`) — FastAPI + deterministic parser + minimal LangChain/LangGraph.
 - This planning repo (`convex`): `idea.md`, `context.md`, `brand.md`, `architecture-research.md`, `master-plan-implementation.md`, and `/docs`.
 
 ## Conventions

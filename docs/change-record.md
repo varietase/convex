@@ -33,4 +33,15 @@
 - **Docs affected:** `README.md`, `AGENTS.md`, `docs/index.md`, `docs/DECISION-LEDGER.md`, `docs/onboarding.md`, `docs/implementation-plan.md`, `docs/next-steps.md` (re-labeled, not deleted), this change record.
 - **Validation required:** `python3 fmd/tools/check-implementation-plan.py docs/implementation-plan.md` and `--strict` both `APPROVE` with zero same-wave write-scope overlaps; `git diff --check` clean.
 
-Future changes append CR-004+. Never rewrite this record; supersede it.
+## CR-004 — Backend deployment pivot reconciliation: Hugging Face Docker Space → AWS EC2
+- **Status:** Applied
+- **Date:** 2026-07-20
+- **Owner:** Abu
+- **Change:** Propagated the confirmed backend deployment pivot (HF Docker Space → AWS EC2) across all planning docs. The application stack (FastAPI, Tree-sitter, LangChain/LangGraph, GPT-5.6) is unchanged; only the hosting platform and credential mechanism moved. `AGENTS.md` and `docs/implementation-plan.md` were already updated in commit 4570339; this CR reconciles the remaining docs.
+- **Reason:** The Decision Ledger recorded the pivot but downstream docs still referenced the old deployment target, creating drift between the ledger/AGENTS and owning docs.
+- **Architecture:** Unchanged — two repositories, Cloudflare Workers client + AWS EC2 backend, direct browser→backend call, CORS allowlist, no BFF/proxy.
+- **Invariants touched:** INV-001 kept; INV-002 kept; INV-003 kept.
+- **Docs affected:** `README.md`, `docs/DECISION-LEDGER.md`, `docs/system-design.md`, `docs/prd.md`, `docs/api-spec.md`, `docs/ops.md`, `docs/pitch-kit.md`, `docs/release-gtm.md`, `docs/technical-design.md`, `docs/onboarding.md`, this change record.
+- **Validation required:** No code, dependencies, secrets, deployment config, or submodule pins touched. Verify no remaining stale `Hugging Face Docker Space` references in updated docs (historical/research references in `architecture-research.md` and `context.md` are intentionally preserved).
+
+Future changes append CR-005+. Never rewrite this record; supersede it.
