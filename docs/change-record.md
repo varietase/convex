@@ -33,4 +33,15 @@
 - **Docs affected:** `README.md`, `AGENTS.md`, `docs/index.md`, `docs/DECISION-LEDGER.md`, `docs/onboarding.md`, `docs/implementation-plan.md`, `docs/next-steps.md` (re-labeled, not deleted), this change record.
 - **Validation required:** `python3 fmd/tools/check-implementation-plan.py docs/implementation-plan.md` and `--strict` both `APPROVE` with zero same-wave write-scope overlaps; `git diff --check` clean.
 
-Future changes append CR-004+. Never rewrite this record; supersede it.
+## CR-004 — Hybrid repository connection shell and final-product copy
+- **Status:** Applied
+- **Date:** 2026-07-21
+- **Owner:** Helena / Codex
+- **Change:** Reconciled docs with the client-side repository onboarding updates: shared Add Repository Link modal, public GitHub URL validation, MCP placeholder connection/selector for private/local repository access, centralized repository state, `/dashboard`, source-aware repository switching, and removal of Varietas-specific roadmap/preview copy in favor of general GitHub/local repository language.
+- **Reason:** The product surface is no longer just a demo for Varietas repositories; it now presents the final-product repository connection model while keeping backend/MCP support honest as placeholder/future work.
+- **Architecture:** Backend architecture remains Cloudflare Workers client + Hugging Face Docker Space direct API. The new MCP path is client-side scaffolding only until a local MCP host contract, security review, and tests exist.
+- **Invariants touched:** INV-001 kept; INV-002 kept; INV-003 kept. The frontend still must not request write credentials, perform GitHub OAuth, store provider tokens, or mutate repositories.
+- **Docs affected:** `README.md`, `AGENTS.md`, `docs/prd.md`, `docs/system-design.md`, `docs/technical-design.md`, `docs/qa-test-plan.md`, `docs/security-compliance.md`, `docs/design-system.md`, `docs/onboarding.md`, `docs/index.md`, `docs/implementation-plan.md`, `docs/DECISION-LEDGER.md`, this change record.
+- **Validation required:** `git diff --check` clean; implementation-plan checker unavailable in this checkout; client verification lives in the client worktree (`npx tsc --noEmit --incremental false`, `npm run build`).
+
+Future changes append CR-005+. Never rewrite this record; supersede it.

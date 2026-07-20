@@ -26,13 +26,15 @@ The MVP must produce one demoable loop: inspect a bounded read-only repository, 
 - As a builder, I want a ranked map of concepts evidenced in my repository and gaps evidenced by my answers so that I know what to learn next.
 - As a builder, I want repo-specific teach-back prompts and evidence-grounded feedback so that I can prove comprehension rather than merely read an explanation.
 - As a builder, I want analysis to remain read-only so that learning cannot change or damage my code.
+- As a builder, I want to start with a public GitHub repository link or connect a local MCP host for private/local repositories, so that repository access matches the sensitivity of my code.
 
 ### Career-switcher or bootcamp finisher
 - As a portfolio owner, I want to rehearse repository walkthrough questions so that I can discover weak explanations before an interview.
 - As a portfolio owner, I want every structural claim linked to a source location so that I can verify the product's feedback.
 
 ## User journeys
-- **UJ-001 — Trace a real connection:** A builder opens a bundled sample or bounded public repository snapshot, selects a symbol, inspects its source reference, and follows at least one deterministic edge to understand a cross-file path.
+- **UJ-000 — Connect a repository:** A builder chooses the primary public-repository path by entering a valid GitHub URL, or chooses the secondary MCP path for private/local repositories. The MCP path is handled by the local MCP host; the frontend never performs GitHub OAuth or stores GitHub access tokens.
+- **UJ-001 — Trace a real connection:** A builder opens a connected repository snapshot, selects a symbol, inspects its source reference, and follows at least one deterministic edge to understand a cross-file path.
 - **UJ-002 — Change explanatory altitude:** From the selected symbol, the builder moves among source, pseudocode, callers/callees, module role, and associated concepts while retaining the selected context.
 - **UJ-003 — Prove comprehension:** After tracing a path, the builder answers a repo-specific prediction or explanation question; the system evaluates the response against graph evidence and reports what was supported, missing, or unsupported.
 - **UJ-004 — Inspect the learner-state/gap map:** The builder views a short ranked list of concepts derived from repository evidence and demonstrated teach-back performance, then chooses the next concept to revisit.
@@ -52,7 +54,7 @@ The MVP must produce one demoable loop: inspect a bounded read-only repository, 
 | F-ID | Feature | Priority | Solves (problem) | Notes |
 |---|---|---|---|---|
 | F-101 | Comprehension-delta ledger | Final | New AI-assisted changes can add unknown surfaces over time. | Compares code changes with demonstrated knowledge. |
-| F-102 | In-workflow MCP App / extension surface | Final | A separate surface adds workflow friction. | Brings the same read-only map and teach-back loop into supported hosts without becoming an IDE. |
+| F-102 | MCP repository connection and in-workflow surface | Final | Private/local repository access and separate surfaces add workflow friction. | Uses a local MCP host for private/local repository discovery and later brings the same read-only map and teach-back loop into supported hosts without becoming an IDE. |
 | F-103 | Cross-repository learner graph | Final | A single-repository learner model loses longitudinal progress. | Private learner state across projects, independent of a single model vendor. |
 | F-104 | Agent teaching contract | Final | Coding agents lack a standard way to query which concepts need explanation. | Read-only MCP tools; deterministic graph remains structural truth. |
 
@@ -67,6 +69,8 @@ The MVP must produce one demoable loop: inspect a bounded read-only repository, 
 - **BR-008 — Accessibility:** The user-facing graph SHALL support keyboard traversal, visible focus, non-color status indicators, reduced motion, text alternatives for graph paths, and AA contrast for documented semantic token pairs, targeting WCAG 2.2 AA.
 - **BR-009 — MVP gate:** Final features F-101 through F-104 SHALL NOT displace completion of the F-001 through F-005 end-to-end demo loop.
 - **BR-010 — Architecture baseline:** Current implementation SHALL use two repositories: a Cloudflare Workers-hosted client and a Hugging Face Docker Space backend using FastAPI, LangChain, and LangGraph. Any replacement is a future decision, not current architecture.
+- **BR-011 — Hybrid repository connection:** The final-product onboarding SHALL present public repository links and MCP-connected private/local repositories as distinct paths. Public GitHub repositories MAY be entered as `https://github.com/{owner}/{repo}`; private and local repositories SHALL be selected through MCP rather than pasted manually.
+- **BR-012 — MCP credential boundary:** The frontend SHALL NOT perform GitHub OAuth, store GitHub access tokens, or communicate directly with GitHub for private repository discovery. MCP authentication and repository listing are owned by the local MCP host. Current client MCP connection is a placeholder shell until the backend/MCP contract is implemented.
 
 ## Hard rules / must-never (invariant spine)
 - **INV-001** — **never fabricate structural edges.** The system SHALL NEVER show a call, import, or data-flow edge that is not traceable to a concrete symbol reference in the actual code and produced by deterministic static analysis. IF a model proposes an unsupported structural relationship, THEN the system SHALL omit it and report "not enough evidence." LLM narrative sits on top of the graph; it never invents the graph.
@@ -74,8 +78,18 @@ The MVP must produce one demoable loop: inspect a bounded read-only repository, 
 - **INV-003** — **read-only on the user's code.** The system SHALL NEVER modify, commit, or open a pull request against the user's code. IF an operation would write to the repository, THEN the system SHALL block or refuse it.
 
 ## User flows
+### UF-000 — Hybrid repository onboarding
+1. The builder opens the landing page and clicks **Add Repository Link**.
+2. The product opens the repository connection modal, not an inline form embedded in the page.
+3. For a public repository, the builder enters a GitHub URL in the form `https://github.com/{owner}/{repo}`.
+4. The Continue/Add Repository action stays disabled until the URL is non-empty, syntactically valid, and matches the GitHub owner/repository format.
+5. On valid public submission, the selected repository is stored in centralized client state and the builder lands on `/dashboard`.
+6. If the builder needs private or local repository access, they choose **Connect with MCP**. The public URL form disappears before the MCP connection dialog opens.
+7. The MCP dialog shows Waiting, Connecting, Connected, or Failed states. In the current client build this is a backend-ready placeholder; final behavior is local MCP host connection, GitHub authentication inside MCP, repository selection, and dashboard navigation.
+8. Once a repository is selected, public and MCP sources use the same dashboard layout: repository status, sidebar sections, and placeholder workspace panels until analysis data is wired.
+
 ### UF-001 — Repository to evidence-backed path
-1. The builder chooses a bundled sample or supplies a supported bounded public repository snapshot.
+1. The builder chooses a connected repository source. MVP analysis accepts a bundled sample or supported bounded public repository snapshot; final-product onboarding also includes MCP-selected private/local repositories once the MCP backend exists.
 2. The client requests analysis from the backend without requesting repository write permission.
 3. The backend deterministically extracts supported symbols and relationships with source locations.
 4. The builder selects a symbol and sees its source, supported callers/callees/imports, and module context.
@@ -120,10 +134,13 @@ The MVP must produce one demoable loop: inspect a bounded read-only repository, 
 - **F-005 / AC-013:** WHEN a user selects the bundled sample or submits a supported bounded public repository snapshot, the system SHALL analyze it without requesting write access.
 - **F-005 / AC-014:** IF intake exceeds an implemented bound or uses an unsupported format, THEN the system SHALL refuse analysis with a clear, non-destructive explanation; exact bounds are [assumption] pending technical design.
 - **F-005 / AC-015:** WHILE repository analysis and exploration occur, the system SHALL NOT modify repository contents, commits, branches, pull requests, or settings.
+- **F-005 / AC-016:** WHEN the user clicks **Add Repository Link** from the landing page or nav, the same repository connection modal SHALL open; the full form SHALL NOT remain inline in the landing page content.
+- **F-005 / AC-017:** WHEN the user clicks **Connect with MCP** from the repository-link modal, the public URL form SHALL close before the MCP connection UI appears.
 
 ### Final acceptance criteria — not MVP build commitments
 - **F-101 / AC-101:** WHERE the comprehension-delta ledger is included, WHEN a supported code change introduces new repository concepts or structural surfaces, the system SHALL compare them with demonstrated learner state and identify newly unknown surfaces with evidence.
-- **F-102 / AC-102:** WHERE the in-workflow MCP App / extension surface is included, WHEN a supported host invokes convex, the system SHALL expose the same evidence-backed graph and teach-back loop without editing code or becoming an editor.
+- **F-102 / AC-102:** WHERE the MCP repository connection or in-workflow MCP surface is included, WHEN a supported MCP host exposes repositories, the system SHALL list selectable repositories and expose the same evidence-backed graph and teach-back loop without editing code or becoming an editor.
+- **F-102 / AC-105:** WHERE private/local repository access is included, WHEN GitHub authentication is required, the frontend SHALL delegate authentication to the local MCP host and SHALL NOT store provider access tokens.
 - **F-103 / AC-103:** WHERE the cross-repository learner graph is included, WHEN a learner authorizes a supported project, the system SHALL keep repository evidence distinct while updating a private longitudinal learner model; authorization and privacy specifics are [assumption].
 - **F-104 / AC-104:** WHERE the agent teaching contract is included, WHEN an authorized coding agent asks which concepts need explanation, the system SHALL return only read-only learner-gap and deterministic repository evidence through supported tools.
 
@@ -137,12 +154,12 @@ The MVP must produce one demoable loop: inspect a bounded read-only repository, 
 - A generic snippet explainer, general-purpose chatbot, or AI tutor chat surface.
 - An IDE, editor, debugger, linter, style enforcer, complexity dashboard, or PR-review product.
 - Team collaboration, enterprise monorepo support, or shared maps in MVP.
-- Private repository intake, broad language coverage, or production-scale multi-tenancy in MVP [assumption].
+- Private repository analysis through the backend, broad language coverage, or production-scale multi-tenancy in MVP [assumption]. The current MCP UI is a placeholder shell, not private-repository analysis support.
 - F-101, F-102, F-103, and F-104 in the MVP build.
 
 ## Dependencies
 ### Current implementation baseline
-- **Repository 1 — client:** Cloudflare Workers-hosted web client (OpenNext). Client framework, graph library, state layer, and repository identifier are [assumption] until technical design.
+- **Repository 1 — client:** Cloudflare Workers-hosted web client (OpenNext) implemented with Next.js App Router and TypeScript. The current client includes a final-product repository connection shell: public GitHub URL validation, MCP placeholder connection/selector, centralized repository state, and `/dashboard`.
 - **Repository 2 — backend:** Hugging Face Docker Space running the lockfile-pinned FastAPI, Tree-sitter, LangChain/OpenAI, and LangGraph stack in `model`; Docker port 7860, contract `1.0.0`, `gpt-5.6`, and ephemeral behavior are locked. The deployed Space identifier and measured runtime behavior remain [assumption].
 - The browser SHALL call the five-route `/v1` backend contract directly; only `GET /health` is active in the first scaffold slice, and feature routes activate with their owning gates.
 - The deployment must remain available through Global judging.
@@ -171,5 +188,6 @@ The MVP must produce one demoable loop: inspect a bounded read-only repository, 
 - What exact learner-state representation and rubric update gap rankings without overstating comprehension?
 - Which parts of analysis, narration, and teach-back use Codex versus GPT-5.6?
 - What API contract connects the Cloudflare Workers client to the Hugging Face Docker Space?
+- What exact MCP host contract will replace the placeholder client adapter for private/local repository discovery?
 - What persistence, authentication, rate limits, and operational monitoring are required for judged availability [assumption]?
 - Which sample path creates the clearest sub-three-minute proof-of-comprehension demo?

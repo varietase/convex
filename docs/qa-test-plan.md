@@ -1,7 +1,7 @@
 # QA — Test Plan & Test Cases — convex
 
 ## Strategy and environments
-Unit-test parser/rules/methods; contract-test the client's direct calls against the five FastAPI endpoints; integration-test model schema/citations; Playwright-style E2E [assumption] for sample flow; manual accessibility, visual-token, and demo rehearsal checks. Run locally, preview, and judging production with synthetic public fixtures only. Secrets never enter fixtures.
+Unit-test parser/rules/methods; unit-test public repository URL validation and centralized repository state; contract-test the client's direct calls against the five FastAPI endpoints; integration-test model schema/citations; Playwright-style E2E [assumption] for sample flow plus the repository onboarding shell; manual accessibility, visual-token, and demo rehearsal checks. Run locally, preview, and judging production with synthetic public fixtures only. Secrets never enter fixtures.
 
 ## Traceability matrix
 | F-ID | Test cases | Type | MVP status |
@@ -10,9 +10,9 @@ Unit-test parser/rules/methods; contract-test the client's direct calls against 
 | F-002 | TC-004, TC-005 | e2e/a11y | required |
 | F-003 | TC-006, TC-007 | unit/e2e | required |
 | F-004 | TC-008, TC-009 | integration/e2e | required |
-| F-005 | TC-010, TC-011 | security/e2e | required |
+| F-005 | TC-010, TC-011, TC-012 | security/e2e | required |
 | F-101 | TC-101 | contract | deferred |
-| F-102 | TC-102 | contract | deferred |
+| F-102 | TC-012, TC-102 | e2e/contract | deferred backend; client shell covered |
 | F-103 | TC-103 | privacy | deferred |
 | F-104 | TC-104 | contract | deferred |
 
@@ -28,16 +28,17 @@ Unit-test parser/rules/methods; contract-test the client's direct calls against 
 - **TC-009 / F-004:** fabricated citation or structural claim is rejected; valid answer returns supported/missing/unsupported claims and updates gaps deterministically.
 - **TC-010 / F-005:** bundled sample and one bounded immutable public fixture complete intake→edge→teach-back→gap; sample remains labeled.
 - **TC-011 / F-005:** private IP, redirect, traversal, symlink, nested archive, oversize, timeout, and unsupported language fail closed and clean workspace.
+- **TC-012 / F-005, F-102:** clicking **Add Repository Link** from nav/hero/CTA opens the same modal; invalid/empty/non-GitHub URLs disable submission with visible errors; clicking **Connect with MCP** closes the public form before showing Waiting/Connecting/Connected placeholder UI and a repository selector; no GitHub OAuth/token UI appears in the frontend.
 
 ## Invariant negative tests
 | INV-ID | Negative tests | Pass condition |
 |---|---|---|
 | INV-001 | TC-N01 model invents edge; TC-N02 evidence removed | Edge never renders; analysis quarantined |
 | INV-002 | TC-N03 generic concept; TC-N04 attempt evidence missing | Gap never renders |
-| INV-003 | TC-N05 scan/runtime probe for writes, tokens, git mutation | No write path, credential, commit, or PR exists |
+| INV-003 | TC-N05 scan/runtime probe for writes, tokens, git mutation; TC-012 frontend MCP-token scan | No write path, credential, commit, PR, OAuth token storage, or provider mutation UI exists |
 
 ## API/security/ops gates
 Two sessions cannot cross-read; CORS origin-allowlist checks pass (disallowed origins rejected before body processing); rate limits return 429; the five documented endpoint schemas match; logs contain no source/answers/prompts/secrets; TTL/delete cascades; backend restart returns honest 410; `/health` and sample smoke test pass after rollback.
 
 ## Exit criteria
-All MVP and invariant cases pass; no critical/high security defect; sample E2E passes three times in production; public fixture succeeds once; fallback rehearsed; dark-first visual/accessibility checks pass; final-feature tests remain skipped with reasons, not falsely green.
+All MVP and invariant cases pass; no critical/high security defect; repository onboarding shell passes TC-012; sample E2E passes three times in production; public fixture succeeds once; fallback rehearsed; dark-first visual/accessibility checks pass; final-feature tests remain skipped with reasons, not falsely green.

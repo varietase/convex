@@ -6,10 +6,13 @@
 ### Cloudflare Workers repository (`xray-client`)
 | Module | Responsibility | Public interface | Collaborators |
 |---|---|---|---|
-| `ui/intake` | Sample/public snapshot form and bounds messaging | pages/components | Backend analysis endpoint (direct call) |
+| `ui/intake` | Shared Add Repository Link modal, public GitHub URL validation, MCP handoff option, and bounds messaging | `ConnectRepositoryButton`, `RepositoryOnboardingHost`, `PublicRepositoryForm` | centralized repository state, backend analysis endpoint (direct call) |
+| `ui/dashboard` | `/dashboard` shell with repository status, sidebar, placeholder panels, and switch repository behavior | App Router page/components | repository state, MCP selector, future graph API |
 | `ui/explorer` | Graph, source spans, semantic zoom, accessible path list | view model | graph API |
 | `ui/teachback` | Questions, response form, feedback, gap list | view model | teach-back APIs |
 | `lib/api` | Typed client for the five backend endpoints; session-local state only | fetch wrapper | Space API |
+| `lib/repository` | Parse and validate public GitHub URLs into `{owner, repo, slug, source}` repository state | `validateGitHubRepositoryUrl` | UI intake, dashboard |
+| `lib/mcpClient` | Placeholder MCP connection/list adapter for backend developers; later replaced with local MCP host calls | `connectMcpPlaceholder`, future `mcpClient` | MCP UI, dashboard |
 
 ### Hugging Face repository (`xray-backend`)
 | Module | Responsibility | Public interface | Collaborators |
@@ -25,6 +28,38 @@
 
 Backend dependency versions are pinned in `model/pyproject.toml` and `model/uv.lock`; the Docker requirements export also pins transitive hashes. FastAPI/CORS, Hugging Face Docker Space, py-tree-sitter 0.26, LangGraph `StateGraph`, LangChain `ChatOpenAI.with_structured_output`, and OpenAI `gpt-5.6` surfaces were checked against official docs on 2026-07-18. Client dependency pins remain open [assumption].
 
+
+## Client repository connection shell
+The current web client is a final-product shell around repository selection and dashboard entry. It is intentionally separate from the backend evidence APIs so the MCP placeholder can be replaced later without changing dashboard UI.
+
+```ts
+type RepositorySource = "public" | "mcp";
+
+type AppRepository = {
+  source: RepositorySource;
+  provider: "github" | "gitlab" | "bitbucket" | "local" | "other";
+  owner: string;
+  name: string;
+  slug: string;
+  url?: string;
+  visibility?: "public" | "private";
+  defaultBranch?: string;
+};
+
+type McpConnectionStatus = "disconnected" | "connecting" | "connected" | "reconnecting" | "error";
+type GitHubAuthStatus = "unknown" | "authenticating" | "connected" | "failed";
+```
+
+State is centralized in the client provider: selected repository, repository source, MCP connection status, GitHub auth status, available repositories, onboarding modal state, selector state, and dashboard active section. `localStorage` is not the source of truth in the current shell.
+
+### A-000 — Hybrid repository onboarding shell
+1. `ConnectRepositoryButton` is a trigger only. It dispatches `openRepositoryDialog`; it does not render its own modal instance.
+2. `RepositoryOnboardingHost` is mounted once on the landing page and owns the shared public-repository modal plus MCP dialog. This keeps the nav, hero, and CTA buttons consistent.
+3. `PublicRepositoryForm` validates only `https://github.com/{owner}/{repo}` style URLs. Empty, malformed, and non-GitHub formats keep the submit action disabled and show copy near the field.
+4. A valid public submission writes `AppRepository` into centralized client state and routes to `/dashboard`.
+5. `Connect with MCP` closes the public URL modal before opening the MCP dialog. The current adapter simulates Waiting/Connecting/Connected and returns placeholder repositories; backend developers replace it with the local MCP host contract.
+6. MCP connection/authentication remains outside the frontend. The final adapter may call the local MCP host, but it must not add GitHub OAuth, provider tokens, or direct GitHub private-repository calls to the browser.
+7. Public and MCP selections both enter the same dashboard shell. Repository switching follows source: public users can enter another URL or choose MCP; MCP users reopen the MCP selector.
 
 ## Class / function-level design
 ```python
@@ -85,8 +120,8 @@ LangGraph coordinates only the typed model call, validation, and one retry [assu
 The validator requires every returned evidence ID to exist in the packet. Narrative sentences that assert an import/call relationship must map to an existing edge ID. Unknown fields are rejected. Prompt text explicitly forbids scores and knowledge/mastery claims, but schema validation—not the prompt—is the enforcement boundary.
 
 ## Algorithms
-### A-001 — Read-only bounded intake (F-005, INV-003)
-1. Accept only `sample_id` or an allowlisted HTTPS public repository URL and full commit SHA [assumption].
+### A-001 — Read-only bounded backend intake (F-005, INV-003)
+1. Accept only `sample_id` or an allowlisted HTTPS public repository URL and full commit SHA [assumption]. Public-link UI may collect `https://github.com/{owner}/{repo}` first; backend analysis still resolves a concrete immutable revision before parsing.
 2. Resolve DNS and reject loopback, link-local, private, metadata, non-HTTPS, user-info, ports outside 443, and redirect to disallowed destination.
 3. Fetch an archive/snapshot without repository credentials and without running repository code.
 4. Stream with byte cap; normalize paths; reject absolute paths, `..`, symlinks, hardlinks, submodules, archives within archives, and special files.
@@ -157,4 +192,4 @@ All cleanup uses `finally`; user messages are plain and non-destructive. Logs ne
 - Model output is schema/citation validated and can degrade independently.
 - Minimal LangGraph is a bounded retry state machine, not product architecture theater.
 - Ephemeral storage and pre-indexed sample are deliberate MVP reliability choices.
-- Current platform decision: ADR-0001. Future local-first recommendation only: ADR-0002.
+- Current platform decision: ADR-0001 plus ADR-0003 for Cloudflare Workers. Current client includes an MCP-shaped placeholder; real local-first/MCP repository access remains ADR-0002 future work until a local host contract, security review, and tests exist.
