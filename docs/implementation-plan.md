@@ -15,7 +15,7 @@
 > plan is preserved in **Appendix A** for provenance; it is no longer the active execution owner.
 
 **Plan steward:** Abu (owns cross-task dependencies, sequencing, shared write scopes, ready/blocked/parallel/cut view)
-**Last checkpoint:** 2026-07-21T10:20 PHT · Plan checkpoint: TASK-002 done (root pin verified at 46ce4cd), TASK-004 done (TTL 1800s confirmed), Helena's MCP shell PR merged (CR-005)
+**Last checkpoint:** 2026-07-21 · Contract-divergence checkpoint: `model` submodule initialized for the first time; `api-spec.md` reconciled to shipped code at pin `46ce4cd` (D5, TASK-017 `in_review`); TASK-005 client API client typed against verified contract
 **Deadline / demo cutoff:** hard submission **Wed Jul 22 08:00 PHT** (= Tue Jul 21 17:00 PT); healthy submit target **Tue Jul 21**; demo-ready = full loop on `convex.varietase.workers.dev`
 **Current stopping point:** the pre-indexed sample loop, visibly labeled "illustrative preview — not a live analysis," served on the live Cloudflare Workers URL. This is the honest fallback if the live-backend loop does not land.
 
@@ -49,7 +49,7 @@ one executable gate. The demo-critical path comes before polish; optional work i
 | TASK-002 | Re-pin root model gitlink 80390bb→d06dc29 (D1); F-001 | — | Joshua | model | n/a (root pin advanced to 46ce4cd via prior commits) | done | `git ls-tree HEAD model` · result: PASS — root pinned at 46ce4cd, past d06dc29; `cd model && uv run pytest` · result: PASS — 300 passed |
 | TASK-003 | Deploy backend to AWS EC2; /health green; keyed production_smoke ×3 (pivot from HF Space to EC2); F-005 | TASK-001 | Geinel | none (EC2 runtime config; no repo write) | n/a (EC2 deploy via SSH/console, no repo branch) | done | `curl -fsS https://<ec2-endpoint>/health` · result: PASS — backend deployed on AWS EC2; /health responds; HF Space no longer used |
 | TASK-004 | Reconcile session TTL to 1800s in docs (D3: match shipped code); docs | — | Joshua | docs/data-model.md, README.md | task/TASK-004-session-ttl | done | `grep -R "1800" docs/data-model.md README.md` · result: PASS — 1800s confirmed in both files |
-| TASK-005 | Typed client API client; wire /v1 to live EC2 backend (sessionId/snapshotId, error envelope, base URL env); F-002 | TASK-003 | Jim | client/src/lib | — | ready | `cd client && npm run typecheck && npm run build` |
+| TASK-005 | Typed client API client; wire /v1 to live EC2 backend (sessionId/snapshotId, error envelope, base URL env); F-002 | TASK-003 | Jim | client/lib | client submodule branch `task/TASK-005-client-api` | in_progress | `cd client && npm run typecheck && npm run build` · result: PASS — typecheck clean, build compiled (4/4 static pages). Types verified against `model@46ce4cd`, not docs (see TASK-017/D5). Not yet committed/PR'd → `in_review` follows |
 | TASK-006 | Evidence/graph surface: FocusWorkspace, EvidenceGraph, GraphLegend, PathList, CodePane, EvidenceDrawer, OmittedNotice; F-001 | TASK-005 | Helena | client/src/components/focus | — | blocked | `cd client && npm run build` |
 | TASK-007 | Teach-back/gap surface: TeachBackCard, ResponseFindings, GapList/GapItem (gap_score, never %), a11y; F-004 | TASK-005 | Dia | client/src/components/teachback | — | blocked | `cd client && npm run build` |
 | TASK-008 | Replace static preview with real loop on live URL; interim "illustrative" label until then (D4); F-005 | TASK-006, TASK-007 | Abu | client/src/app | — | blocked | `cd client && npm run build` |
@@ -61,6 +61,7 @@ one executable gate. The demo-critical path comes before polish; optional work i
 | TASK-014 | In-workflow MCP App / extension surface; F-102 | — | Abu (steward, unassigned) | none/f-102-deferred | — | cut | `grep -c "F-102" docs/prd.md` |
 | TASK-015 | Cross-repository learner graph; F-103 | — | Abu (steward, unassigned) | none/f-103-deferred | — | cut | `grep -c "F-103" docs/prd.md` |
 | TASK-016 | Agent teaching contract; F-104 | — | Abu (steward, unassigned) | none/f-104-deferred | — | cut | `grep -c "F-104" docs/prd.md` |
+| TASK-017 | Reconcile `api-spec.md` to the shipped backend contract at model pin `46ce4cd` (D5: match shipped code) — `sampleId` casing, body `request_id`, 5 undocumented error codes, 8 undefined response schemas; docs | TASK-003 | Jim | docs/api-spec.md, docs/data-model.md | task/TASK-017-api-spec-reconciliation | in_review | `grep -c "SESSION_NOT_FOUND" docs/api-spec.md` · result: PASS — 5 occurrences (union, table, 3 endpoints); verified against `model@46ce4cd` `app/domain/models.py`, `app/reasoning/schemas.py`, `app/api/errors.py`, `app/main.py` |
 
 ## 4. Current execution view (derived from §3 — categorized; recompute at each checkpoint)
 
@@ -75,7 +76,6 @@ _None._ The credential blocker (TASK-001) and deploy blocker (TASK-003) are reso
 
 | ID | Outcome | Owner | Write scope | Gate |
 |----|---------|-------|-------------|------|
-| TASK-005 | Client API client wired to live EC2 backend | Jim | client/src/lib | `cd client && npm run typecheck && npm run build` |
 | TASK-011 | Demo script + shot-list | Abu | docs/pitch-kit.md | `git diff --stat docs/pitch-kit.md` |
 
 ### ⚪ Blocked — waiting on an unfinished dependency
@@ -102,6 +102,8 @@ _None._ The credential blocker (TASK-001) and deploy blocker (TASK-003) are reso
 | TASK-002 | Re-pin root model gitlink (D1) — root at 46ce4cd, past d06dc29 | Joshua | done | `git ls-tree HEAD model` verified; 300 tests pass |
 | TASK-003 | Backend deployed to AWS EC2; /health green | Geinel | done | Backend live on EC2; HF Space no longer used |
 | TASK-004 | Reconcile session TTL → 1800s in docs (D3) | Joshua | done | 1800s confirmed in data-model.md + README.md |
+| TASK-005 | Typed client API client wired to /v1 | Jim | in_progress | `npm run typecheck && npm run build` PASS; branch `task/TASK-005-client-api` (uncommitted) |
+| TASK-017 | Reconcile api-spec.md to shipped backend contract (D5) | Jim | in_review | Verified against `model@46ce4cd`; branch `task/TASK-017-api-spec-reconciliation` |
 
 ### ✂️ Cut — explicitly out of scope for this build
 
@@ -116,8 +118,8 @@ These are recorded as `cut`, not omitted, so F-101–F-104 stay traceable and ar
 
 ### Derived scheduling summary
 
-- **Execution waves:** w0 {~~TASK-001~~✓, ~~TASK-002~~✓, ~~TASK-004~~✓, TASK-010, TASK-011, TASK-013–016 (cut)} · w1 {~~TASK-003~~✓} · w2 {TASK-005} · w3 {TASK-006, TASK-007} · w4 {TASK-008} · w5 {TASK-009} · w6 {TASK-012}.
-- **Safe parallel set (now):** TASK-005, TASK-011 (disjoint scopes; all dependencies satisfied).
+- **Execution waves:** w0 {~~TASK-001~~✓, ~~TASK-002~~✓, ~~TASK-004~~✓, TASK-010, TASK-011, TASK-013–016 (cut)} · w1 {~~TASK-003~~✓} · w2 {TASK-005, TASK-017} · w3 {TASK-006, TASK-007} · w4 {TASK-008} · w5 {TASK-009} · w6 {TASK-012}.
+- **Safe parallel set (now):** TASK-005 (`client/lib`), TASK-011 (`docs/pitch-kit.md`), TASK-017 (`docs/api-spec.md`, `docs/data-model.md`) — literal write scopes are disjoint and all dependencies are satisfied. **Semantic coupling the checker cannot see:** TASK-005 and TASK-017 both encode the same backend contract, so a correction to one must be mirrored in the other. Both are Jim's, which is what keeps that safe.
 - **Integration order:** TASK-005 → (TASK-006 ∥ TASK-007) → TASK-008 → TASK-009 → TASK-012.
 - **Cut line (if time slips):** public-repo breadth beyond one fixture → decorative polish/animation → extra concepts. **Never cut the sample loop or the video.** If integration slips, demo the real backend loop via a minimal wired surface, not the static preview.
 
@@ -133,7 +135,8 @@ flowchart TD
     T11["TASK-011 demo script<br/>Abu · READY"]
   end
   T3["TASK-003 deploy backend (AWS EC2)<br/>Geinel · ✅ DONE"]
-  T5["TASK-005 client API wire<br/>Jim · READY"]
+  T17["TASK-017 api-spec reconciliation (D5)<br/>Jim · IN REVIEW"]
+  T5["TASK-005 client API wire<br/>Jim · IN PROGRESS"]
   T6["TASK-006 evidence/graph UI<br/>Helena · BLOCKED"]
   T7["TASK-007 teach-back/gap UI<br/>Dia · BLOCKED"]
   T8["TASK-008 real loop on live URL<br/>Abu · BLOCKED"]
@@ -141,6 +144,7 @@ flowchart TD
   T12["TASK-012 final video + Devpost<br/>Abu · BLOCKED"]
 
   T1 --> T3 --> T5
+  T3 --> T17
   T5 --> T6
   T5 --> T7
   T6 --> T8
@@ -148,7 +152,7 @@ flowchart TD
   T8 --> T9 --> T12
 ```
 
-Text-equivalent critical path: `TASK-005 → (TASK-006 ∥ TASK-007) → TASK-008 → TASK-009 → TASK-012`; independent: `TASK-011`; done: `TASK-001`, `TASK-002`, `TASK-003`, `TASK-004`; deferred: `TASK-010`.
+Text-equivalent critical path: `TASK-005 → (TASK-006 ∥ TASK-007) → TASK-008 → TASK-009 → TASK-012`; in progress: `TASK-005`; in review: `TASK-017` (branches from `TASK-003`, off the critical path); independent: `TASK-011`; done: `TASK-001`, `TASK-002`, `TASK-003`, `TASK-004`; deferred: `TASK-010`.
 
 ## 5. Checkpoint transaction (the self-reconciliation loop)
 
@@ -181,6 +185,8 @@ At one checkpoint, make one coherent transaction:
 | 2026-07-20T02:06 PHT · Final-tier traceability checkpoint | TASK-013…TASK-016 added, status `cut` | Made F-101–F-104 explicitly traceable and `cut` rather than absent, per BR-009 and the Decision Ledger's "do not start F-101–104 until the F-001–005 loop works." No MVP task/dependency/status changed. | none (no owned truth changed; PRD/system-design/QA already state this rule) |
 | 2026-07-20T14:00 PHT · Credential + deploy pivot checkpoint | TASK-001 → done; TASK-003 → done; TASK-005 → ready | OpenAI GPT-5.6 API key provided (TASK-001 resolved). Architecture pivoted from Hugging Face Docker Space to AWS EC2 for backend deployment (TASK-003 resolved). HF write token no longer required. TASK-005 unblocked — client can now wire to live EC2 backend. | AGENTS.md (architecture section updated to reflect EC2); implementation-plan header + §1 risks updated |
 | 2026-07-21T10:20 PHT · Plan checkpoint: verify + merge | TASK-002 → done; TASK-004 → done | Root model pin verified at 46ce4cd (past d06dc29 target); `uv run pytest` 300 passed. TTL 1800s confirmed in both docs. Helena's MCP shell PR #5 merged (CR-005) with EC2 conflict resolution. | none (no owned product/architecture truth changed; only execution state updated) |
+| 2026-07-21 · TASK-005 row correction | TASK-005 → `in_progress`; write scope `client/src/lib` → `client/lib`; work ref filled | The declared write scope pointed at a directory that does not exist. The client is Next.js 15 App Router (OpenNext on Workers), whose convention is `client/lib/` with `@/*` → `./*` — there is no `src/`. The row was also still `ready` while the work was underway with no work ref, so §3 did not reflect reality. Branch `task/TASK-005-client-api` created in the **client submodule** (it was in detached HEAD). Gate observed: `npm run typecheck && npm run build` PASS. Status is `in_progress`, not `in_review`, because nothing is committed or PR'd yet. §4 recomputed: TASK-005 moved out of "Ready now", waves/parallel-set/mermaid/critical-path updated for TASK-005 + TASK-017. | none — execution state only. No product, architecture, or contract truth changed (the contract corrections are TASK-017/D5). |
+| 2026-07-21 · Contract-divergence checkpoint (discovered during TASK-005) | TASK-017 added, status `in_review`; TASK-005 status set by the preceding row correction in this same checkpoint (now `in_progress`) | The `model` submodule was checked out for the first time (it had never been initialized), letting the client contract be verified against shipped code instead of docs. `api-spec.md` diverged from `model@46ce4cd` in three material ways: `sample_id` is actually aliased `sampleId`; `/v1` bodies carry no `request_id` (header only); and five reachable error codes were undocumented — including `SESSION_NOT_FOUND` (410), the ordinary 1800s-TTL expiry path. Eight response schemas were referenced but never defined, which had already produced wrong client types. No backend behavior changed; the docs were wrong, not the code. | `docs/api-spec.md` (contract corrected + schemas defined); `docs/data-model.md` (§TeachBackQuestion `question_type` was stale); Decision Ledger (D5). PRD/system-design/QA untouched — no product or architecture truth changed. |
 
 ---
 
