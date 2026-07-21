@@ -50,14 +50,14 @@ All listed documents are **planning-ready**. Assumptions remain explicitly marke
 - [x] INV-001–003 each reach PRD, security, design banned-copy, and QA negative tests.
 - [x] All five endpoints declare auth/authz (CORS allowlist only, no BFF/proxy).
 - [x] Every displayed rank/count is owned by EQ-### / DS-### methods.
-- [x] Current architecture is two repos; local-first MCP App remains proposed only.
+- [x] Current backend architecture is two repos; local-first MCP App/host access remains proposed only, while the client contains a placeholder MCP-shaped repository connection shell.
 - [ ] Backend commands, dependency pins, contract/analyzer versions, stable IDs, sample fixture, and intake caps are locked; replace remaining client pins, deployment repository IDs, and measured runtime limits during their gates.
 
 ## 4. Key terms (quick glossary)
 | Term | Meaning |
 |---|---|
 | F-001–F-005 | MVP feature IDs (evidence graph, semantic zoom, gap map, teach-back, intake). Immutable. |
-| F-101–F-104 | Future feature IDs. Not in MVP scope. |
+| F-101–F-104 | Future feature IDs. Not in MVP scope. F-102 now also covers the final-product MCP repository connection path, but the current client MCP flow is placeholder-only. |
 | INV-001–003 | Hard invariants: no fabricated edges, no generic gap lists, read-only on user code. |
 | `[assumption]` | A value or detail that is decided for planning but not yet verified end-to-end. |
 | EQ-### / DS-### | Equation and dataset IDs from the Methods doc. Every number shown to a user must trace to one. |

@@ -16,15 +16,19 @@ Use `visual-direction.md` as the visual philosophy layer. The product UI is dark
 Composition should feel like an optical instrument for code comprehension. The graph, source evidence, and learning rail can use circular geometry, arcs, and thin rules where they clarify focus or relationship, but every decorative element must earn its place by improving hierarchy or comprehension.
 
 ## Experience architecture
-The primary loop is `Intake → Focus → Trace → Teach back → Review changed gap list`. Four persistent landmarks keep it legible: top `AppHeader`, left `RepositoryRail`, center `FocusWorkspace`, right `LearningRail`. A `LiveRegion` announces analysis, selection, submission, and gap-list changes without moving focus.
+The primary loop is `Connect repository → Dashboard → Focus → Trace → Teach back → Review changed gap list`. Landing CTAs open a shared repository connection modal; the full public repository form is not rendered inline on the landing page. Four workspace landmarks keep the dashboard legible: top `AppHeader`, left `RepositoryRail`, center `FocusWorkspace`, right `LearningRail`. A `LiveRegion` announces analysis, selection, submission, and gap-list changes without moving focus.
 
 ## Complete component inventory
 | Component | Purpose and required variants | States / semantics | Data contract |
 |---|---|---|---|
 | `AppShell` | Global landmarks and responsive pane orchestration | `<header>`, `<nav>`, `<main>`, complementary learning region | Session status |
+| `DashboardShell` | Primary post-repository workspace with repository status, sidebar sections, placeholder panels, and switch repository action | public source, MCP source, disconnected/reconnect warning | selected repository + connection state |
 | `AppHeader` | Product name, sample/read-only status, session actions | Sticky; status uses icon + text; delete is explicit | session, snapshot |
 | `ReadOnlyBadge` | Communicates INV-003 before intake and during exploration | Lock icon + “Read-only analysis”; never color-only | source kind |
-| `RepoIntake` | Choose bundled sample or bounded public immutable snapshot | idle, validating, rejected, submitting, disabled | `POST /v1/analyses` input/errors |
+| `RepositoryConnectionModal` | Shared landing/nav modal for repository connection | closed, public-form, mcp-connection, mcp-selector; focus trap/return | repository state |
+| `PublicRepositoryForm` | Add public GitHub repository link | empty, invalid URL, invalid GitHub format, valid, submitting, disabled | `https://github.com/{owner}/{repo}` parser |
+| `McpConnectionDialog` | Placeholder/future local MCP host connection for private/local repositories | Waiting, Connecting, Connected, Failed; public form is closed before this opens | MCP status, GitHub auth status, repository list |
+| `RepoIntake` | Backend analysis intake for bundled sample or bounded public immutable snapshot | idle, validating, rejected, submitting, disabled | `POST /v1/analyses` input/errors |
 | `SampleBadge` | Prevent fallback/sample deception | Persistent “Pre-indexed sample · {version}” | sample version |
 | `AnalysisStepper` | Named waiting state while the synchronous `POST /v1/analyses` call is in flight; no percentage or fake ETA | pending, ready, failed; `aria-live=polite` | `POST /v1/analyses` response |
 | `RepositoryRail` | Search/filter supported modules and symbols | loading, populated, no match, collapsed | symbols/modules |
@@ -202,7 +206,11 @@ Use editorial display type for large headings only; do not use it for dense cont
 ### Component styling
 - `AppShell`: near-black canvas, thin structural dividers, stable left/center/right layout, no decorative page gradients.
 - `AppHeader`: compact dark bar with product name, read-only/sample state, and subdued actions. Use coral only for primary action or active focus.
-- `RepoIntake`: may use a large editorial empty state with one primary action and one secondary option. Keep the working intake visible; do not turn it into a marketing hero.
+- `RepositoryConnectionModal`: dark overlay, rounded panel, public GitHub URL form as the primary action, and a secondary MCP section for private/local access. The modal is opened by landing/nav CTAs; do not leave the full form inline in the page.
+- `PublicRepositoryForm`: use the placeholder `https://github.com/owner/repository`, disable submit until valid, and show errors for empty input, invalid URL, and invalid GitHub format.
+- `McpConnectionDialog`: show clear Waiting/Connecting/Connected/Failed status pills and a backend-developer placeholder note until a real MCP host contract exists. Do not show GitHub OAuth or token fields.
+- `DashboardShell`: use the same dark/coral language as the landing page. Switching a public repository may reopen the public form or MCP flow; switching an MCP repository reopens the repository selector.
+- `RepoIntake`: backend analysis intake may use a large editorial empty state with one primary action and one secondary option. Keep the working intake visible; do not turn it into a marketing hero.
 - `RepositoryRail` and `LearningRail`: outlined panels, transparent or surface-1 backgrounds, calm density, sticky headings, and clear selected states.
 - `FocusWorkspace`: largest visual area. Graph/source/path views sit on the canvas, with cards only for repeated or framed items.
 - `EvidenceGraph`: neutral nodes, thin labeled edges, coral selection, amber evidence affordances, and shape/line-style encoding for edge types.
@@ -270,7 +278,9 @@ Never encode edge type, selection, evidence, or feedback disposition by hue alon
 4. Zoom controls change explanatory altitude, not browser zoom. Keep the pinned symbol and selected path visible. Browser zoom through 200% must remain supported.
 5. `Show evidence` opens a drawer, focuses its heading, and returns focus to the invoking edge/node on close.
 
-### Analysis (synchronous)
+### Repository connection and analysis
+- Public repository connection validates `https://github.com/{owner}/{repo}` in the modal before routing to `/dashboard`; this is not yet the backend analysis call.
+- MCP connection is currently a placeholder UI for backend developers: show Waiting/Connecting/Connected/Failed states, then a searchable repository selector. GitHub authentication copy must say it is handled by MCP; never ask for GitHub tokens in the frontend.
 - `POST /v1/analyses` is a single synchronous call bounded by the 20-second intake/analysis timeout; show a pending state only, never a multi-stage progress bar, percentage, or fake ETA.
 - Keep the intake summary visible while the request is in flight. Disable duplicate submission but keep session deletion available.
 - On timeout or failure, show the canonical error reason and a retry/sample-fallback action; do not silently retry.
@@ -286,7 +296,8 @@ Never encode edge type, selection, evidence, or feedback disposition by hue alon
 ### Empty, error, and degradation states
 | Condition | Required copy/action |
 |---|---|
-| No intake | “Choose the sample or a supported public repository snapshot.” / `Load sample` |
+| No repository selected | “Add a public GitHub repository link, or connect with MCP for private/local repositories.” / `Add Repository Link` |
+| No analysis intake | “Choose the sample or a supported public repository snapshot.” / `Load sample` |
 | Unsupported/oversize | State the canonical reason and bounds **[assumption until runtime values are confirmed]** / `Load sample` |
 | No exact relation | “Not enough evidence to connect these symbols.” / `View available evidence` |
 | Model unavailable | “The evidence map still works. The explanation check is unavailable.” / `Retry` |

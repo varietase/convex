@@ -11,7 +11,7 @@ This repository is the shared system-context and planning hub for the hackathon 
 - Build context: OpenAI Build Week, Manila build sprint plus Global submission
 - MVP scope: F-001 through F-005 only
 - Current architecture: Cloudflare Workers web client (live at `https://convex.varietase.workers.dev`) plus AWS EC2 backend
-- Client context: sibling [client README](../client/README.md)
+- Client context: sibling [client README](../client/README.md); current client worktree includes the shared Add Repository Link modal, MCP placeholder connection/selector, centralized repository state, and `/dashboard` shell
 - Backend/model context: `model/` contains the FastAPI backend (`xray-backend`) — deterministic Tree-sitter analysis, evidence graph, grounded GPT-5.6 reasoning, and gap derivation, with a 300+ test suite (tracked as a submodule)
 - Source of truth: [docs/index.md](docs/index.md) §0 ownership map — see below
 
@@ -34,6 +34,14 @@ The MVP demo loop is:
 ```text
 Intake -> Focus -> Trace evidence -> Teach back -> Review changed gap list
 ```
+
+The current final-product entry shell in the client starts earlier:
+
+```text
+Landing page -> Add Repository Link or Connect with MCP -> Dashboard
+```
+
+`Add Repository Link` opens a shared modal for public GitHub URLs in the form `https://github.com/{owner}/{repo}`. `Connect with MCP` closes that public-link form and opens placeholder local-MCP connection states and repository selection for future private/local repository access. Both paths enter the same `/dashboard` shell; real MCP host authentication and private/local indexing remain future backend/MCP work.
 
 A coherent demo means a user can load a known sample or bounded public repository snapshot, inspect a real symbol or edge with exact source evidence, answer three repo-specific questions, receive supported/missing/unsupported feedback with citations, and see a personalized gap list update.
 
@@ -66,7 +74,7 @@ Also forbidden: mastery percentages, "fully understands" claims, generic top-N c
 | ID | Feature | Status |
 |---|---|---|
 | F-101 | Comprehension-delta ledger | Deferred |
-| F-102 | In-workflow MCP App / extension surface | Deferred |
+| F-102 | MCP repository connection and in-workflow surface | Deferred; client placeholder shell exists |
 | F-103 | Cross-repository learner graph | Deferred |
 | F-104 | Agent teaching contract | Deferred |
 
@@ -106,20 +114,21 @@ AWS EC2 (`xray-backend`)
 
 There is no BFF/proxy layer in the current design. The browser calls the FastAPI backend directly. The access-control boundary is a FastAPI CORS allowlist for the deployed Cloudflare origin and local development origins. The allowlist must never be `*`.
 
-The backend owns intake validation, parsing, deterministic graph construction, evidence slicing, concept rules, model-output validation, learner evidence, gap derivation, TTL cleanup, and sample fallback. The frontend owns intake UX, semantic zoom, graph/source/path views, teach-back UX, gap review, evidence drawers, accessibility behavior, and visible provenance.
+The backend owns intake validation, parsing, deterministic graph construction, evidence slicing, concept rules, model-output validation, learner evidence, gap derivation, TTL cleanup, and sample fallback. The frontend owns intake UX, the repository connection shell, dashboard routing, semantic zoom, graph/source/path views, teach-back UX, gap review, evidence drawers, accessibility behavior, and visible provenance. The frontend must not perform GitHub OAuth, store provider tokens, or call GitHub directly for private repository discovery; that future path belongs to the local MCP host.
 
 ## Data Flow
 
-1. The user selects the bundled sample or submits a supported public repository snapshot.
-2. The backend validates source, host, revision, archive paths, symlinks, file counts, byte limits, and time bounds before parsing.
-3. The analyzer parses JS/JSX/TS/TSX files and emits only exact symbols and structural relationships with file/line evidence.
-4. Unsupported or ambiguous references become unresolved references, not speculative edges.
-5. The UI lets the user pin a symbol or path and change semantic altitude without losing context.
-6. For narrative, pseudocode, and teach-back, GPT-5.6 receives bounded evidence packets, not unrestricted repository contents.
-7. Model output must pass schema validation and evidence-ID allowlist checks.
-8. The user submits teach-back answers.
-9. Evaluation separates supported, missing, and unsupported claims, with citations.
-10. EQ-005 derives eligible concept gaps only when repository evidence and learner-answer evidence are both present.
+1. The user enters through the repository shell: a public GitHub URL in the shared Add Repository Link modal, or the placeholder MCP path for future private/local repository selection.
+2. For the current backend evidence loop, the user selects the bundled sample or submits a supported public repository snapshot.
+3. The backend validates source, host, revision, archive paths, symlinks, file counts, byte limits, and time bounds before parsing.
+4. The analyzer parses JS/JSX/TS/TSX files and emits only exact symbols and structural relationships with file/line evidence.
+5. Unsupported or ambiguous references become unresolved references, not speculative edges.
+6. The UI lets the user pin a symbol or path and change semantic altitude without losing context.
+7. For narrative, pseudocode, and teach-back, GPT-5.6 receives bounded evidence packets, not unrestricted repository contents.
+8. Model output must pass schema validation and evidence-ID allowlist checks.
+9. The user submits teach-back answers.
+10. Evaluation separates supported, missing, and unsupported claims, with citations.
+11. EQ-005 derives eligible concept gaps only when repository evidence and learner-answer evidence are both present.
 
 ## API Contract
 
@@ -207,7 +216,7 @@ gap_score = 0.70 * learner_gap + 0.30 * repository_relevance
 
 The current client context lives in [../client/README.md](../client/README.md).
 
-It describes a Next.js App Router surface for convex, derived from the planning docs in this repository. It explicitly avoids code-generation, repository-editing, pull-request, commit, IDE, and autonomous-agent claims.
+It describes a Next.js App Router surface for convex, derived from the planning docs in this repository. The current surface includes hybrid repository onboarding, a shared Add Repository Link modal, MCP placeholder states, and a `/dashboard` shell. It explicitly avoids code-generation, repository-editing, pull-request, commit, IDE, browser GitHub OAuth, provider-token storage, and autonomous-agent claims.
 
 Client commands:
 
@@ -248,13 +257,13 @@ Expected backend modules from the technical design:
 
 MVP security posture:
 
-- No accounts, names, email, private repository intake, repository credentials, OAuth, SSH keys, or write scopes.
+- No accounts, names, email, private repository intake in the backend, repository credentials, browser OAuth, SSH keys, provider-token storage, or write scopes.
 - Public repository source is still treated as sensitive during processing.
 - Full source is deleted after parsing.
 - Evidence excerpts, graph state, teach-back answers, learner state, gaps, and derivations are session-confidential and TTL-bound.
 - Logs must not include source text, learner responses, prompts, model output bodies, full URLs with query strings, cookies, credentials, or evidence packets.
 - Model provider credentials live only in EC2 environment variables.
-- The Cloudflare Workers client holds no backend/model secret in the current direct-call architecture.
+- The Cloudflare Workers client holds no backend/model secret in the current direct-call architecture and no GitHub/provider tokens in the repository connection shell.
 - SSRF, path traversal, symlink, nested archive, decompression bomb, timeout, parser ambiguity, model citation, CORS, session isolation, and cleanup cases are hard security gates.
 
 If live analysis is unavailable, the product may show a visibly labeled pre-indexed sample. It must never pretend sample fallback is a successful live analysis of a submitted repository.

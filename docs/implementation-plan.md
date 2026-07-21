@@ -21,7 +21,7 @@
 
 ## 1. Planning inputs (refresh when context changes)
 
-- **Current code state:** backend is feature-complete for F-001–F-005 (300+ local tests per the Decision Ledger — **PROVISIONAL** until verified on deployed EC2 instance); client is live on Cloudflare Workers but currently serves the **static preview**, not the wired loop; the `model` submodule is pinned at `6683558` (merged api-platform + deterministic-evidence).
+- **Current code state:** backend is feature-complete for F-001–F-005 (300+ local tests per the Decision Ledger — **PROVISIONAL** until verified on deployed EC2 instance); client is live on Cloudflare Workers but the deployed loop is still treated as static/illustrative until live backend verification. The local client worktree now includes the final-product repository connection shell (shared public GitHub URL modal, MCP placeholder path, centralized repository state, and `/dashboard`) documented in CR-005; real MCP host support remains future work. The `model` submodule root pin is at `46ce4cd` (past `d06dc29`); local checkout may lag.
 - **Team capacity:** Abu (product/pitch/**plan steward**) · Joshua (backend lead — **out Jul 21–22**) · Geinel (senior dev; **covers Joshua's backend/integration Jul 21–22**) · Farhana (devops/AI-ML) · Jim (client integration + devops) · Helena (UI/UX) · Dia (UI/UX + a11y).
 - **Core demo journey:** UF-004 / UJ-005 — sample → evidence-backed graph → cited evidence → three teach-back answers → supported/missing/unsupported feedback → gap-map update → back to source.
 - **Highest implementation risks:** ~~credential blocker~~ (resolved); EC2 session loss on restart; keyboard/text-equivalent a11y in the build window; client-to-backend wiring on the live URL.
@@ -109,7 +109,7 @@ _None._ The credential blocker (TASK-001) and deploy blocker (TASK-003) are reso
 | ID | Outcome | F-ID | Why cut |
 |----|---------|------|---------|
 | TASK-013 | Comprehension-delta ledger | F-101 | Final-tier feature. BR-009: "Final features F-101 through F-104 SHALL NOT displace completion of the F-001–F-005 end-to-end demo loop." That loop is not yet live end to end. |
-| TASK-014 | In-workflow MCP App / extension surface | F-102 | Same as above; also ADR-0002 marks this a future recommendation only, not current work. |
+| TASK-014 | In-workflow MCP App / extension surface | F-102 | Same as above; ADR-0002 marks the live MCP App/host implementation as future work. The current client MCP path is only a placeholder shell recorded in CR-004. |
 | TASK-015 | Cross-repository learner graph | F-103 | Same as above; MVP sessions are ephemeral/session-scoped by design (no cross-repo learner state). |
 | TASK-016 | Agent teaching contract | F-104 | Same as above; no MCP tool surface exists in the current two-repository architecture. |
 
