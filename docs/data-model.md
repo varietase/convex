@@ -128,7 +128,7 @@ An edge is either backed by all three anchors or it is not rendered — it becom
 | `question_id`, `question_set_id` | uuid | no | generated | Question identity/group |
 | `session_id`, `snapshot_id` | uuid/sha256-id | no | — | Owner/source |
 | `ordinal` | integer | no | — | 1, 2, or 3 |
-| `question_type` | enum | no | — | prediction, explanation |
+| `question_type` | enum | no | — | `relationship-explanation`, `path-prediction`, `concept-application` (matches shipped `app/reasoning/schemas.py`) |
 | `prompt` | string | no | — | Repo-specific prompt |
 | `target_concept_ids`, `target_evidence_span_ids` | string[]/uuid[] | no | — | Both non-empty; span IDs expand to API evidence refs |
 | `model_id`, `prompt_version` | string | no | — | Reproducibility metadata |
