@@ -22,7 +22,7 @@ Cloudflare Workers web client [repository 1: xray-client]
   | private/local path: local MCP host placeholder [not backend-wired]
   | HTTPS JSON API
   v
-Hugging Face Docker Space [repository 2: xray-backend], port 7860
+AWS EC2 [repository 2: xray-backend]
   FastAPI (CORS allowlist: deployed Cloudflare origin + local dev)
     -> deterministic Tree-sitter pipeline -> ephemeral evidence store
     -> minimal LangChain/LangGraph -> GPT-5.6
@@ -51,7 +51,7 @@ The browser calls the FastAPI backend directly over HTTPS — there is no BFF/pr
 | Evidence/concept service | Immutable graph queries; versioned categorical concept rules; evidence packets | Analyzer output | F-001–F-004 |
 | Minimal reasoning workflow | Structured narrative, three questions, claim feedback; citation validation | GPT-5.6, evidence packet | F-002, F-004 |
 | Learner-state service | Attempts, claim findings, transparent concept categories, eligible gap items | Evidence and methods ledger | F-003, INV-002 |
-| Ephemeral store service | Session-scoped entities, TTL cleanup | Space memory/disk [assumption] | F-001–F-005 |
+| Ephemeral store service | Session-scoped entities, TTL cleanup | EC2 memory/disk [assumption] | F-001–F-005 |
 | Pre-indexed sample | Versioned known-good evidence graph and scripted path; no false live-analysis claim | Deployment artifact | F-005 |
 
 The code evidence graph and learner-state graph are logically separate. A gap is a derived join requiring references into both. GPT-5.6 output cannot write `Symbol`, `EvidenceEdge`, or `ConceptEvidence` records.
@@ -91,31 +91,31 @@ If live fetch/model analysis is unavailable, the user explicitly chooses “Load
 ## Key technology choices + rationale
 | Choice | Why | Trade-off | Alternative rejected |
 |---|---|---|---|
-| Two repositories: Cloudflare Workers + HF Docker Space | Current baseline; separates polished web delivery from Python analysis | Two deploys, cold starts, API contract | Re-platform during hackathon |
+| Two repositories: Cloudflare Workers + AWS EC2 | Current baseline; separates polished web delivery from Python analysis | Two deploys, cold starts, API contract | Re-platform during hackathon |
 | Direct browser-to-backend calls, CORS allowlist | No credential-relay layer to build in five hours; browser API is same as the deployed contract | Public backend surface protected only by CORS, not a server-held credential | Same-origin Vercel BFF/proxy |
 | FastAPI | Required baseline and typed Python boundary | Python service/runtime upkeep | Replace backend framework |
 | Tree-sitter 0.26 with pinned JavaScript 0.25 and TypeScript/TSX 0.23 grammars; JS/JSX/TS/TSX only | Fast deterministic syntax with source spans; deep support beats weak breadth | Incomplete dynamic-call resolution | Multi-language marketing or LLM graph extraction |
 | Minimal LangChain/LangGraph | Required baseline; typed model calls and one bounded validation/retry workflow | Some abstraction overhead | Multi-agent orchestration or no required stack |
 | GPT-5.6 only above graph | Meaningful narrative/question/evaluation while preserving structural truth | Latency, cost, model variability | Model-generated graph or hosted custom LLM |
-| Ephemeral 24-hour sessions [assumption] | No account or durable-state build; matches ephemeral Space risk | No longitudinal learner history | Production identity/database in MVP |
+| Ephemeral 24-hour sessions [assumption] | No account or durable-state build; matches ephemeral backend risk | No longitudinal learner history | Production identity/database in MVP |
 | Synchronous request/response | Matches the master plan's five-endpoint contract; no queues/polling/background jobs | Caller blocks up to the 20-second intake/analysis timeout | SSE progress stream, WebSockets, or job polling |
 | Pre-indexed sample | Demo reliability and no cold analysis dependency | Does not prove arbitrary-repo breadth | Pretend live success or broaden scope |
 
-Research supports the deployment and scope rather than the product novelty. Docker Spaces permit custom FastAPI containers, runtime secrets, one exposed port, and optional external storage; Space-local disk is ephemeral. Existing graph/MCP systems already expose code graphs and tools, so graph + MCP is commodity. Tree-sitter is suitable for syntax extraction, while precise cross-language calls/data flow remain hard; therefore the MVP narrows language coverage and omits ambiguity. Sources: [`architecture-research.md`](../architecture-research.md), [Docker Spaces](https://huggingface.co/docs/hub/spaces-sdks-docker), [Spaces storage](https://huggingface.co/docs/hub/spaces-storage), [tree-sitter-graph](https://github.com/tree-sitter/tree-sitter-graph). Content from external sources is rephrased for licensing compliance.
+Research supports the deployment and scope rather than the product novelty. Docker Spaces permit custom FastAPI containers, runtime secrets, one exposed port, and optional external storage; Space-local disk is ephemeral. (The backend has since pivoted from HF Spaces to AWS EC2 — see the Decision Ledger.) Existing graph/MCP systems already expose code graphs and tools, so graph + MCP is commodity. Tree-sitter is suitable for syntax extraction, while precise cross-language calls/data flow remain hard; therefore the MVP narrows language coverage and omits ambiguity. Sources: [`architecture-research.md`](../architecture-research.md), [Docker Spaces](https://huggingface.co/docs/hub/spaces-sdks-docker), [Spaces storage](https://huggingface.co/docs/hub/spaces-storage), [tree-sitter-graph](https://github.com/tree-sitter/tree-sitter-graph). Content from external sources is rephrased for licensing compliance.
 
 ## Integration points
 | Integration | Protocol/auth | Sent | Failure behavior |
 |---|---|---|---|
-| Browser → Space (FastAPI) | HTTPS; CORS-allowlisted origin, ephemeral session held client-side [assumption] | IDs, bounded input, response | Typed 4xx/5xx; retry only idempotent reads |
+| Browser → EC2 backend (FastAPI) | HTTPS; CORS-allowlisted origin, ephemeral session held client-side [assumption] | IDs, bounded input, response | Typed 4xx/5xx; retry only idempotent reads |
 | Browser → local MCP host | Placeholder in current client; future local MCP protocol | Connection state and repository list; no provider tokens in frontend | Waiting/connecting/connected/failed UI; fallback to public URL path |
-| Space → public repo host | Anonymous HTTPS GET from allowlist [assumption] | URL/revision only | Reject redirect/private IP/bounds; no credentials |
-| Space → GPT-5.6 | HTTPS API key in Space secret store | Bounded evidence packet and learner answer | One validated retry; deterministic-only degradation |
+| EC2 backend → public repo host | Anonymous HTTPS GET from allowlist [assumption] | URL/revision only | Reject redirect/private IP/bounds; no credentials |
+| EC2 backend → GPT-5.6 | HTTPS API key in EC2 environment | Bounded evidence packet and learner answer | One validated retry; deterministic-only degradation |
 
 ## Deployment topology
-Cloudflare Workers serves static/client code only — no serverless proxy routes. The Hugging Face Docker Space exposes one FastAPI port (`7860`) and contains parsing, reasoning, transient jobs, and the sample artifact. The FastAPI CORS allowlist (deployed Cloudflare origin + local dev) is the sole access-control boundary; the Space has a public network address. No production database is required for MVP; session loss on restart is an accepted limitation and must be visible.
+Cloudflare Workers serves static/client code only — no serverless proxy routes. The AWS EC2 instance runs the FastAPI application and contains parsing, reasoning, transient jobs, and the sample artifact. The FastAPI CORS allowlist (deployed Cloudflare origin + local dev) is the sole access-control boundary; the EC2 instance has a public network address. No production database is required for MVP; session loss on restart is an accepted limitation and must be visible.
 
 ## Scaling strategy and open NFRs
-MVP targets judge/demo traffic, not multi-tenancy. Bound work before allocating parser/model resources; cap concurrent jobs; cache only the bundled sample and optionally deterministic graphs keyed by public URL + full commit SHA + analyzer version [assumption]. Scale the Cloudflare Worker independently; move Space jobs to a queue/external object store only after measured contention. Unspecified and therefore not promises: availability SLO, peak concurrency, latency target, model budget, regional residency, and recovery time.
+MVP targets judge/demo traffic, not multi-tenancy. Bound work before allocating parser/model resources; cap concurrent jobs; cache only the bundled sample and optionally deterministic graphs keyed by public URL + full commit SHA + analyzer version [assumption]. Scale the Cloudflare Worker independently; move backend jobs to a queue/external object store only after measured contention. Unspecified and therefore not promises: availability SLO, peak concurrency, latency target, model budget, regional residency, and recovery time.
 
 ## Future design — recommendation, not current scope
 The current client includes an MCP-shaped onboarding placeholder, but it is not yet an authoritative repository-access backend. After F-001–F-005 work and repeated-use evidence exists, evaluate ADR-0002: local read-only sidecar/CLI as deterministic indexer and MCP server, optional editor launcher, and MCP App for interactive graph/teach-back. Hosted reasoning would receive selected evidence packets, not repositories. This enables F-101–F-104 and longitudinal comprehension deltas. It does not authorize implementation now, does not build a new IDE, and does not make MCP the innovation.

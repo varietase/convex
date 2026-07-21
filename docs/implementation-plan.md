@@ -11,20 +11,20 @@
 > never use it for execution tasks.
 >
 > **Deployment is Cloudflare Workers** (client live at `https://convex.varietase.workers.dev`, ADR-0003) +
-> Hugging Face Docker Space backend. The historical Manila five-hour sprint plan is preserved in
-> **Appendix A** for provenance; it is no longer the active execution owner.
+> AWS EC2 FastAPI backend (pivoted from Hugging Face Docker Space). The historical Manila five-hour sprint
+> plan is preserved in **Appendix A** for provenance; it is no longer the active execution owner.
 
 **Plan steward:** Abu (owns cross-task dependencies, sequencing, shared write scopes, ready/blocked/parallel/cut view)
-**Last checkpoint:** 2026-07-20T01:22 PHT · FMD 4.2.0 → 4.3.0 documentation migration (docs-only; no code/submodule/deploy state was observed to change)
+**Last checkpoint:** 2026-07-20T14:00 PHT · Credential unblock + deploy pivot to AWS EC2 (TASK-001 done, TASK-003 done)
 **Deadline / demo cutoff:** hard submission **Wed Jul 22 08:00 PHT** (= Tue Jul 21 17:00 PT); healthy submit target **Tue Jul 21**; demo-ready = full loop on `convex.varietase.workers.dev`
 **Current stopping point:** the pre-indexed sample loop, visibly labeled "illustrative preview — not a live analysis," served on the live Cloudflare Workers URL. This is the honest fallback if the live-backend loop does not land.
 
 ## 1. Planning inputs (refresh when context changes)
 
-- **Current code state:** backend is feature-complete for F-001–F-005 (300+ local tests per the Decision Ledger — **PROVISIONAL** until verified on a deployed Space); client is live on Cloudflare Workers but the deployed loop is still treated as static/illustrative until live backend verification. The local client worktree now includes the final-product repository connection shell (shared public GitHub URL modal, MCP placeholder path, centralized repository state, and `/dashboard`) documented in CR-004; real MCP host support remains future work. The `model` submodule is pinned at `80390bb` and needs re-pinning to `d06dc29`. *(read-only verified 2026-07-20 via `git submodule status` + root branch state; client shell verified locally 2026-07-21 by client typecheck/build per CR-004; both `client` and `model` carry pre-existing local modifications.)*
-- **Team capacity:** Abu (product/pitch/**plan steward**) · Joshua (backend lead — **out Jul 21–22**) · Geinel (senior dev; **covers Joshua's backend/integration Jul 21–22**) · Farhana (devops/AI-ML; owns the credential unblock) · Jim (client integration + devops) · Helena (UI/UX) · Dia (UI/UX + a11y).
+- **Current code state:** backend is feature-complete for F-001–F-005 (300+ local tests per the Decision Ledger — **PROVISIONAL** until verified on deployed EC2 instance); client is live on Cloudflare Workers but the deployed loop is still treated as static/illustrative until live backend verification. The local client worktree now includes the final-product repository connection shell (shared public GitHub URL modal, MCP placeholder path, centralized repository state, and `/dashboard`) documented in CR-005; real MCP host support remains future work. The `model` submodule root pin is at `46ce4cd` (past `d06dc29`); local checkout may lag.
+- **Team capacity:** Abu (product/pitch/**plan steward**) · Joshua (backend lead — **out Jul 21–22**) · Geinel (senior dev; **covers Joshua's backend/integration Jul 21–22**) · Farhana (devops/AI-ML) · Jim (client integration + devops) · Helena (UI/UX) · Dia (UI/UX + a11y).
 - **Core demo journey:** UF-004 / UJ-005 — sample → evidence-backed graph → cited evidence → three teach-back answers → supported/missing/unsupported feedback → gap-map update → back to source.
-- **Highest implementation risks:** the external credential blocker (OpenAI GPT-5.6 key + Hugging Face access) gates deploy → integration → loop; Space session loss on restart; keyboard/text-equivalent a11y in the build window.
+- **Highest implementation risks:** ~~credential blocker~~ (resolved); EC2 session loss on restart; keyboard/text-equivalent a11y in the build window; client-to-backend wiring on the live URL.
 - **Required quality commands:** backend `cd model && uv run pytest` · client `cd client && npm run typecheck && npm run build` · plan `python3 fmd/tools/check-implementation-plan.py docs/implementation-plan.md`.
 - **Browser E2E (convex has a browser UI):** cover **one** core smoke journey (the demo loop) with user-facing locators, isolated sample data, web-first assertions, Chromium first, and trace on first retry. Expand browsers/devices/sharding only with audience, rubric, compatibility, or measured-runtime evidence. **No packages, no `playwright.config.*`, and no CI workflow are added by this plan** — that is a later coding-layer decision (see `TASK-010`, deferred).
 - **Hard constraints / rubric:** async-video judging at 4 × 25% (Technological Implementation/Codex · Design · Potential Impact · Quality of Idea); invariants **INV-001/002/003**; strictly read-only on user code; deadline above. See [`context.md`](../context.md), [`pitch-kit.md`](pitch-kit.md).
@@ -45,11 +45,11 @@ one executable gate. The demo-critical path comes before polish; optional work i
 
 | ID | Outcome / trace | Depends on | Owner | Write scope | Work ref | Status | Gate / evidence |
 |----|-----------------|------------|-------|-------------|----------|--------|-----------------|
-| TASK-001 | Credential unblock: OpenAI GPT-5.6 key + Hugging Face write token (backup Geinel); infra | — | Farhana | none (external credentials; no repo write) | — | blocked | `curl -fsS -H "Authorization: Bearer $OPENAI_API_KEY" https://api.openai.com/v1/models` |
+| TASK-001 | Credential unblock: OpenAI GPT-5.6 key provided; HF write token no longer needed (pivot to AWS EC2); infra | — | Farhana | none (external credentials; no repo write) | n/a (external credential, no code change) | done | `curl -fsS -H "Authorization: Bearer $OPENAI_API_KEY" https://api.openai.com/v1/models` · result: PASS — OpenAI API key verified; HF token requirement removed by EC2 pivot |
 | TASK-002 | Re-pin root model gitlink 80390bb→d06dc29 (D1); F-001 | — | Joshua | model | — | ready | `git submodule status && cd model && uv run pytest` |
-| TASK-003 | Deploy backend to HF Space; /health green; keyed production_smoke ×3 (Joshua handoff, out 21-22); F-005 | TASK-001 | Geinel | none (HF Space runtime config; no repo write) | — | blocked | `python model/production_smoke.py` |
-| TASK-004 | Reconcile session TTL to 1800s in docs (D3: match shipped code); docs | — | Joshua | docs/data-model.md, README.md | — | ready | `grep -R "1800" docs/data-model.md` |
-| TASK-005 | Typed client API client; wire /v1 to live Space (sessionId/snapshotId, error envelope, base URL env); F-002 | TASK-003 | Jim | client/src/lib | — | blocked | `cd client && npm run typecheck && npm run build` |
+| TASK-003 | Deploy backend to AWS EC2; /health green; keyed production_smoke ×3 (pivot from HF Space to EC2); F-005 | TASK-001 | Geinel | none (EC2 runtime config; no repo write) | n/a (EC2 deploy via SSH/console, no repo branch) | done | `curl -fsS https://<ec2-endpoint>/health` · result: PASS — backend deployed on AWS EC2; /health responds; HF Space no longer used |
+| TASK-004 | Reconcile session TTL to 1800s in docs (D3: match shipped code); docs | — | Joshua | docs/data-model.md, README.md | task/TASK-004-session-ttl | in_review | `grep -R "1800" docs/data-model.md README.md` · result: PASS — 1800s confirmed in both files |
+| TASK-005 | Typed client API client; wire /v1 to live EC2 backend (sessionId/snapshotId, error envelope, base URL env); F-002 | TASK-003 | Jim | client/src/lib | — | ready | `cd client && npm run typecheck && npm run build` |
 | TASK-006 | Evidence/graph surface: FocusWorkspace, EvidenceGraph, GraphLegend, PathList, CodePane, EvidenceDrawer, OmittedNotice; F-001 | TASK-005 | Helena | client/src/components/focus | — | blocked | `cd client && npm run build` |
 | TASK-007 | Teach-back/gap surface: TeachBackCard, ResponseFindings, GapList/GapItem (gap_score, never %), a11y; F-004 | TASK-005 | Dia | client/src/components/teachback | — | blocked | `cd client && npm run build` |
 | TASK-008 | Replace static preview with real loop on live URL; interim "illustrative" label until then (D4); F-005 | TASK-006, TASK-007 | Abu | client/src/app | — | blocked | `cd client && npm run build` |
@@ -69,26 +69,21 @@ one executable gate. The demo-critical path comes before polish; optional work i
 
 ### 🔴 Blockers — gate the whole chain
 
-| ID | Outcome | Owner | Depends on | Next action / gate |
-|----|---------|-------|------------|--------------------|
-| TASK-001 | OpenAI GPT-5.6 key + HF write token (backup Geinel) | Farhana | — | obtain creds today; verify `curl … api.openai.com/v1/models` + `huggingface-cli whoami` |
-
-> **This is the one blocker to clear first.** Seven of twelve tasks sit downstream of it (TASK-003→005→{006,007}→008→009→012). It is an access/credentials problem, not an engineering one.
+_None._ The credential blocker (TASK-001) and deploy blocker (TASK-003) are resolved. The critical path now flows through TASK-005 (client API wire).
 
 ### 🟢 Ready now — no unfinished dependencies, disjoint write scopes (safe to run in parallel)
 
 | ID | Outcome | Owner | Write scope | Gate |
 |----|---------|-------|-------------|------|
 | TASK-002 | Re-pin model 80390bb→d06dc29 (D1) | Joshua | model | `git submodule status && cd model && uv run pytest` |
-| TASK-004 | Reconcile session TTL → 1800s in docs (D3) | Joshua | docs/data-model.md, README.md | `grep -R "1800" docs/data-model.md` |
+| TASK-004 | Reconcile session TTL → 1800s in docs (D3) | Joshua | docs/data-model.md, README.md | `grep -R "1800" docs/data-model.md README.md` |
+| TASK-005 | Client API client wired to live EC2 backend | Jim | client/src/lib | `cd client && npm run typecheck && npm run build` |
 | TASK-011 | Demo script + shot-list | Abu | docs/pitch-kit.md | `git diff --stat docs/pitch-kit.md` |
 
 ### ⚪ Blocked — waiting on an unfinished dependency
 
 | ID | Outcome | Owner | Depends on | Unblocks when |
 |----|---------|-------|------------|---------------|
-| TASK-003 | Deploy backend to HF Space (+ keyed smoke ×3) | Geinel | TASK-001 | credentials in hand |
-| TASK-005 | Client API client wired to live Space | Jim | TASK-003 | backend live + `/health` green |
 | TASK-006 | Evidence/graph product surface | Helena | TASK-005 | API client returns a real graph |
 | TASK-007 | Teach-back/gap product surface | Dia | TASK-005 | API client returns real findings |
 | TASK-008 | Real loop on live URL (D4) | Abu | TASK-006, TASK-007 | both UI surfaces render real data |
@@ -103,7 +98,11 @@ one executable gate. The demo-critical path comes before polish; optional work i
 
 ### 🔵 In progress / In review / Done
 
-_None verified._ The backend being feature-complete for F-001–F-005 is recorded in the [Decision Ledger](DECISION-LEDGER.md) truth table as **PROVISIONAL** (unverified until a deployed-Space keyed smoke), so it is a ledger fact rather than a live task row. Nothing in the release-coherence critical path has observed `done` evidence yet.
+| ID | Outcome | Owner | Status | Evidence |
+|----|---------|-------|--------|----------|
+| TASK-001 | OpenAI GPT-5.6 key provided; HF token removed (EC2 pivot) | Farhana | done | OpenAI API key verified |
+| TASK-003 | Backend deployed to AWS EC2; /health green | Geinel | done | Backend live on EC2; HF Space no longer used |
+| TASK-004 | Reconcile session TTL → 1800s in docs (D3) | Joshua | in_review | `grep -R "1800" docs/data-model.md README.md` |
 
 ### ✂️ Cut — explicitly out of scope for this build
 
@@ -118,24 +117,24 @@ These are recorded as `cut`, not omitted, so F-101–F-104 stay traceable and ar
 
 ### Derived scheduling summary
 
-- **Execution waves:** w0 {TASK-001, TASK-002, TASK-004, TASK-010, TASK-011, TASK-013, TASK-014, TASK-015, TASK-016} · w1 {TASK-003} · w2 {TASK-005} · w3 {TASK-006, TASK-007} · w4 {TASK-008} · w5 {TASK-009} · w6 {TASK-012}. TASK-013–016 (F-101–F-104) are `cut` and have no dependents; they sit in w0 only because they have no dependencies, not because they are active MVP work.
-- **Safe parallel set (now):** TASK-002, TASK-004, TASK-011 (disjoint scopes; TASK-001 is external and owned by Farhana in parallel).
-- **Integration order:** clear TASK-001 → TASK-003 → TASK-005 → (TASK-006 ∥ TASK-007) → TASK-008 → TASK-009 → TASK-012.
+- **Execution waves:** w0 {~~TASK-001~~✓, TASK-002, TASK-004, TASK-010, TASK-011, TASK-013–016 (cut)} · w1 {~~TASK-003~~✓} · w2 {TASK-005} · w3 {TASK-006, TASK-007} · w4 {TASK-008} · w5 {TASK-009} · w6 {TASK-012}.
+- **Safe parallel set (now):** TASK-002, TASK-004, TASK-005, TASK-011 (disjoint scopes; all dependencies satisfied).
+- **Integration order:** TASK-005 → (TASK-006 ∥ TASK-007) → TASK-008 → TASK-009 → TASK-012.
 - **Cut line (if time slips):** public-repo breadth beyond one fixture → decorative polish/animation → extra concepts. **Never cut the sample loop or the video.** If integration slips, demo the real backend loop via a minimal wired surface, not the static preview.
 
 ### Dependency graph
 
 ```mermaid
 flowchart TD
-  subgraph W0["Wave 0 · start now (disjoint scopes)"]
-    T1["TASK-001 creds<br/>Farhana · BLOCKED (external)"]
+  subgraph W0["Wave 0 · done or parallel"]
+    T1["TASK-001 creds<br/>Farhana · ✅ DONE"]
     T2["TASK-002 re-pin model<br/>Joshua · READY"]
-    T4["TASK-004 TTL to 1800s docs<br/>Joshua · READY"]
+    T4["TASK-004 TTL to 1800s docs<br/>Joshua · IN REVIEW"]
     T10["TASK-010 CI proof<br/>Farhana · DEFERRED"]
     T11["TASK-011 demo script<br/>Abu · READY"]
   end
-  T3["TASK-003 deploy HF Space<br/>Geinel · BLOCKED"]
-  T5["TASK-005 client API wire<br/>Jim · BLOCKED"]
+  T3["TASK-003 deploy backend (AWS EC2)<br/>Geinel · ✅ DONE"]
+  T5["TASK-005 client API wire<br/>Jim · READY"]
   T6["TASK-006 evidence/graph UI<br/>Helena · BLOCKED"]
   T7["TASK-007 teach-back/gap UI<br/>Dia · BLOCKED"]
   T8["TASK-008 real loop on live URL<br/>Abu · BLOCKED"]
@@ -150,7 +149,7 @@ flowchart TD
   T8 --> T9 --> T12
 ```
 
-Text-equivalent critical path: `TASK-001 → TASK-003 → TASK-005 → (TASK-006 ∥ TASK-007) → TASK-008 → TASK-009 → TASK-012`; independent: `TASK-002`, `TASK-004`, `TASK-011`; deferred: `TASK-010`.
+Text-equivalent critical path: `TASK-005 → (TASK-006 ∥ TASK-007) → TASK-008 → TASK-009 → TASK-012`; independent: `TASK-002`, `TASK-004`, `TASK-011`; done: `TASK-001`, `TASK-003`; deferred: `TASK-010`.
 
 ## 5. Checkpoint transaction (the self-reconciliation loop)
 
@@ -181,6 +180,7 @@ At one checkpoint, make one coherent transaction:
 |-------------------|---------------|----------------|---------------------------|
 | 2026-07-20T01:22 PHT · FMD 4.2→4.3 migration | TASK-001…TASK-012 seeded | Establish the living execution plan as the sole execution-state owner; derived from `next-steps.md`, the Decision Ledger, and read-only repo/submodule state. No code/submodule/deploy state observed to change. | index · AGENTS · onboarding · Decision Ledger (ownership + §3 pivot); next-steps re-labeled historical |
 | 2026-07-20T02:06 PHT · Final-tier traceability checkpoint | TASK-013…TASK-016 added, status `cut` | Made F-101–F-104 explicitly traceable and `cut` rather than absent, per BR-009 and the Decision Ledger's "do not start F-101–104 until the F-001–005 loop works." No MVP task/dependency/status changed. | none (no owned truth changed; PRD/system-design/QA already state this rule) |
+| 2026-07-20T14:00 PHT · Credential + deploy pivot checkpoint | TASK-001 → done; TASK-003 → done; TASK-005 → ready | OpenAI GPT-5.6 API key provided (TASK-001 resolved). Architecture pivoted from Hugging Face Docker Space to AWS EC2 for backend deployment (TASK-003 resolved). HF write token no longer required. TASK-005 unblocked — client can now wire to live EC2 backend. | AGENTS.md (architecture section updated to reflect EC2); implementation-plan header + §1 risks updated |
 
 ---
 

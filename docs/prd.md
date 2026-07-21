@@ -68,7 +68,7 @@ The MVP must produce one demoable loop: inspect a bounded read-only repository, 
 - **BR-007 — Read-only operation:** Analysis SHALL NOT modify files, commits, branches, pull requests, or repository settings.
 - **BR-008 — Accessibility:** The user-facing graph SHALL support keyboard traversal, visible focus, non-color status indicators, reduced motion, text alternatives for graph paths, and AA contrast for documented semantic token pairs, targeting WCAG 2.2 AA.
 - **BR-009 — MVP gate:** Final features F-101 through F-104 SHALL NOT displace completion of the F-001 through F-005 end-to-end demo loop.
-- **BR-010 — Architecture baseline:** Current implementation SHALL use two repositories: a Cloudflare Workers-hosted client and a Hugging Face Docker Space backend using FastAPI, LangChain, and LangGraph. Any replacement is a future decision, not current architecture.
+- **BR-010 — Architecture baseline:** Current implementation SHALL use two repositories: a Cloudflare Workers-hosted client and an AWS EC2 backend using FastAPI, LangChain, and LangGraph. Any replacement is a future decision, not current architecture.
 - **BR-011 — Hybrid repository connection:** The final-product onboarding SHALL present public repository links and MCP-connected private/local repositories as distinct paths. Public GitHub repositories MAY be entered as `https://github.com/{owner}/{repo}`; private and local repositories SHALL be selected through MCP rather than pasted manually.
 - **BR-012 — MCP credential boundary:** The frontend SHALL NOT perform GitHub OAuth, store GitHub access tokens, or communicate directly with GitHub for private repository discovery. MCP authentication and repository listing are owned by the local MCP host. Current client MCP connection is a placeholder shell until the backend/MCP contract is implemented.
 
@@ -112,7 +112,7 @@ The MVP must produce one demoable loop: inspect a bounded read-only repository, 
 
 ### UF-004 — Demo-safe run
 1. The demo operator [assumption] opens the deployed Cloudflare Workers client (`https://convex.varietase.workers.dev`).
-2. The operator loads the known sample through the Hugging Face Docker Space backend.
+2. The operator loads the known sample through the AWS EC2 backend.
 3. The operator completes UF-001 and UF-002.
 4. The operator shows an updated gap map and evidence citation.
 5. The operator confirms no source mutation is requested or performed.
@@ -160,7 +160,7 @@ The MVP must produce one demoable loop: inspect a bounded read-only repository, 
 ## Dependencies
 ### Current implementation baseline
 - **Repository 1 — client:** Cloudflare Workers-hosted web client (OpenNext) implemented with Next.js App Router and TypeScript. The current client includes a final-product repository connection shell: public GitHub URL validation, MCP placeholder connection/selector, centralized repository state, and `/dashboard`.
-- **Repository 2 — backend:** Hugging Face Docker Space running the lockfile-pinned FastAPI, Tree-sitter, LangChain/OpenAI, and LangGraph stack in `model`; Docker port 7860, contract `1.0.0`, `gpt-5.6`, and ephemeral behavior are locked. The deployed Space identifier and measured runtime behavior remain [assumption].
+- **Repository 2 — backend:** AWS EC2 instance running the lockfile-pinned FastAPI, Tree-sitter, LangChain/OpenAI, and LangGraph stack in `model`; contract `1.0.0`, `gpt-5.6`, and ephemeral behavior are locked. The deployed EC2 endpoint and measured runtime behavior remain [assumption].
 - The browser SHALL call the five-route `/v1` backend contract directly; only `GET /health` is active in the first scaffold slice, and feature routes activate with their owning gates.
 - The deployment must remain available through Global judging.
 
@@ -187,7 +187,7 @@ The MVP must produce one demoable loop: inspect a bounded read-only repository, 
 - What repository size, file-count, and analysis-time bounds define "bounded" intake?
 - What exact learner-state representation and rubric update gap rankings without overstating comprehension?
 - Which parts of analysis, narration, and teach-back use Codex versus GPT-5.6?
-- What API contract connects the Cloudflare Workers client to the Hugging Face Docker Space?
+- What API contract connects the Cloudflare Workers client to the AWS EC2 backend?
 - What exact MCP host contract will replace the placeholder client adapter for private/local repository discovery?
 - What persistence, authentication, rate limits, and operational monitoring are required for judged availability [assumption]?
 - Which sample path creates the clearest sub-three-minute proof-of-comprehension demo?

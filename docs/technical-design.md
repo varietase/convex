@@ -10,11 +10,11 @@
 | `ui/dashboard` | `/dashboard` shell with repository status, sidebar, placeholder panels, and switch repository behavior | App Router page/components | repository state, MCP selector, future graph API |
 | `ui/explorer` | Graph, source spans, semantic zoom, accessible path list | view model | graph API |
 | `ui/teachback` | Questions, response form, feedback, gap list | view model | teach-back APIs |
-| `lib/api` | Typed client for the five backend endpoints; session-local state only | fetch wrapper | Space API |
+| `lib/api` | Typed client for the five backend endpoints; session-local state only | fetch wrapper | Backend API |
 | `lib/repository` | Parse and validate public GitHub URLs into `{owner, repo, slug, source}` repository state | `validateGitHubRepositoryUrl` | UI intake, dashboard |
 | `lib/mcpClient` | Placeholder MCP connection/list adapter for backend developers; later replaced with local MCP host calls | `connectMcpPlaceholder`, future `mcpClient` | MCP UI, dashboard |
 
-### Hugging Face repository (`xray-backend`)
+### AWS EC2 backend (`xray-backend`)
 | Module | Responsibility | Public interface | Collaborators |
 |---|---|---|---|
 | `api` | FastAPI request validation, CORS allowlist enforcement | `GET /health`, `POST /v1/analyses`, `POST /v1/xray`, `POST /v1/teachbacks/questions`, `POST /v1/teachbacks/evaluate` | services |
@@ -26,7 +26,7 @@
 | `learner` | Record attempts and derive eligible gap items | `record_attempt`, `derive_gaps` | methods registry |
 | `cleanup` | TTL and workspace deletion | scheduled/lazy sweep | ephemeral store |
 
-Backend dependency versions are pinned in `model/pyproject.toml` and `model/uv.lock`; the Docker requirements export also pins transitive hashes. FastAPI/CORS, Hugging Face Docker Space, py-tree-sitter 0.26, LangGraph `StateGraph`, LangChain `ChatOpenAI.with_structured_output`, and OpenAI `gpt-5.6` surfaces were checked against official docs on 2026-07-18. Client dependency pins remain open [assumption].
+Backend dependency versions are pinned in `model/pyproject.toml` and `model/uv.lock`; the Docker requirements export also pins transitive hashes. FastAPI/CORS, AWS EC2 deployment, py-tree-sitter 0.26, LangGraph `StateGraph`, LangChain `ChatOpenAI.with_structured_output`, and OpenAI `gpt-5.6` surfaces were checked against official docs on 2026-07-18. Client dependency pins remain open [assumption].
 
 
 ## Client repository connection shell
@@ -182,7 +182,7 @@ FastAPI --> Browser: feedback and updated gaps
 | Upstream fetch timeout | 504 | Cleanup; retry CTA/sample | Host category and timing |
 | Model/schema/citation failure | 502 | One retry, then deterministic-only response | Model request ID and validation code; no prompt/answer |
 | Invariant failure | 500, analysis not published | Quarantine result, alert | Edge/entity IDs and analyzer version |
-| Space restart/lost session | 410 | Explain expiration; restart/sample | Restart/session-loss counter |
+| Backend restart/lost session | 410 | Explain expiration; restart/sample | Restart/session-loss counter |
 
 All cleanup uses `finally`; user messages are plain and non-destructive. Logs never contain source text, learner responses, cookies, credentials, or full model packets.
 

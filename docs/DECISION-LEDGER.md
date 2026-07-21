@@ -14,7 +14,7 @@
 | F-001–F-005, F-101–F-104 | Immutable feature IDs | Idea, PRD, downstream specifications, QA | Preserve IDs exactly; do not renumber during refinement. |
 | INV-001–INV-003 | Immutable invariant IDs | Idea, PRD, security, design, QA | Preserve IDs and meanings exactly; changes require a logged invariant-change pivot. |
 | Client repository + deployment | Technical ID | Deployment/config | Repo `varietase/client` (`xray-client`); deployed on Cloudflare Workers (OpenNext) as worker `convex`, live at `https://convex.varietase.workers.dev`. |
-| Hugging Face Docker Space repository identifier | Technical ID | Deployment/config | Not supplied; do not invent [assumption]. |
+| AWS EC2 instance identifier | Technical ID | Deployment/config | Not supplied; do not invent [assumption]. |
 
 ## 2. Current truth (confidence, not a gate)
 | TRUE (shipped / decided, behaviorally supported) | PROVISIONAL (decided, not yet verified end-to-end) | UNVALIDATED (do not state as fact) |
@@ -25,8 +25,8 @@
 | Structural claims must trace to deterministic source evidence. | The client framework, graph renderer, deployment IDs, persistence mechanism, and measured runtime bounds remain to be chosen or verified [assumption]. | The tool improves seven-day retention or interview outcomes. |
 | Learner recommendations must derive from the real repository and demonstrated answers. | The user-facing experience can meet the stated WCAG 2.2 AA target in the hackathon window. | Learner-state scoring thresholds or concept mastery levels are known. |
 | The product is read-only on user code. | Deployment will remain accessible through Global judging as required by context. | Private repository intake, authentication, persistence, and multi-user behavior are part of MVP. |
-| Current implementation baseline is two repositories: a Cloudflare Workers-hosted client and a Hugging Face Docker Space backend using FastAPI, LangChain, and LangGraph. | The direct browser-to-Space contract integration remains to be verified. | A single-repository, local-only, desktop, IDE-native, or other architecture is current. |
-| The backend implements the full F-001–F-005 surface: deterministic Tree-sitter analysis, a three-anchor evidence graph, grounded GPT-5.6 explain/question/evaluate pipelines, deterministic EQ-005 gap derivation, and fail-closed public-repo intake; 300+ local tests pass with no network access in tests. | End-to-end verification on a deployed Hugging Face Space (keyed model run + production smoke ×3) remains open; the root `model` pin (`80390bb`) must move to `origin/main` (`d06dc29`) to serve the wired graph. | That local tests pass proves the deployed Space is healthy before a keyed production smoke. |
+| Current implementation baseline is two repositories: a Cloudflare Workers-hosted client and an AWS EC2 backend using FastAPI, LangChain, and LangGraph. | The direct browser-to-EC2 contract integration remains to be verified. | A single-repository, local-only, desktop, IDE-native, or other architecture is current. |
+| The backend implements the full F-001–F-005 surface: deterministic Tree-sitter analysis, a three-anchor evidence graph, grounded GPT-5.6 explain/question/evaluate pipelines, deterministic EQ-005 gap derivation, and fail-closed public-repo intake; 300+ local tests pass with no network access in tests. | End-to-end verification on the deployed EC2 backend (keyed model run + production smoke ×3) remains open; the root `model` pin (`80390bb`) must move to `origin/main` (`d06dc29`) to serve the wired graph. | That local tests pass proves the deployed backend is healthy before a keyed production smoke. |
 | MVP is F-001 through F-005; Final is F-101 through F-104. | The client worktree now includes a final-product repository connection shell: public GitHub URL path, MCP placeholder path, shared `/dashboard`, and no frontend GitHub OAuth/token storage. | Unsupported structural relations can safely be inferred by a model. |
 
 ## 3. Pivots & decisions (newest first)
@@ -35,8 +35,16 @@
 - **Change:** The client experience now presents repository onboarding as two paths: primary **Add Repository Link** for public GitHub repositories and secondary **Connect with MCP** for private/local repositories. All landing/nav Add Repository Link actions open one shared modal; the form is not left inline on the landing page. The MCP path closes the public form before showing Waiting/Connecting/Connected/Failed placeholder UI and a searchable repository selector. Both public and MCP selections route to the same `/dashboard` shell.
 - **Why:** The product is moving from a demo-specific repository story to a final-product flow that can support public GitHub repositories, private repositories through a local MCP host, and local repositories without changing the dashboard experience.
 - **Invalidated:** UI/documentation copy that frames the flow around Varietas repositories or implies the only product journey is a bundled/sample repository. Also invalidated: any frontend plan that asks users to paste private repository URLs or perform GitHub OAuth in the web app.
-- **Kept:** The shipped backend authority is still the Cloudflare Workers client calling the Hugging Face FastAPI backend directly for F-001-F-005. Real MCP host authentication, private/local repository indexing, and MCP App surfaces remain future backend/MCP work until the local host contract, security review, and tests exist.
-- **Recorded as:** PRD UF-000/BR-011/BR-012/AC-016/AC-017/AC-105; system design DF-000 and MCP adapter boundary; technical design A-000; QA TC-012; security credential boundary; design-system modal/dashboard specs; this ledger; CR-004.
+- **Kept:** The shipped backend authority is still the Cloudflare Workers client calling the AWS EC2 FastAPI backend directly for F-001-F-005. Real MCP host authentication, private/local repository indexing, and MCP App surfaces remain future backend/MCP work until the local host contract, security review, and tests exist.
+- **Recorded as:** PRD UF-000/BR-011/BR-012/AC-016/AC-017/AC-105; system design DF-000 and MCP adapter boundary; technical design A-000; QA TC-012; security credential boundary; design-system modal/dashboard specs; this ledger; CR-005.
+
+### 2026-07-20 — Backend deployment pivot: Hugging Face Docker Space → AWS EC2
+- **Type:** platform
+- **Change:** Backend deployment target changed from Hugging Face Docker Space to AWS EC2. The application (FastAPI, Tree-sitter, LangChain/LangGraph, GPT-5.6) is unchanged; only the hosting platform moved. HF write token is no longer needed; OpenAI API key is configured on the EC2 instance directly.
+- **Why:** Cost control (EC2 allows stopping/starting vs always-on Space billing); credential simplification (only OpenAI key needed, no HF token); deployment flexibility.
+- **Invalidated:** 'Hugging Face Docker Space' as the current backend host; 'Space secrets' as the credential mechanism; 'port 7860 on a Docker Space' as the deployment topology (app may still use 7860 internally but is hosted on EC2, not HF); the operational risk about 'Space is not yet deployed (blocked on Hugging Face access)' — EC2 is now deployed.
+- **Open:** Exact EC2 endpoint URL/IP not yet recorded in this repo; monitoring/alerting on EC2 to be confirmed; whether the instance is behind a load balancer or direct.
+- **Recorded as:** This ledger entry; AGENTS.md updated in commit 4570339; docs reconciled in this checkpoint.
 
 ### 2026-07-20 — Adopt FMD 4.3 living-execution model
 - **Type:** process
@@ -98,7 +106,7 @@
 | Code generator, debugger, linter, or PR-review tool | Solves a different job and risks moving attention away from proving comprehension. | Only after a separate product decision and invariant audit; not in the current product. |
 | Standalone visualization as the product | A graph alone does not create a learning outcome; prior code-map products show weak value when detached from a specific learner goal. | If paired with observable teach-back and learner-state outcomes; that paired form is the current wedge. |
 | Single-repository architecture | Conflicts with the current context-defined deployment baseline. | If deployment constraints make two repositories infeasible and a logged platform decision supersedes the baseline. |
-| Alternative client host or backend platform | Not the current architecture; recording alternatives as current would create implementation drift. | If Cloudflare or Hugging Face cannot satisfy judged availability or required functionality, supported by deployment evidence. |
+| Alternative client host or backend platform | Not the current architecture; recording alternatives as current would create implementation drift. | If Cloudflare or AWS EC2 cannot satisfy judged availability or required functionality, supported by deployment evidence. |
 | Alternative backend framework or orchestration stack | FastAPI, LangChain, and LangGraph are the current baseline. Alternatives are unsupported specifics until evaluated. | If an implementation test shows the baseline cannot deliver the MVP loop in time and the platform decision is logged. |
 
 ## 5. Invariant audit
@@ -115,8 +123,8 @@
 - **Adoption risk:** The primary user may not pause to prove comprehension during a time-pressured build; behavior remains unvalidated.
 - **Technical trust risk:** Supported static analysis must reach at least 70% precision on the held-out demo set, with unsupported edges omitted.
 - **Scope risk:** The MVP must keep F-001 through F-005 as one loop; adding F-101 through F-104 before that loop works is a scope failure.
-- **Architecture detail risk:** Client framework, graph renderer, deployment IDs, persistence, session behavior, and measured runtime limits remain [assumption]; backend libraries, JS/TS language family, contract version, intake caps, and model alias are locked but not yet verified end to end on Hugging Face.
-- **Operational risk:** The Cloudflare Workers client and Hugging Face Docker Space must remain accessible through Global judging; the Space is not yet deployed (blocked on Hugging Face access + the model API key), and monitoring and recovery details are [assumption].
+- **Architecture detail risk:** Client framework, graph renderer, deployment IDs, persistence, session behavior, and measured runtime limits remain [assumption]; backend libraries, JS/TS language family, contract version, intake caps, and model alias are locked but not yet verified end to end on the deployed EC2 instance.
+- **Operational risk:** The Cloudflare Workers client and AWS EC2 backend must remain accessible through Global judging; the EC2 instance is deployed but monitoring, alerting, and recovery details remain [assumption].
 - **Payer risk:** No payer has been found; institutional buyers and purchase intent remain unvalidated.
 - **Accessibility risk:** Full keyboard graph traversal and text-equivalent paths may be difficult in the build window but remain part of the brand baseline.
 - **Evidence risk:** Dates and claims imported from `idea.md` require source verification before external publication where not already verified.
