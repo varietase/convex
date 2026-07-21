@@ -9,18 +9,17 @@ convex is a proof-of-comprehension product, not a graph viewer or generic explai
 - **INV-002:** every gap item resolves to repository evidence and learner-answer evidence; otherwise it is omitted.
 - **INV-003:** repository handling is read-only; no commits, branches, pull requests, settings changes, or write credentials.
 - **MVP backend:** bounded bundled/public repository intake and ephemeral sessions for F-001–F-005.
-- **Current client shell:** final-product repository onboarding is prototyped in the web client: public GitHub URL validation, optional MCP connection placeholder for private/local repositories, centralized repository state, and `/dashboard`.
-- **Future backend/MCP:** real MCP host discovery/authentication, local sidecar indexing, MCP App surfaces, cross-repository state, and agent teaching contract remain future unless explicitly wired and tested.
+- **Current client shell:** repository onboarding accepts only a public GitHub URL, holds the selection in centralized in-memory state, and opens `/dashboard`. The client has no bundled-sample control or live backend call yet. MCP/private/local repository connection has been removed from the active build.
+- **Future local/private access:** any private/local repository access, local sidecar indexing, in-workflow surfaces, cross-repository state, or agent teaching contract remains future unless explicitly decided, wired, reviewed, and tested.
 
 ## Context diagram
 ```text
 Browser
-  | UI state, repository connection shell
+  | UI state, public GitHub URL connection shell
   v
 Cloudflare Workers web client [repository 1: xray-client]
-  | public repo path: validated GitHub URL
-  | private/local path: local MCP host placeholder [not backend-wired]
-  | HTTPS JSON API
+  | current: in-memory repository selection -> dashboard preview
+  | planned: HTTPS JSON API for a bundled sample or validated public snapshot
   v
 Hugging Face Docker Space [repository 2: xray-backend], port 7860
   FastAPI (CORS allowlist: deployed Cloudflare origin + local dev)
@@ -31,10 +30,6 @@ Hugging Face Docker Space [repository 2: xray-backend], port 7860
 Public repository host      v
                        model provider
 
-Local MCP host [future authoritative source for private/local repositories]
-  -> GitHub authentication handled inside MCP
-  -> repository listing returned to client
-  -> no frontend OAuth token storage
 ```
 
 The browser calls the FastAPI backend directly over HTTPS — there is no BFF/proxy layer and no server-held backend credential. The only access-control boundary is an explicit FastAPI CORS allowlist (the deployed Cloudflare origin plus local development origins), never a wildcard.
@@ -43,10 +38,9 @@ The browser calls the FastAPI backend directly over HTTPS — there is no BFF/pr
 ## Components & responsibilities
 | Component | Owns | Depends on | Features |
 |---|---|---|---|
-| Web experience | Landing CTA, shared Add Repository Link modal, public GitHub URL validation, MCP placeholder connection/selector, dashboard shell, semantic zoom, graph/list views, teach-back UX, visible provenance, accessibility | Backend API directly; future MCP client adapter | F-002–F-005, F-102 shell |
+| Web experience | Current: landing CTA, shared Add Repository Link modal, public GitHub URL validation, repository state, dashboard preview, and switching. Planned: semantic zoom, graph/list views, teach-back UX, visible provenance, and live accessibility behaviors. | Repository state; planned direct backend API | F-002–F-005 |
 | FastAPI boundary | Typed API, CORS allowlist enforcement, rate/bound checks, job status | Backend services | F-001–F-005 |
 | Intake sandbox | Sample lookup or read-only public HTTPS snapshot fetch; path/archive validation; immediate source cleanup | Public host, transient disk | F-005, INV-003 |
-| MCP client adapter | Placeholder connection states and repository selector in current client; later connects to local MCP host for private/local repository discovery | Local MCP host [future], provider mediated by MCP | F-102, INV-003 |
 | Deterministic analyzer | Tree-sitter parse, symbol table, import/call resolution, source spans, content hashes | Supported grammar | F-001, INV-001 |
 | Evidence/concept service | Immutable graph queries; versioned categorical concept rules; evidence packets | Analyzer output | F-001–F-004 |
 | Minimal reasoning workflow | Structured narrative, three questions, claim feedback; citation validation | GPT-5.6, evidence packet | F-002, F-004 |
@@ -56,14 +50,15 @@ The browser calls the FastAPI backend directly over HTTPS — there is no BFF/pr
 
 The code evidence graph and learner-state graph are logically separate. A gap is a derived join requiring references into both. GPT-5.6 output cannot write `Symbol`, `EvidenceEdge`, or `ConceptEvidence` records.
 
+> **Implementation status:** the deployed client shell does not yet issue a request to the Space. Its desktop dashboard labels graph/tree content as placeholders; its mobile dashboard contains illustrative static content that is not derived from the selected URL. The API flow below is the target integration contract, not current client behavior.
+
 ## Data flow
-### DF-000 — Repository connection shell
+### DF-000 — Public repository connection shell
 1. The landing page exposes **Add Repository Link** actions from navigation and CTA areas. All actions open the same modal host; the form is not rendered inline in the page.
 2. Public repositories use a client-side URL validator for `https://github.com/{owner}/{repo}` before enabling the submit action.
 3. Valid public submissions set centralized client repository state and navigate to `/dashboard`. Backend analysis still uses the existing `/v1/analyses` public snapshot contract once wired.
-4. The secondary MCP option closes the public URL form before opening the MCP connection dialog. The dialog shows Waiting, Connecting, Connected, or Failed states.
-5. Current MCP behavior is a placeholder adapter with sample repositories for backend developers. Final behavior delegates GitHub authentication and private/local repository listing to the local MCP host; the frontend never stores GitHub tokens or calls GitHub directly for private discovery.
-6. Public and MCP-selected repositories land in the same dashboard shell, which displays repository source/status and placeholder workspace sections until live evidence data is connected.
+4. The modal does not present MCP, private repository, local workspace, OAuth, token-entry, repository-selector, or reconnect states.
+5. The current public-URL selection lands in the dashboard preview, which displays repository source/status and placeholder workspace sections. Once wired, bundled samples and analyzed public repositories will use that same shell.
 
 ### DF-001 — Intake and deterministic graph
 1. Browser submits a sample ID or public HTTPS repository reference to `POST /v1/analyses` from a CORS-allowlisted origin. The backend creates an ephemeral session and returns its opaque `sessionId` with the immutable `snapshotId`.
@@ -107,7 +102,6 @@ Research supports the deployment and scope rather than the product novelty. Dock
 | Integration | Protocol/auth | Sent | Failure behavior |
 |---|---|---|---|
 | Browser → Space (FastAPI) | HTTPS; CORS-allowlisted origin, ephemeral session held client-side [assumption] | IDs, bounded input, response | Typed 4xx/5xx; retry only idempotent reads |
-| Browser → local MCP host | Placeholder in current client; future local MCP protocol | Connection state and repository list; no provider tokens in frontend | Waiting/connecting/connected/failed UI; fallback to public URL path |
 | Space → public repo host | Anonymous HTTPS GET from allowlist [assumption] | URL/revision only | Reject redirect/private IP/bounds; no credentials |
 | Space → GPT-5.6 | HTTPS API key in Space secret store | Bounded evidence packet and learner answer | One validated retry; deterministic-only degradation |
 
@@ -118,10 +112,11 @@ Cloudflare Workers serves static/client code only — no serverless proxy routes
 MVP targets judge/demo traffic, not multi-tenancy. Bound work before allocating parser/model resources; cap concurrent jobs; cache only the bundled sample and optionally deterministic graphs keyed by public URL + full commit SHA + analyzer version [assumption]. Scale the Cloudflare Worker independently; move Space jobs to a queue/external object store only after measured contention. Unspecified and therefore not promises: availability SLO, peak concurrency, latency target, model budget, regional residency, and recovery time.
 
 ## Future design — recommendation, not current scope
-The current client includes an MCP-shaped onboarding placeholder, but it is not yet an authoritative repository-access backend. After F-001–F-005 work and repeated-use evidence exists, evaluate ADR-0002: local read-only sidecar/CLI as deterministic indexer and MCP server, optional editor launcher, and MCP App for interactive graph/teach-back. Hosted reasoning would receive selected evidence packets, not repositories. This enables F-101–F-104 and longitudinal comprehension deltas. It does not authorize implementation now, does not build a new IDE, and does not make MCP the innovation.
+The current client no longer includes an MCP-shaped onboarding placeholder. After F-001–F-005 work and repeated-use evidence exists, ADR-0002 may be revisited as a fresh post-build decision for local/private repository access. That would require security review, tests, and explicit scope approval; it does not authorize implementation now and does not make MCP the innovation.
 
 ## Trade-offs considered
 - **Accepted now:** deployment friction in exchange for preserving the working baseline (ADR-0001).
 - **Accepted now:** narrow JS/JSX/TS/TSX support and omission over broad low-precision edges.
 - **Accepted now:** session loss over premature durable identity/storage.
-- **Deferred:** real local-first/MCP installation, authentication, repository indexing, and MCP App complexity until after the proof-of-comprehension loop is validated (ADR-0002). The client-only placeholder is allowed as product scaffolding, not as a claim of private-repository support.
+- **Cut now:** MCP/private/local repository connection is removed from the active client and current user flow. Any local-first or in-workflow architecture remains a post-build decision after the proof-of-comprehension loop is validated.
+

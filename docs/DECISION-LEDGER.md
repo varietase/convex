@@ -27,9 +27,24 @@
 | The product is read-only on user code. | Deployment will remain accessible through Global judging as required by context. | Private repository intake, authentication, persistence, and multi-user behavior are part of MVP. |
 | Current implementation baseline is two repositories: a Cloudflare Workers-hosted client and a Hugging Face Docker Space backend using FastAPI, LangChain, and LangGraph. | The direct browser-to-Space contract integration remains to be verified. | A single-repository, local-only, desktop, IDE-native, or other architecture is current. |
 | The backend implements the full F-001–F-005 surface: deterministic Tree-sitter analysis, a three-anchor evidence graph, grounded GPT-5.6 explain/question/evaluate pipelines, deterministic EQ-005 gap derivation, and fail-closed public-repo intake; 300+ local tests pass with no network access in tests. | End-to-end verification on a deployed Hugging Face Space (keyed model run + production smoke ×3) remains open; the root `model` pin (`80390bb`) must move to `origin/main` (`d06dc29`) to serve the wired graph. | That local tests pass proves the deployed Space is healthy before a keyed production smoke. |
-| MVP is F-001 through F-005; Final is F-101 through F-104. | The client worktree now includes a final-product repository connection shell: public GitHub URL path, MCP placeholder path, shared `/dashboard`, and no frontend GitHub OAuth/token storage. | Unsupported structural relations can safely be inferred by a model. |
+| MVP is F-001 through F-005; Final is F-101 through F-104. | The client worktree has a public-GitHub-URL-only shell: shared modal, in-memory `/dashboard` preview, and no frontend OAuth/token storage. A bundled sample remains backend/demo scope, not a current client control; MCP/private/local repository connection is cut. | Unsupported structural relations can safely be inferred by a model. |
 
 ## 3. Pivots & decisions (newest first)
+### 2026-07-22 — Reconcile documentation to the implemented client shell
+- **Type:** observed implementation state + documentation reconciliation
+- **Change:** Recorded the active client as a public GitHub URL modal that stores a validated selection in memory and routes to `/dashboard`; it has no bundled-sample control and makes no `/v1` backend request. Desktop dashboard panels identify placeholders. The mobile dashboard contains static illustrative repository/evidence/teach-back content that is not derived from the selected URL.
+- **Why:** Current-state documentation must not represent the shell as a live evidence loop or its illustrative content as deterministic repository evidence.
+- **Kept:** The F-001–F-005 target contract, direct browser-to-Space architecture once wired, public-only/zero-token client boundary, and INV-001/002/003.
+- **Recorded as:** CR-006; README; PRD current baseline; system and technical design; design system; QA plan; ops; visual direction; implementation plan; onboarding; index.
+
+### 2026-07-21 — Cut MCP repository connection from current build
+- **Type:** scope cut + product-flow reconciliation
+- **Change:** Removed the MCP/private/local repository connection path from the active system. Product scope is public repository or bundled sample; the active client shell accepts a public GitHub URL and then opens `/dashboard`.
+- **Why:** The team has no remaining time to implement, secure, test, and honestly demo MCP before the hackathon deadline.
+- **Invalidated:** CR-004's current-product hybrid onboarding, MCP placeholder UI, repository selector, reconnect/status states, and any user flow that presents private/local repository access as available in the current build.
+- **Kept:** The core F-001–F-005 proof-of-comprehension loop, the public GitHub URL validator, centralized repository state, `/dashboard`, and INV-001/002/003.
+- **Recorded as:** PRD UF-000/BR-011/BR-012/AC-017; system design DF-000/current client shell; technical design A-000; QA TC-012; design-system repository modal; CR-005; `remove-mcp-user-flow-prompt.md`.
+
 ### 2026-07-21 — Hybrid repository connection shell for final-product UX
 - **Type:** product-surface + architecture placeholder
 - **Change:** The client experience now presents repository onboarding as two paths: primary **Add Repository Link** for public GitHub repositories and secondary **Connect with MCP** for private/local repositories. All landing/nav Add Repository Link actions open one shared modal; the form is not left inline on the landing page. The MCP path closes the public form before showing Waiting/Connecting/Connected/Failed placeholder UI and a searchable repository selector. Both public and MCP selections route to the same `/dashboard` shell.
@@ -131,7 +146,7 @@
 
 ### Final
 - **F-101 — Comprehension-delta ledger**
-- **F-102 — In-workflow MCP App / extension surface**
+- **F-102 — In-workflow/private repository surface**
 - **F-103 — Cross-repository learner graph**
 - **F-104 — Agent teaching contract**
 
@@ -146,3 +161,4 @@
 - `brand.md` — positioning, voice, copy constraints, visual direction, and accessibility baseline.
 - `docs/prd.md` — current product requirements and EARS acceptance criteria.
 - `fmd/templates/decision-ledger.md` — artifact structure.
+

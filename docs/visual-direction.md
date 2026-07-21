@@ -17,7 +17,7 @@ The visual system is inspired by the supplied reference image at the level of pr
 ## Composition
 - Use large, quiet surfaces with visible breathing room around the graph, source, and learning rails.
 - Keep the primary product loop visible: intake, focus, trace, teach back, and gap review.
-- Use large hero-like empty and intro states only when they accelerate the first action. Do not create a marketing landing page before the working experience.
+- The current client includes a marketing landing page. Keep it focused on the first action—adding a public GitHub link—and do not let it imply that static preview content is a completed live analysis.
 - Prefer editorial hierarchy: one dominant heading, one supporting sentence, then clear controls.
 - Keep dense technical areas scan-friendly with aligned columns, stable rails, and predictable spacing.
 

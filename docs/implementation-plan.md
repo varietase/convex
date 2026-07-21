@@ -21,7 +21,7 @@
 
 ## 1. Planning inputs (refresh when context changes)
 
-- **Current code state:** backend is feature-complete for F-001–F-005 (300+ local tests per the Decision Ledger — **PROVISIONAL** until verified on a deployed Space); client is live on Cloudflare Workers but the deployed loop is still treated as static/illustrative until live backend verification. The local client worktree now includes the final-product repository connection shell (shared public GitHub URL modal, MCP placeholder path, centralized repository state, and `/dashboard`) documented in CR-004; real MCP host support remains future work. The `model` submodule is pinned at `80390bb` and needs re-pinning to `d06dc29`. *(read-only verified 2026-07-20 via `git submodule status` + root branch state; client shell verified locally 2026-07-21 by client typecheck/build per CR-004; both `client` and `model` carry pre-existing local modifications.)*
+- **Current code state:** backend is feature-complete for F-001–F-005 (300+ local tests per the Decision Ledger — **PROVISIONAL** until verified on a deployed Space); client is live on Cloudflare Workers but the deployed loop is still treated as static/illustrative until live backend verification. The local client worktree uses a public-GitHub-URL-only repository shell (shared modal, centralized in-memory state, and `/dashboard` preview); it has no sample action or `/v1` client yet, and the mobile preview contains illustrative static content. The MCP path has been removed from the active build. The `model` submodule is pinned at `80390bb` and needs re-pinning to `d06dc29`. *(read-only verified 2026-07-20 via `git submodule status` + root branch state; client shell inspected 2026-07-22; both `client` and `model` carry pre-existing local modifications.)*
 - **Team capacity:** Abu (product/pitch/**plan steward**) · Joshua (backend lead — **out Jul 21–22**) · Geinel (senior dev; **covers Joshua's backend/integration Jul 21–22**) · Farhana (devops/AI-ML; owns the credential unblock) · Jim (client integration + devops) · Helena (UI/UX) · Dia (UI/UX + a11y).
 - **Core demo journey:** UF-004 / UJ-005 — sample → evidence-backed graph → cited evidence → three teach-back answers → supported/missing/unsupported feedback → gap-map update → back to source.
 - **Highest implementation risks:** the external credential blocker (OpenAI GPT-5.6 key + Hugging Face access) gates deploy → integration → loop; Space session loss on restart; keyboard/text-equivalent a11y in the build window.
@@ -58,7 +58,7 @@ one executable gate. The demo-critical path comes before polish; optional work i
 | TASK-011 | Demo script + shot-list for the sub-3-min video; docs | — | Abu | docs/pitch-kit.md | — | ready | `git diff --stat docs/pitch-kit.md` |
 | TASK-012 | Final <3-min video + README/Codex write-up + Devpost submit; docs | TASK-009 | Abu | README.md, docs/pitch-kit.md | — | blocked | `git diff --stat README.md docs/pitch-kit.md` |
 | TASK-013 | Comprehension-delta ledger; F-101 | — | Abu (steward, unassigned) | none/f-101-deferred | — | cut | `grep -c "F-101" docs/prd.md` |
-| TASK-014 | In-workflow MCP App / extension surface; F-102 | — | Abu (steward, unassigned) | none/f-102-deferred | — | cut | `grep -c "F-102" docs/prd.md` |
+| TASK-014 | In-workflow/private repository surface; F-102 | — | Abu (steward, unassigned) | none/f-102-cut | — | cut | `grep -c "F-102" docs/prd.md` |
 | TASK-015 | Cross-repository learner graph; F-103 | — | Abu (steward, unassigned) | none/f-103-deferred | — | cut | `grep -c "F-103" docs/prd.md` |
 | TASK-016 | Agent teaching contract; F-104 | — | Abu (steward, unassigned) | none/f-104-deferred | — | cut | `grep -c "F-104" docs/prd.md` |
 
@@ -110,9 +110,9 @@ _None verified._ The backend being feature-complete for F-001–F-005 is recorde
 | ID | Outcome | F-ID | Why cut |
 |----|---------|------|---------|
 | TASK-013 | Comprehension-delta ledger | F-101 | Final-tier feature. BR-009: "Final features F-101 through F-104 SHALL NOT displace completion of the F-001–F-005 end-to-end demo loop." That loop is not yet live end to end. |
-| TASK-014 | In-workflow MCP App / extension surface | F-102 | Same as above; ADR-0002 marks the live MCP App/host implementation as future work. The current client MCP path is only a placeholder shell recorded in CR-004. |
+| TASK-014 | In-workflow/private repository surface | F-102 | Same as above; CR-005 removes the client MCP placeholder from the active build. Any private/local path requires a fresh post-build decision. |
 | TASK-015 | Cross-repository learner graph | F-103 | Same as above; MVP sessions are ephemeral/session-scoped by design (no cross-repo learner state). |
-| TASK-016 | Agent teaching contract | F-104 | Same as above; no MCP tool surface exists in the current two-repository architecture. |
+| TASK-016 | Agent teaching contract | F-104 | Same as above; no agent tool surface exists in the current two-repository architecture. |
 
 These are recorded as `cut`, not omitted, so F-101–F-104 stay traceable and are not silently forgotten — and so no one accidentally starts them before the MVP loop (TASK-001→TASK-012) is proven end to end, per the Decision Ledger: "Do not start F-101 through F-104 until the complete F-001 through F-005 loop works." Revisit only after `TASK-009` (full loop verified) is `done`.
 
@@ -250,4 +250,5 @@ Three builder roles per `master-plan-implementation.md` §9, mapped onto the tea
 At the 3:50 hard MVP gate, a coherent demo exists: pre-indexed sample → grounded edge → teach-back → updated gap. Cut public-repo intake breadth, decorative polish, non-essential animations, extra concepts, and all F-101–104 before cutting this loop.
 
 ### Global polish (post-hackathon)
-Add one safe public fixture, observability/rollback, README/install/test path, <3-minute video, citation/error polish, Devpost copy, and deployment availability. Do not implement MCP App/local sidecar until after submission; ADR-0002 remains proposed.
+Add one safe public fixture, observability/rollback, README/install/test path, <3-minute video, citation/error polish, Devpost copy, and deployment availability. Do not implement private/local repository access or an in-workflow surface until after submission; ADR-0002 remains historical/proposed context.
+

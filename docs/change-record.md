@@ -44,4 +44,27 @@
 - **Docs affected:** `README.md`, `AGENTS.md`, `docs/prd.md`, `docs/system-design.md`, `docs/technical-design.md`, `docs/qa-test-plan.md`, `docs/security-compliance.md`, `docs/design-system.md`, `docs/onboarding.md`, `docs/index.md`, `docs/implementation-plan.md`, `docs/DECISION-LEDGER.md`, this change record.
 - **Validation required:** `git diff --check` clean; implementation-plan checker unavailable in this checkout; client verification lives in the client worktree (`npx tsc --noEmit --incremental false`, `npm run build`).
 
-Future changes append CR-005+. Never rewrite this record; supersede it.
+## CR-005 — MCP repository connection removed from current build
+- **Status:** Applied
+- **Date:** 2026-07-21
+- **Owner:** Helena / Codex
+- **Change:** Removed the MCP/private/local repository connection path from the active client and reconciled the user flow to public GitHub repository links plus the bundled sample. Added `docs/remove-mcp-user-flow-prompt.md` as the implementation prompt for the scope cut.
+- **Reason:** There is no remaining time to implement, secure, test, and honestly demo MCP for the hackathon build.
+- **Architecture:** Current architecture remains Cloudflare Workers client + Hugging Face Docker Space direct API. Private/local repository access is no longer represented in the current product flow; any future local/private access requires a fresh decision, security review, and tests.
+- **Invariants touched:** INV-001 kept; INV-002 kept; INV-003 kept. Removing MCP further narrows credential and write-authority surface.
+- **Docs affected:** `docs/remove-mcp-user-flow-prompt.md`, `docs/prd.md`, `docs/system-design.md`, `docs/technical-design.md`, `docs/qa-test-plan.md`, `docs/design-system.md`, `docs/DECISION-LEDGER.md`, this change record, and client files under `client/`.
+- **Validation required:** `rg` for client MCP references clean; `cd client && npm run typecheck`; `cd client && npm run build`.
+
+## CR-006 — Current client-shell documentation reconciliation
+- **Status:** Applied
+- **Date:** 2026-07-22
+- **Owner:** Codex
+- **Change:** Aligned client-related documentation with the implemented Next.js shell: public GitHub URL validation, shared modal, in-memory repository state, `/dashboard` preview, and repository switching. Recorded that the shell has no bundled-sample action or `/v1` API client, that desktop dashboard content is placeholder-only, and that the mobile dashboard’s hard-coded examples are illustrative rather than selected-repository evidence.
+- **Reason:** The docs must preserve the invariant boundary and distinguish implementation state from the planned F-001–F-005 live loop.
+- **Architecture:** The intended two-repository, direct browser-to-Space contract is unchanged; its frontend integration remains pending `TASK-005`.
+- **Invariants touched:** INV-001 kept; INV-002 kept; INV-003 kept. Static preview content cannot be represented as validated graph evidence, learner feedback, or a repository analysis result.
+- **Docs affected:** `README.md`, `AGENTS.md`, `architecture-research.md`, `docs/DECISION-LEDGER.md`, `docs/design-system.md`, `docs/index.md`, `docs/implementation-plan.md`, `docs/onboarding.md`, `docs/ops.md`, `docs/prd.md`, `docs/qa-test-plan.md`, `docs/system-design.md`, `docs/technical-design.md`, `docs/visual-direction.md`, this change record.
+- **Validation performed:** `rg` consistency scan and `git diff --check`; pre-existing trailing-blank-line warnings remain in the shared dirty worktree.
+
+Future changes append CR-007+. Never rewrite this record; supersede it.
+

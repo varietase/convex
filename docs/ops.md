@@ -15,7 +15,7 @@
 
 ### Frontend second
 1. Run type, unit, contract, accessibility, and build checks.
-2. Set Cloudflare Workers environment variables by name (including the backend origin the client calls directly).
+2. When the API client is wired, set the Cloudflare Workers environment variables by name (including the backend origin the browser will call directly). The current static client shell does not read a backend-origin variable.
 3. Deploy preview; run full sample loop against production-like backend.
 4. Promote to production and run the same smoke test.
 

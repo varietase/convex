@@ -1,7 +1,7 @@
 # Design System / UX Spec — convex
 
 > **Purpose:** Implementation contract for the judged F-001–F-005 experience. It translates the PRD flows and INV-001–INV-003 into components, tokens, interactions, responsive layouts, accessibility behavior, and a fixed demo path.
-> **Current boundary:** Client framework and graph-rendering library are not selected in supplied sources **[assumption]**. The behavior and CSS tokens below are library-independent and binding.
+> **Current boundary:** The implemented client uses Next.js App Router, React, TypeScript, Tailwind CSS, and custom CSS tokens in `client/app/globals.css`; the graph-rendering library is not selected. This document is the binding target contract, so components beyond the public-URL intake and dashboard preview remain planned until their owning implementation tasks land.
 
 ## Design principles
 1. **Evidence is the interface.** A connection is not complete until its exact `file:line` proof can be opened. Prose is secondary.
@@ -22,12 +22,11 @@ The primary loop is `Connect repository → Dashboard → Focus → Trace → Te
 | Component | Purpose and required variants | States / semantics | Data contract |
 |---|---|---|---|
 | `AppShell` | Global landmarks and responsive pane orchestration | `<header>`, `<nav>`, `<main>`, complementary learning region | Session status |
-| `DashboardShell` | Primary post-repository workspace with repository status, sidebar sections, placeholder panels, and switch repository action | public source, MCP source, disconnected/reconnect warning | selected repository + connection state |
+| `DashboardShell` | Current post-repository preview with source/status, sidebar or mobile tabs, placeholder panels, and switch-repository action; target primary workspace when data is wired | public source, no repository selected | selected repository |
 | `AppHeader` | Product name, sample/read-only status, session actions | Sticky; status uses icon + text; delete is explicit | session, snapshot |
 | `ReadOnlyBadge` | Communicates INV-003 before intake and during exploration | Lock icon + “Read-only analysis”; never color-only | source kind |
-| `RepositoryConnectionModal` | Shared landing/nav modal for repository connection | closed, public-form, mcp-connection, mcp-selector; focus trap/return | repository state |
-| `PublicRepositoryForm` | Add public GitHub repository link | empty, invalid URL, invalid GitHub format, valid, submitting, disabled | `https://github.com/{owner}/{repo}` parser |
-| `McpConnectionDialog` | Placeholder/future local MCP host connection for private/local repositories | Waiting, Connecting, Connected, Failed; public form is closed before this opens | MCP status, GitHub auth status, repository list |
+| `RepositoryConnectionModal` | Shared landing/nav modal for public repository connection | closed, public-form; focus trap/return | repository state |
+| `PublicRepositoryForm` | Add public GitHub repository link | empty, invalid URL, invalid GitHub format, valid, disabled; current valid state stores selection and routes without backend submission | `https://github.com/{owner}/{repo}` parser |
 | `RepoIntake` | Backend analysis intake for bundled sample or bounded public immutable snapshot | idle, validating, rejected, submitting, disabled | `POST /v1/analyses` input/errors |
 | `SampleBadge` | Prevent fallback/sample deception | Persistent “Pre-indexed sample · {version}” | sample version |
 | `AnalysisStepper` | Named waiting state while the synchronous `POST /v1/analyses` call is in flight; no percentage or fake ETA | pending, ready, failed; `aria-live=polite` | `POST /v1/analyses` response |
@@ -55,6 +54,8 @@ The primary loop is `Connect repository → Dashboard → Focus → Trace → Te
 | `StatePanel` | Reusable empty, error, expired, degraded, unsupported UI | heading, plain reason, one primary recovery action | canonical API error |
 | `ToastRegion` | Non-blocking confirmations only | `role=status`; never carries required evidence/errors alone | transient UI event |
 | `SkipLinks` | Jump to repository, focus, text path, learning rail | First tabbable controls | static |
+
+The current responsive dashboard is a preview rather than an evidence workspace. Desktop graph/tree content uses explicit placeholder copy; the mobile dashboard currently uses illustrative static files, paths, source lines, and teach-back content. Do not present those mobile examples as verified repository evidence, feedback, or learner state until the API-backed components replace them.
 
 ## CSS token contract
 Use these custom properties directly; do not substitute framework defaults without updating this document and visual/contrast tests. Tokens follow a three-layer model: primitive raw values, semantic purpose aliases, and component tokens. Dark mode is the default product theme.
@@ -206,10 +207,9 @@ Use editorial display type for large headings only; do not use it for dense cont
 ### Component styling
 - `AppShell`: near-black canvas, thin structural dividers, stable left/center/right layout, no decorative page gradients.
 - `AppHeader`: compact dark bar with product name, read-only/sample state, and subdued actions. Use coral only for primary action or active focus.
-- `RepositoryConnectionModal`: dark overlay, rounded panel, public GitHub URL form as the primary action, and a secondary MCP section for private/local access. The modal is opened by landing/nav CTAs; do not leave the full form inline in the page.
+- `RepositoryConnectionModal`: dark overlay, rounded panel, and public GitHub URL form as the only repository connection action. The modal is opened by landing/nav CTAs; do not leave the full form inline in the page.
 - `PublicRepositoryForm`: use the placeholder `https://github.com/owner/repository`, disable submit until valid, and show errors for empty input, invalid URL, and invalid GitHub format.
-- `McpConnectionDialog`: show clear Waiting/Connecting/Connected/Failed status pills and a backend-developer placeholder note until a real MCP host contract exists. Do not show GitHub OAuth or token fields.
-- `DashboardShell`: use the same dark/coral language as the landing page. Switching a public repository may reopen the public form or MCP flow; switching an MCP repository reopens the repository selector.
+- `DashboardShell`: use the same dark/coral language as the landing page. Switching a repository reopens the public repository form.
 - `RepoIntake`: backend analysis intake may use a large editorial empty state with one primary action and one secondary option. Keep the working intake visible; do not turn it into a marketing hero.
 - `RepositoryRail` and `LearningRail`: outlined panels, transparent or surface-1 backgrounds, calm density, sticky headings, and clear selected states.
 - `FocusWorkspace`: largest visual area. Graph/source/path views sit on the canvas, with cards only for repeated or framed items.
@@ -280,7 +280,6 @@ Never encode edge type, selection, evidence, or feedback disposition by hue alon
 
 ### Repository connection and analysis
 - Public repository connection validates `https://github.com/{owner}/{repo}` in the modal before routing to `/dashboard`; this is not yet the backend analysis call.
-- MCP connection is currently a placeholder UI for backend developers: show Waiting/Connecting/Connected/Failed states, then a searchable repository selector. GitHub authentication copy must say it is handled by MCP; never ask for GitHub tokens in the frontend.
 - `POST /v1/analyses` is a single synchronous call bounded by the 20-second intake/analysis timeout; show a pending state only, never a multi-stage progress bar, percentage, or fake ETA.
 - Keep the intake summary visible while the request is in flight. Disable duplicate submission but keep session deletion available.
 - On timeout or failure, show the canonical error reason and a retry/sample-fallback action; do not silently retry.
@@ -296,7 +295,7 @@ Never encode edge type, selection, evidence, or feedback disposition by hue alon
 ### Empty, error, and degradation states
 | Condition | Required copy/action |
 |---|---|
-| No repository selected | “Add a public GitHub repository link, or connect with MCP for private/local repositories.” / `Add Repository Link` |
+| No repository selected | “Add a public GitHub repository link, or continue with the sample.” / `Add Repository Link` |
 | No analysis intake | “Choose the sample or a supported public repository snapshot.” / `Load sample` |
 | Unsupported/oversize | State the canonical reason and bounds **[assumption until runtime values are confirmed]** / `Load sample` |
 | No exact relation | “Not enough evidence to connect these symbols.” / `View available evidence` |
@@ -304,3 +303,4 @@ Never encode edge type, selection, evidence, or feedback disposition by hue alon
 | Session expired | “This temporary session expired. Start a new analysis.” / `Start again` |
 | Pre-indexed fallback | “Pre-indexed sample · not a live analysis” persists / `Continue with sample` |
 | Delete session | Confirmation names temporary graph, response, and gap data / `Delete session` |
+

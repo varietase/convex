@@ -11,7 +11,7 @@ This repository is the shared system-context and planning hub for the hackathon 
 - Build context: OpenAI Build Week, Manila build sprint plus Global submission
 - MVP scope: F-001 through F-005 only
 - Current architecture: Cloudflare Workers web client (live at `https://convex.varietase.workers.dev`) plus Hugging Face Docker Space backend
-- Client context: sibling [client README](../client/README.md); current client worktree includes the shared Add Repository Link modal, MCP placeholder connection/selector, centralized repository state, and `/dashboard` shell
+- Client context: sibling [client README](../client/README.md); the current worktree has a shared public GitHub **Add Repository Link** modal, centralized in-memory repository state, and a `/dashboard` preview shell. It has no MCP/private/local connection path and is not yet wired to the backend API.
 - Backend/model context: `model/` contains the Hugging Face FastAPI backend (`xray-backend`) — deterministic Tree-sitter analysis, evidence graph, grounded GPT-5.6 reasoning, and gap derivation, with a 300+ test suite (tracked as a submodule)
 - Source of truth: [docs/index.md](docs/index.md) §0 ownership map — see below
 
@@ -35,13 +35,13 @@ The MVP demo loop is:
 Intake -> Focus -> Trace evidence -> Teach back -> Review changed gap list
 ```
 
-The current final-product entry shell in the client starts earlier:
+The current client entry shell is public-repository-only:
 
 ```text
-Landing page -> Add Repository Link or Connect with MCP -> Dashboard
+Landing page -> Add Repository Link -> Dashboard preview
 ```
 
-`Add Repository Link` opens a shared modal for public GitHub URLs in the form `https://github.com/{owner}/{repo}`. `Connect with MCP` closes that public-link form and opens placeholder local-MCP connection states and repository selection for future private/local repository access. Both paths enter the same `/dashboard` shell; real MCP host authentication and private/local indexing remain future backend/MCP work.
+`Add Repository Link` opens one shared modal for a public GitHub URL in the form `https://github.com/{owner}/{repo}`. A valid URL is held only in centralized client state and routes to `/dashboard`; selecting it does not yet submit it for analysis. Private/local repository access, provider OAuth, token entry, repository selection, reconnect states, and MCP UI are absent from the current build. Desktop dashboard panels are labeled as placeholders while live evidence data is unwired; the mobile dashboard’s hard-coded illustrative content must not be read as evidence from the selected URL.
 
 A coherent demo means a user can load a known sample or bounded public repository snapshot, inspect a real symbol or edge with exact source evidence, answer three repo-specific questions, receive supported/missing/unsupported feedback with citations, and see a personalized gap list update.
 
@@ -74,7 +74,7 @@ Also forbidden: mastery percentages, "fully understands" claims, generic top-N c
 | ID | Feature | Status |
 |---|---|---|
 | F-101 | Comprehension-delta ledger | Deferred |
-| F-102 | MCP repository connection and in-workflow surface | Deferred; client placeholder shell exists |
+| F-102 | In-workflow/private repository surface | Cut from the current build; reconsider only after the MVP loop is verified |
 | F-103 | Cross-repository learner graph | Deferred |
 | F-104 | Agent teaching contract | Deferred |
 
@@ -85,7 +85,7 @@ Do not start F-101 through F-104 until the complete F-001 through F-005 loop wor
 | Path | Role | Notes |
 |---|---|---|
 | [convex/](.) | Context and planning repository | Shared source for product, architecture, API, data, design, QA, ops, pitch, and implementation docs. |
-| [../client/](../client/) | Current client workspace | Next.js App Router marketing/product surface for convex. Its README states the current product boundary and run commands. |
+| [../client/](../client/) | Current client workspace | Next.js App Router marketing/product surface for convex. Its README has local run/verification commands; the current implementation state is recorded below and in the technical design. |
 | [model/](model/) | Backend workspace (submodule) | Hugging Face Docker Space / FastAPI `xray-backend`: deterministic analysis, evidence graph, grounded reasoning, gap derivation, and a 300+ test suite. See `model/DEPLOY.md` for the Space runbook. |
 | [docs/](docs/) | Formal documentation suite | Canonical planning docs. Start with `docs/index.md` and the Decision Ledger. |
 | [docs/adr/](docs/adr/) | Architecture decisions | ADR-0001 is current; ADR-0002 is a future recommendation only. |
@@ -114,12 +114,12 @@ Hugging Face Docker Space (`xray-backend`), port 7860
 
 There is no BFF/proxy layer in the current design. The browser calls the FastAPI backend directly. The access-control boundary is a FastAPI CORS allowlist for the deployed Cloudflare origin and local development origins. The allowlist must never be `*`.
 
-The backend owns intake validation, parsing, deterministic graph construction, evidence slicing, concept rules, model-output validation, learner evidence, gap derivation, TTL cleanup, and sample fallback. The frontend owns intake UX, the repository connection shell, dashboard routing, semantic zoom, graph/source/path views, teach-back UX, gap review, evidence drawers, accessibility behavior, and visible provenance. The frontend must not perform GitHub OAuth, store provider tokens, or call GitHub directly for private repository discovery; that future path belongs to the local MCP host.
+The backend owns intake validation, parsing, deterministic graph construction, evidence slicing, concept rules, model-output validation, learner evidence, gap derivation, TTL cleanup, and sample fallback. The current frontend owns marketing, public-URL validation, repository-shell state, dashboard routing, and static preview surfaces. The future wired frontend will add semantic zoom, graph/source/path views, teach-back UX, gap review, evidence drawers, accessibility behavior, and visible provenance. The frontend must not perform GitHub OAuth, store provider tokens, or add private/local repository discovery without a new reviewed decision.
 
 ## Data Flow
 
-1. The user enters through the repository shell: a public GitHub URL in the shared Add Repository Link modal, or the placeholder MCP path for future private/local repository selection.
-2. For the current backend evidence loop, the user selects the bundled sample or submits a supported public repository snapshot.
+1. The user enters through the repository shell and supplies a public GitHub URL in the shared Add Repository Link modal; the current client then stores the selection in memory and opens `/dashboard`.
+2. In the planned backend evidence loop, the user selects the bundled sample or submits a supported public repository snapshot.
 3. The backend validates source, host, revision, archive paths, symlinks, file counts, byte limits, and time bounds before parsing.
 4. The analyzer parses JS/JSX/TS/TSX files and emits only exact symbols and structural relationships with file/line evidence.
 5. Unsupported or ambiguous references become unresolved references, not speculative edges.
@@ -214,9 +214,9 @@ gap_score = 0.70 * learner_gap + 0.30 * repository_relevance
 
 ## Client Context
 
-The current client context lives in [../client/README.md](../client/README.md).
+For client local run and verification commands, see [../client/README.md](../client/README.md).
 
-It describes a Next.js App Router surface for convex, derived from the planning docs in this repository. The current surface includes hybrid repository onboarding, a shared Add Repository Link modal, MCP placeholder states, and a `/dashboard` shell. It explicitly avoids code-generation, repository-editing, pull-request, commit, IDE, browser GitHub OAuth, provider-token storage, and autonomous-agent claims.
+The current Next.js App Router surface includes a shared public GitHub Add Repository Link modal, centralized in-memory repository state, a responsive `/dashboard` preview, and no live backend calls. It explicitly avoids code-generation, repository-editing, pull-request, commit, IDE, browser GitHub OAuth, provider-token storage, private/local repository access, MCP UI, and autonomous-agent claims.
 
 Client commands:
 
@@ -323,7 +323,7 @@ Important runtime configuration:
 
 | Name | Runtime | Purpose |
 |---|---|---|
-| `XRAY_BACKEND_BASE_URL` | Cloudflare | Space origin the browser calls directly |
+| `XRAY_BACKEND_BASE_URL` | Cloudflare | Planned Space origin for the browser's direct calls; not read by the current client shell |
 | `XRAY_CORS_ORIGINS` | Space | CORS allowlist |
 | `OPENAI_API_KEY` | Space | GPT-5.6 calls |
 | `XRAY_MODEL_ID` | Space | Pinned GPT-5.6 identifier |

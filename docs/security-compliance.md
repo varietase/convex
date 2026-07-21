@@ -1,6 +1,6 @@
 # Security & Compliance / Threat Model — convex
 
-> **Scope:** Public hackathon deployment with bounded public repositories, ephemeral learner responses, no source-code writes, and a final-product client shell for public-link plus MCP-placeholder repository connection.
+> **Scope:** Public hackathon deployment with bundled/public repositories, ephemeral learner responses, no source-code writes, and a public-link client repository connection shell. MCP/private/local repository connection is removed from the current build.
 
 ## Data classification
 | Data | Class | Location | Rule |
@@ -8,18 +8,16 @@
 | Bundled sample and public snapshot full content | Public, user-selected | Space transient workspace | Delete after parsing; do not log source |
 | Bounded cited source excerpts | Public-derived / session-confidential | Space ephemeral store | Minimum necessary lines; 24h TTL [assumption] |
 | Evidence graph and file paths | Public-derived / session-confidential | Space ephemeral store; direct HTTPS in transit | Session-local authorization; 24h TTL [assumption] |
-| MCP repository list placeholder | Demo/internal placeholder | Browser memory in centralized client state | No provider token; replace with local MCP host contract before private-repo support |
 | Teach-back response and learner state | User content / potentially personal | Browser session state (session-local, client-held) | Never persisted server-side beyond the active session |
 | Backend/model credentials | Secret | HF Space secret store | Never expose to browser or logs |
 | Sanitized operational metadata | Internal | platform logs | No source, prompt, answer, token, or credential bodies |
 
-MVP backend does not solicit names, email, accounts, private repositories, or repository credentials. The current frontend may show an MCP connection placeholder for private/local repository access, but it does not authenticate with GitHub or access private code. Public code may still contain accidentally committed secrets; convex treats all source as sensitive in handling and never includes unrelated source in model evidence packets.
+MVP backend does not solicit names, email, accounts, private repositories, or repository credentials. The current frontend does not show private/local repository access, GitHub OAuth, or provider-token entry. Public code may still contain accidentally committed secrets; convex treats all source as sensitive in handling and never includes unrelated source in model evidence packets.
 
 ## Authn / authz model
 - **Browser → Space:** the browser calls the FastAPI backend directly over HTTPS. The sole browser-origin boundary is an explicit CORS allowlist (the deployed Cloudflare origin plus local development origins), never a wildcard; non-health requests without an origin and requests with a disallowed origin fail before body handling. Originless `GET /health` is permitted solely for platform probes. There is no session cookie, CSRF token, or bearer credential.
 - **Authorization:** `POST /v1/analyses` creates an opaque UUIDv4 `sessionId`; the browser holds and resubmits it with `snapshotId` for all later operations. The backend has no durable per-user identity, admin route, or cross-session endpoint; scope mismatches return 404 without existence disclosure.
-- **Repository authority:** backend MVP authority is only anonymous read of allowlisted public HTTPS hosts or bundled sample IDs; no OAuth, SSH keys, write token, git push, or provider mutation API (INV-003). The client MCP shell is placeholder-only until the local MCP host contract exists.
-- **Future MCP authority:** private/local repository discovery SHALL be mediated by the local MCP host. The frontend SHALL NOT perform GitHub OAuth, store provider tokens, or call GitHub directly for private repository discovery.
+- **Repository authority:** backend MVP authority is only anonymous read of allowlisted public HTTPS hosts or bundled sample IDs; no OAuth, SSH keys, write token, git push, or provider mutation API (INV-003). There is no client private/local repository connector in the current build.
 - Exact CORS allowlist entries are an implementation detail pending scaffold validation.
 
 
@@ -38,7 +36,7 @@ MVP backend does not solicit names, email, accounts, private repositories, or re
 | T-010 | Denial of service | Large/decompression-bomb repo exhausts Space | Streaming byte/file/line/time caps, no nested archives, concurrency and rate limits, cleanup | BR-006 |
 | T-011 | Denial of service | Model or Space cold start breaks demo | Explicit progress/timeouts, one retry, circuit response, versioned pre-indexed sample | BR-009–010 |
 | T-012 | Elevation | Client changes session/resource IDs or internal fields | FastAPI schema validation; backend reconstructs evidence packets from server-side state, not client-asserted fields | INV-001–003 |
-| T-013 | Elevation | MCP placeholder or future MCP caller gains write/tool access | Current placeholder exposes no host tools; future threat review; sidecar tools read-only and no shell/editor mutation authority | INV-003 |
+| T-013 | Elevation | Future private/local connector gains write/tool access | No current private/local connector; any future connector requires threat review and no shell/editor mutation authority | INV-003 |
 | T-014 | Tampering | Parser ambiguity teaches a false path | Deep single-family support, exact-only edges, fixture precision gate, omit ambiguity | INV-001 |
 
 ## Abuse & safety-specific risks
@@ -62,7 +60,7 @@ MVP backend does not solicit names, email, accounts, private repositories, or re
 - Store the model provider key (`OPENAI_API_KEY`) in Hugging Face Space runtime secrets only. The Cloudflare Workers client holds no backend credential — there is nothing to relay.
 - Never prefix server-only secrets for client exposure, return them from health APIs, copy them into logs, or include values in docs.
 - Use separate preview/production values [assumption]. Rotate on suspected exposure; revoke old value.
-- Repository intake receives no provider token in MVP. Any browser code path requesting GitHub write/private-repo OAuth, storing provider tokens, or bypassing the local MCP host fails security review.
+- Repository intake receives no provider token in MVP. Any browser code path requesting GitHub write/private-repo OAuth, storing provider tokens, or presenting private/local repository discovery fails security review.
 
 ## Audit & logging
 Log: request ID, hashed ephemeral session ID, route, status, duration bucket, analyzer/rule/schema version, model request ID, error code, rate-limit event, deletion completion, and invariant violation. Do not log source text, full repository URL/query, file contents, learner response, model prompt/output body, auth headers, API keys, or evidence packet. Retain sanitized logs 7 days [assumption] and anonymous counters 30 days [assumption]. Audit derivations live only with the 24-hour session.
@@ -85,3 +83,4 @@ Log: request ID, hashed ephemeral session ID, route, status, duration bucket, an
 - [ ] Logs inspected under success/error paths contain no source, response, prompt, or secret body. — 2026-07-18
 - [ ] Pre-indexed fallback is visibly labeled and cannot be confused with submitted-repo analysis. — 2026-07-18
 - [ ] Decision ledger, ADR-0001, and current deployment agree; ADR-0002 remains future-only. — 2026-07-18
+
